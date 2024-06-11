@@ -7,10 +7,14 @@ import com.example.proyecto.util.Registro;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -140,7 +144,7 @@ public class VentanaModeloConclusion {
             String nombreEmpresaCompleto = rutaEmpresa.getFileName().toString();
             eleccionesDAO.updateEleccion(nuevoModelo5_1, nuevoModeloProceso, nombreEmpresaCompleto);
             empresaDAO.updateEmpresaOtros(nuevoModeloProceso, modeloConclusion, nombreEmpresaCompleto);
-            String mensajeConfirmacion = construirMensajeConfirmacion(textFieldActividadEconomica, textFieldConvenio, textFieldNumeroConvenio, textFieldTrabajadoresFijos).toUpperCase();
+            GridPane mensajeConfirmacion = construirMensajeConfirmacion(textFieldActividadEconomica, textFieldConvenio, textFieldNumeroConvenio, textFieldTrabajadoresFijos);
             mostrarConfirmacion(stage, mensajeConfirmacion);
         } catch (CumplimentarPDFException ex) {
             vistaPrincipal.mostrarMensaje(String.format(bundle.getString("conclusion.error_guardar"), ex.getMessage()), false);
@@ -151,25 +155,48 @@ public class VentanaModeloConclusion {
         }
     }
 
-    private String construirMensajeConfirmacion(TextField textFieldActividadEconomica, TextField textFieldConvenio, TextField textFieldNumeroConvenio, TextField textFieldTrabajadoresFijos) {
-        StringBuilder mensaje = new StringBuilder();
+    private GridPane construirMensajeConfirmacion(TextField textFieldActividadEconomica, TextField textFieldConvenio, TextField textFieldNumeroConvenio, TextField textFieldTrabajadoresFijos) {
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.setPadding(new Insets(10));
 
-        mensaje.append(bundle.getString("modelo5_1.preaviso")).append(" ").append(nuevoModeloProceso.getPreaviso()).append("\n".toUpperCase())
-                .append(bundle.getString("modelo5_1.fecha_escrutinio")).append(" ").append(nuevoModelo5_1.getFechaEscrutinio()).append("\n")
-                .append(bundle.getString("conclusion.actividad_economica")).append(" ").append(textFieldActividadEconomica.getText()).append("\n".toUpperCase())
-                .append(bundle.getString("conclusion.convenio")).append(" ").append(textFieldConvenio.getText()).append("\n".toUpperCase())
-                .append(bundle.getString("conclusion.numero_convenio")).append(" ").append(textFieldNumeroConvenio.getText()).append("\n")
-                .append(bundle.getString("conclusion.trabajadores_fijos")).append(" ").append(textFieldTrabajadoresFijos.getText()).append("\n\n")
-                .append(bundle.getString("modelo5_1.candidatos")).append(":\n");
+        int rowIndex = 0;
 
+        agregarFila(gridPane, bundle.getString("modelo5_1.preaviso"), nuevoModeloProceso.getPreaviso(), rowIndex++);
+        agregarFila(gridPane, bundle.getString("modelo5_1.fecha_escrutinio"), nuevoModelo5_1.getFechaEscrutinio(), rowIndex++);
+        agregarFila(gridPane, bundle.getString("conclusion.actividad_economica"), textFieldActividadEconomica.getText(), rowIndex++);
+        agregarFila(gridPane, bundle.getString("conclusion.convenio"), textFieldConvenio.getText(), rowIndex++);
+        agregarFila(gridPane, bundle.getString("conclusion.numero_convenio"), textFieldNumeroConvenio.getText(), rowIndex++);
+        agregarFila(gridPane, bundle.getString("conclusion.trabajadores_fijos"), textFieldTrabajadoresFijos.getText(), rowIndex++);
+
+        // Agregar encabezado para candidatos
+        Text candidatosHeader = new Text("\n" + bundle.getString("modelo5_1.candidatos") + ":\n");
+        gridPane.add(candidatosHeader, 0, rowIndex, 2, 1);
+        GridPane.setMargin(candidatosHeader, new Insets(10, 0, 0, 0));
+        rowIndex++;
+
+        // Agregar información de candidatos
         for (Candidato candidato : nuevoModelo5_1.getCandidatos()) {
-            mensaje.append(" - ").append(bundle.getString("modelo5_1.nombre")).append(": ").append(candidato.getNombreApellidos()).append("\n".toUpperCase())
-                    .append(" - ").append(bundle.getString("modelo5_1.dni")).append(": ").append(candidato.getDni()).append("\n".toUpperCase())
-                    .append(" - ").append(bundle.getString("modelo5_1.sindicato")).append(": ").append(candidato.getSindicato()).append("\n".toUpperCase());
+            agregarFila(gridPane, " - " + bundle.getString("modelo5_1.nombre"), candidato.getNombreApellidos(), rowIndex++);
+            agregarFila(gridPane, " - " + bundle.getString("modelo5_1.dni"), candidato.getDni(), rowIndex++);
+            agregarFila(gridPane, " - " + bundle.getString("modelo5_1.sindicato"), candidato.getSindicato(), rowIndex++);
         }
 
-        return mensaje.toString();
+        return gridPane;
     }
+
+    // Método auxiliar para agregar una fila al GridPane
+    private void agregarFila(GridPane gridPane, String label, String value, int rowIndex) {
+        Text labelText = new Text(label + ": ");
+        Text valueText = new Text(value);
+        valueText.setStyle("-fx-font-weight: bold");
+
+        gridPane.add(labelText, 0, rowIndex);
+        gridPane.add(valueText, 1, rowIndex);
+    }
+
+
 
     /**
      * Muestra una ventana de confirmación para revisar los datos ingresados.
@@ -178,7 +205,7 @@ public class VentanaModeloConclusion {
      * @param stage La ventana actual que se está mostrando.
      * @throws CumplimentarPDFException Si ocurre un error al registrar los modelos de escrutinio.
      */
-    private void mostrarConfirmacion(Stage stage, String mensajeConfirmacion) throws CumplimentarPDFException {
+    private void mostrarConfirmacion(Stage stage, GridPane mensajeConfirmacion) throws CumplimentarPDFException {
         Optional<ButtonType> result = vistaPrincipal.mostrarAlertaConfirmacion(mensajeConfirmacion);
         if (result.isPresent() && result.get() == ButtonType.OK) { // Si el usuario confirma
             // Registrar los modelos de escrutinio

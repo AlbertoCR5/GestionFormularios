@@ -4,9 +4,15 @@ import com.example.proyecto.controller.PrincipalController;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
 import java.util.Locale;
@@ -112,32 +118,31 @@ public class PrincipalView {
      *
      * @return Un Optional con el ButtonType seleccionado por el usuario.
      */
-    public Optional<ButtonType> mostrarAlertaConfirmacion(String mensaje) {
-//        TextFlow textFlow = new TextFlow();
-//
-//        // Dividir el mensaje en líneas y formatear cada línea
-//        String[] lines = mensaje.split("\n");
-//        for (String line : lines) {
-//            String[] parts = line.split(" ");
-//            if (parts.length > 1) {
-//                Text label = new Text(parts[0] + " ");
-//                Text value = new Text(parts[parts.length-1] + "\n");
-//                value.setStyle("-fx-font-weight: bold");
-//                textFlow.getChildren().addAll(label, value);
-//            } else {
-//                Text text = new Text(line + "\n");
-//                textFlow.getChildren().add(text);
-//            }
-//        }
+    public Optional<ButtonType> mostrarAlertaConfirmacion(GridPane mensaje) {
+        // Crear un VBox para contener el GridPane y el mensaje adicional
+        VBox content = new VBox();
+        content.setSpacing(10); // Espacio entre los elementos
 
-        // Crea una alerta de confirmación
+        // Añadir el GridPane al VBox
+        content.getChildren().add(mensaje);
+
+        // Crear el texto adicional
+        Text continuarText = new Text(bundle.getString("conclusion.continuar"));
+        continuarText.setTextAlignment(TextAlignment.RIGHT);
+        VBox.setMargin(continuarText, new Insets(0, 30, 0, 0));
+        content.setAlignment(Pos.CENTER_RIGHT);
+
+        // Añadir el texto adicional al VBox
+        content.getChildren().add(continuarText);
+
+        // Crear una alerta de confirmación
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(bundle.getString("conclusion.confirmacion"));
         alert.setHeaderText(bundle.getString("conclusion.revisa_datos"));
-        alert.setContentText(STR."\{mensaje}\n\n                                                  \{bundle.getString("conclusion.continuar")}");
+        alert.getDialogPane().setContent(content);
+
         return alert.showAndWait();
     }
-
 
     /**
      * Solicita el nombre de una empresa al usuario.

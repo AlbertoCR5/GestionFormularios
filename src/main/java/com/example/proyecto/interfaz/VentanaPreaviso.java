@@ -18,6 +18,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -217,7 +218,7 @@ public class VentanaPreaviso {
         nuevoPreaviso.setProvincia(textFieldProvincia.getText().toUpperCase());
         nuevoPreaviso.setPromotores(textFieldPromotores.getText().toUpperCase());
 
-        String mensajeConfirmacion = construirMensajeConfirmacion().toUpperCase();
+        GridPane mensajeConfirmacion = construirMensajeConfirmacion();
 
         Optional<ButtonType> result = nuevaVentanaPreaviso.mostrarAlertaConfirmacion(mensajeConfirmacion);
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -271,8 +272,41 @@ public class VentanaPreaviso {
         });
     }
 
-    private String construirMensajeConfirmacion() {
-        return STR."\{bundle.getString("preaviso.nombre_empresa")} \{textFieldNombreEmpresa.getText()}\n\{bundle.getString("preaviso.cif")} \{textFieldCIF.getText()}\n\{bundle.getString("preaviso.nombre_comercial")} \{textFieldNombreComercial.getText()}\n\{bundle.getString("preaviso.nombre_centro")} \{textFieldNombreCentro.getText()}\n\{bundle.getString("preaviso.direccion")} \{textFieldDireccion.getText()}\n\{bundle.getString("preaviso.municipio")} \{textFieldMunicipio.getText()}\n\{bundle.getString("preaviso.codigo_postal")} \{textFieldCodigoPostal.getText()}\n\{bundle.getString("preaviso.provincia")} \{textFieldProvincia.getText()}\n\{bundle.getString("preaviso.num_trabajadores")} \{textFieldNumTrabajadores.getText()}\n\{bundle.getString("preaviso.num_seguridad_social")} \{textFieldNumSegSocial.getText()}\n\{bundle.getString("preaviso.mes_eleccion")} \{textFieldMesEleccion.getText()}\n\{bundle.getString("preaviso.promotores")} \{textFieldPromotores.getText()}\n\{bundle.getString("preaviso.fecha_inicio")} \{textFieldFechaInicio.getText()}\n\{bundle.getString("preaviso.dia_preaviso")} \{textFieldDiaPreaviso.getText()}\n\{bundle.getString("preaviso.mes_preaviso")} \{textFieldMesPreaviso.getText()}\n\{bundle.getString("preaviso.anio_preaviso")} \{textFieldAnioPreaviso.getText()}";
+    // Método para construir el GridPane con los datos
+    private GridPane construirMensajeConfirmacion() {
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.setPadding(new Insets(10));
+
+        agregarFila(gridPane, bundle.getString("preaviso.nombre_empresa"), textFieldNombreEmpresa.getText(), 0);
+        agregarFila(gridPane, bundle.getString("preaviso.cif"), textFieldCIF.getText(), 1);
+        agregarFila(gridPane, bundle.getString("preaviso.nombre_comercial"), textFieldNombreComercial.getText(), 2);
+        agregarFila(gridPane, bundle.getString("preaviso.nombre_centro"), textFieldNombreCentro.getText(), 3);
+        agregarFila(gridPane, bundle.getString("preaviso.direccion"), textFieldDireccion.getText(), 4);
+        agregarFila(gridPane, bundle.getString("preaviso.municipio"), textFieldMunicipio.getText(), 5);
+        agregarFila(gridPane, bundle.getString("preaviso.codigo_postal"), textFieldCodigoPostal.getText(), 6);
+        agregarFila(gridPane, bundle.getString("preaviso.provincia"), textFieldProvincia.getText(), 7);
+        agregarFila(gridPane, bundle.getString("preaviso.num_trabajadores"), textFieldNumTrabajadores.getText(), 8);
+        agregarFila(gridPane, bundle.getString("preaviso.num_seguridad_social"), textFieldNumSegSocial.getText(), 9);
+        agregarFila(gridPane, bundle.getString("preaviso.mes_eleccion"), textFieldMesEleccion.getText(), 10);
+        agregarFila(gridPane, bundle.getString("preaviso.promotores"), textFieldPromotores.getText(), 11);
+        agregarFila(gridPane, bundle.getString("preaviso.fecha_inicio"), textFieldFechaInicio.getText(), 12);
+        agregarFila(gridPane, bundle.getString("preaviso.dia_preaviso"), textFieldDiaPreaviso.getText(), 13);
+        agregarFila(gridPane, bundle.getString("preaviso.mes_preaviso"), textFieldMesPreaviso.getText(), 14);
+        agregarFila(gridPane, bundle.getString("preaviso.anio_preaviso"), textFieldAnioPreaviso.getText(), 15);
+
+        return gridPane;
+    }
+
+    // Método auxiliar para agregar una fila al GridPane
+    private void agregarFila(GridPane gridPane, String label, String value, int rowIndex) {
+        Text labelText = new Text(label + " ");
+        Text valueText = new Text(value);
+        valueText.setStyle("-fx-font-weight: bold");
+
+        gridPane.add(labelText, 0, rowIndex);
+        gridPane.add(valueText, 1, rowIndex);
     }
 
     @FunctionalInterface
