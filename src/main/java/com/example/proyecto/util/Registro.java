@@ -8,7 +8,6 @@ import com.example.proyecto.modal.Preaviso;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ResourceBundle;
 
 /**
  * La clase `Registro` gestiona el registro de nuevos preavisos y la creación de directorios correspondientes.
@@ -27,7 +26,6 @@ public class Registro {
     private final CumplimentarPreavisoPDF cumplimentarPreavisoPDF;
     private final CumplimentarEscrutinioPDF cumplimentarEscrutinioPDF;
     private final Path rutaElecciones;
-    private final ResourceBundle bundle;
 
     /**
      * Constructor para registrar un nuevo preaviso.
@@ -42,7 +40,6 @@ public class Registro {
         this.directorioManager = new DirectorioManager();
         this.cumplimentarPreavisoPDF = new CumplimentarPreavisoPDF(ventanaPreaviso);
         this.rutaElecciones = directorioManager.crearDirectorioElecciones();
-        this.bundle = ResourceBundle.getBundle("messages", ventanaPreaviso.getBundle().getLocale());
         nuevoModelo51 = null;
         nuevoModelo52Proceso = null;
         nuevoModelo52Conclusion = null;
@@ -67,7 +64,6 @@ public class Registro {
         this.directorioManager = new DirectorioManager();
         this.cumplimentarEscrutinioPDF = new CumplimentarEscrutinioPDF(ventanaPreaviso);
         this.rutaElecciones = directorioManager.crearDirectorioElecciones();
-        this.bundle = ResourceBundle.getBundle("messages", ventanaPreaviso.getBundle().getLocale());
         this.cumplimentarPreavisoPDF = null;
     }
 
@@ -84,11 +80,11 @@ public class Registro {
                 try {
                     procesarFormularioPreaviso(rutaFormularioPDF, rutaDirectorioEmpresa);
                 } catch (Exception e) {
-                    ventanaPreaviso.mostrarMensaje(bundle.getString("error.procesar.formulario") + e.getMessage(), false);
+                    ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
                 }
             }
         } catch (IOException e) {
-            ventanaPreaviso.mostrarMensaje(bundle.getString("error.crear.directorio") + e.getMessage(), false);
+            ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.crear.directorio") + e.getMessage(), false);
         }
     }
 
@@ -127,13 +123,18 @@ public class Registro {
      * @param rutaEmpresa La ruta de la empresa.
      */
     public void registrarModelosEscrutinio(Modelo_5_1 nuevoModelo51, Modelo_5_2_Proceso nuevoModelo52Proceso, Modelo_5_2_Conclusion nuevoModelo52Conclusion, Path rutaEmpresa) {
-        String[] rutaFormularios = directorioManager.generarRutasFormulariosBuscados(rutaEmpresa);
-        for (String rutaFormularioPDF : rutaFormularios) {
-            try {
-                procesarFormularioEscrutinio(rutaFormularioPDF, nuevoModelo51, nuevoModelo52Proceso, nuevoModelo52Conclusion);
-            } catch (Exception e) {
-                ventanaPreaviso.mostrarMensaje(bundle.getString("error.procesar.formulario") + e.getMessage(), false);
+        if (nuevoModelo51 != null && nuevoModelo52Proceso != null && nuevoModelo52Conclusion != null) {
+            String[] rutaFormularios = directorioManager.generarRutasFormulariosBuscados(rutaEmpresa);
+            for (String rutaFormularioPDF : rutaFormularios) {
+                try {
+                    procesarFormularioEscrutinio(rutaFormularioPDF, nuevoModelo51, nuevoModelo52Proceso, nuevoModelo52Conclusion);
+                } catch (Exception e) {
+                    ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
+                }
             }
+        }
+        else {
+            ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.modelos.nulos"), false);
         }
     }
 

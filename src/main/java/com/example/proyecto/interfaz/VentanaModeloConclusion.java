@@ -3,6 +3,7 @@ package com.example.proyecto.interfaz;
 import com.example.proyecto.modal.*;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.CumplimentarPDFException;
+import com.example.proyecto.util.MessageManager;
 import com.example.proyecto.util.Registro;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -21,7 +22,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Optional;
-import java.util.ResourceBundle;
+
 
 /**
  * La clase `VentanaModeloConclusion` gestiona la ventana que solicita los datos del modelo de conclusión.
@@ -36,7 +37,6 @@ public class VentanaModeloConclusion {
     private final Modelo_5_2_Conclusion modeloConclusion;
     private final Registro registro;
     private final Path rutaEmpresa;
-    private final ResourceBundle bundle;
 
     /**
      * Constructor para la clase `VentanaModeloConclusion`.
@@ -55,7 +55,6 @@ public class VentanaModeloConclusion {
         this.nuevoModeloProceso = nuevoModeloProceso;
         this.modeloConclusion = modeloConclusion;
         this.registro = registro;
-        this.bundle = ResourceBundle.getBundle("messages", vistaPrincipal.getBundle().getLocale());
     }
 
     /**
@@ -65,17 +64,17 @@ public class VentanaModeloConclusion {
      */
     public void configurarVentanaConclusion() throws IOException {
         Stage stage = new Stage();
-        stage.setTitle(bundle.getString("conclusion.title"));
+        stage.setTitle(MessageManager.getMessage("conclusion.title"));
 
         VBox vbox = crearVBoxPrincipal();
 
         Label labelModeloConclusion = crearLabelPrincipal();
         GridPane gridPane = crearGridPane();
 
-        TextField textFieldActividadEconomica = crearTextField(gridPane, bundle.getString("conclusion.actividad_economica"), 0);
-        TextField textFieldConvenio = crearTextField(gridPane, bundle.getString("conclusion.convenio"), 1);
-        TextField textFieldNumeroConvenio = crearTextField(gridPane, bundle.getString("conclusion.numero_convenio"), 2);
-        TextField textFieldTrabajadoresFijos = crearTextField(gridPane, bundle.getString("conclusion.trabajadores_fijos"), 3);
+        TextField textFieldActividadEconomica = crearTextField(gridPane, MessageManager.getMessage("conclusion.actividad_economica"), 0);
+        TextField textFieldConvenio = crearTextField(gridPane, MessageManager.getMessage("conclusion.convenio"), 1);
+        TextField textFieldNumeroConvenio = crearTextField(gridPane, MessageManager.getMessage("conclusion.numero_convenio"), 2);
+        TextField textFieldTrabajadoresFijos = crearTextField(gridPane, MessageManager.getMessage("conclusion.trabajadores_fijos"), 3);
 
         Button btnGuardar = crearBotonGuardar(stage, textFieldActividadEconomica, textFieldConvenio, textFieldNumeroConvenio, textFieldTrabajadoresFijos);
 
@@ -94,7 +93,7 @@ public class VentanaModeloConclusion {
     }
 
     private Label crearLabelPrincipal() {
-        Label labelModeloConclusion = new Label(bundle.getString("conclusion.informacion"));
+        Label labelModeloConclusion = new Label(MessageManager.getMessage("conclusion.informacion"));
         labelModeloConclusion.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
         labelModeloConclusion.setAlignment(Pos.CENTER);
         return labelModeloConclusion;
@@ -118,7 +117,7 @@ public class VentanaModeloConclusion {
     }
 
     private Button crearBotonGuardar(Stage stage, TextField textFieldActividadEconomica, TextField textFieldConvenio, TextField textFieldNumeroConvenio, TextField textFieldTrabajadoresFijos) {
-        Button btnGuardar = new Button(bundle.getString("conclusion.guardar"));
+        Button btnGuardar = new Button(MessageManager.getMessage("conclusion.guardar"));
         btnGuardar.setOnAction(_ -> guardarDatos(stage, textFieldActividadEconomica, textFieldConvenio, textFieldNumeroConvenio, textFieldTrabajadoresFijos));
         return btnGuardar;
     }
@@ -147,11 +146,11 @@ public class VentanaModeloConclusion {
             GridPane mensajeConfirmacion = construirMensajeConfirmacion(textFieldActividadEconomica, textFieldConvenio, textFieldNumeroConvenio, textFieldTrabajadoresFijos);
             mostrarConfirmacion(stage, mensajeConfirmacion);
         } catch (CumplimentarPDFException ex) {
-            vistaPrincipal.mostrarMensaje(String.format(bundle.getString("conclusion.error_guardar"), ex.getMessage()), false);
+            vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("conclusion.error_guardar"), ex.getMessage()), false);
         } catch (NumberFormatException ex) {
-            vistaPrincipal.mostrarMensaje(bundle.getString("conclusion.numero_invalido"), false);
+            vistaPrincipal.mostrarMensaje(MessageManager.getMessage("conclusion.numero_invalido"), false);
         } catch (SQLException e) {
-            vistaPrincipal.mostrarMensaje(String.format(bundle.getString("conclusion.error_db"), e.getMessage()), false);
+            vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("conclusion.error_db"), e.getMessage()), false);
         }
     }
 
@@ -163,24 +162,24 @@ public class VentanaModeloConclusion {
 
         int rowIndex = 0;
 
-        agregarFila(gridPane, bundle.getString("modelo5_1.preaviso"), nuevoModeloProceso.getPreaviso(), rowIndex++);
-        agregarFila(gridPane, bundle.getString("modelo5_1.fecha_escrutinio"), nuevoModelo5_1.getFechaEscrutinio(), rowIndex++);
-        agregarFila(gridPane, bundle.getString("conclusion.actividad_economica"), textFieldActividadEconomica.getText(), rowIndex++);
-        agregarFila(gridPane, bundle.getString("conclusion.convenio"), textFieldConvenio.getText(), rowIndex++);
-        agregarFila(gridPane, bundle.getString("conclusion.numero_convenio"), textFieldNumeroConvenio.getText(), rowIndex++);
-        agregarFila(gridPane, bundle.getString("conclusion.trabajadores_fijos"), textFieldTrabajadoresFijos.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("modelo5_1.preaviso"), nuevoModeloProceso.getPreaviso(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("modelo5_1.fecha_escrutinio"), nuevoModelo5_1.getFechaEscrutinio(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("conclusion.actividad_economica"), textFieldActividadEconomica.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("conclusion.convenio"), textFieldConvenio.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("conclusion.numero_convenio"), textFieldNumeroConvenio.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("conclusion.trabajadores_fijos"), textFieldTrabajadoresFijos.getText(), rowIndex++);
 
         // Agregar encabezado para candidatos
-        Text candidatosHeader = new Text("\n" + bundle.getString("modelo5_1.candidatos") + ":\n");
+        Text candidatosHeader = new Text("\n" + MessageManager.getMessage("modelo5_1.candidatos") + ":\n");
         gridPane.add(candidatosHeader, 0, rowIndex, 2, 1);
         GridPane.setMargin(candidatosHeader, new Insets(10, 0, 0, 0));
         rowIndex++;
 
         // Agregar información de candidatos
         for (Candidato candidato : nuevoModelo5_1.getCandidatos()) {
-            agregarFila(gridPane, " - " + bundle.getString("modelo5_1.nombre"), candidato.getNombreApellidos(), rowIndex++);
-            agregarFila(gridPane, " - " + bundle.getString("modelo5_1.dni"), candidato.getDni(), rowIndex++);
-            agregarFila(gridPane, " - " + bundle.getString("modelo5_1.sindicato"), candidato.getSindicato(), rowIndex++);
+            agregarFila(gridPane, " - " + MessageManager.getMessage("modelo5_1.nombre"), candidato.getNombreApellidos(), rowIndex++);
+            agregarFila(gridPane, " - " + MessageManager.getMessage("modelo5_1.dni"), candidato.getDni(), rowIndex++);
+            agregarFila(gridPane, " - " + MessageManager.getMessage("modelo5_1.sindicato"), candidato.getSindicato(), rowIndex++);
         }
 
         return gridPane;
@@ -211,8 +210,7 @@ public class VentanaModeloConclusion {
             // Registrar los modelos de escrutinio
             registro.registrarModelosEscrutinio(nuevoModelo5_1, nuevoModeloProceso, modeloConclusion, rutaEmpresa);
             // Mostrar un mensaje de éxito
-            vistaPrincipal.mostrarMensaje(bundle.getString("conclusion.datos_guardados"), true);
-            // Cerrar la ventana actual
+            vistaPrincipal.mostrarMensaje(MessageManager.getMessage("conclusion.datos_guardados"), true);            // Cerrar la ventana actual
             stage.close();
         }
     }

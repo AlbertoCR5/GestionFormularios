@@ -2,6 +2,7 @@ package com.example.proyecto.interfaz;
 
 import com.example.proyecto.controller.PrincipalController;
 import com.example.proyecto.util.Constantes;
+import com.example.proyecto.util.MessageManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -22,13 +23,12 @@ import java.util.ResourceBundle;
  */
 public class VentanaPrincipal {
 
+    public static final String OPACIDAD_DESACTIVADO = "-fx-opacity: 0.5;";
     private final PrincipalController controller;
-    private final ResourceBundle bundle;
     private final Stage stage;
 
-    public VentanaPrincipal(PrincipalController controller, ResourceBundle bundle) {
+    public VentanaPrincipal(PrincipalController controller) {
         this.controller = controller;
-        this.bundle = bundle;
         this.stage = new Stage();
         configurarVentanaPrincipal();
     }
@@ -37,20 +37,20 @@ public class VentanaPrincipal {
      * Configura la ventana principal de la aplicación.
      */
     private void configurarVentanaPrincipal() {
-        stage.setTitle(bundle.getString("principal.title"));
+        stage.setTitle(MessageManager.getMessage("principal.title"));
 
         VBox vbox = crearVBox();
         Label titulo = crearTitulo();
         Label label = crearLabel();
 
         List<Button> botones = Arrays.asList(
-                crearBoton(bundle.getString("principal.preaviso"), 1),
-                crearBoton(bundle.getString("principal.modelos"), 2),
-                crearBotonDeshabilitado(bundle.getString("principal.modelo_73")), // Opción 3 deshabilitada
-                crearBotonDeshabilitado(bundle.getString("principal.anexo_delegados")), // Opción 4 deshabilitada
-                crearBotonDeshabilitado(bundle.getString("principal.calendario_comite")), // Opción 5 deshabilitada
-                crearBoton(bundle.getString("principal.usuarios"), 6),
-                crearBotonDeshabilitado(bundle.getString("principal.imprimir")), // Opción 7 deshabilitada
+                crearBoton(MessageManager.getMessage("principal.preaviso"), 1),
+                crearBoton(MessageManager.getMessage("principal.modelos"), 2),
+                crearBotonDeshabilitado(MessageManager.getMessage("principal.modelo_73")), // Opción 3 deshabilitada
+                crearBotonDeshabilitado(MessageManager.getMessage("principal.anexo_delegados")), // Opción 4 deshabilitada
+                crearBotonDeshabilitado(MessageManager.getMessage("principal.calendario_comite")), // Opción 5 deshabilitada
+                crearBoton(MessageManager.getMessage("principal.usuarios"), 6),
+                crearBotonDeshabilitado(MessageManager.getMessage("principal.imprimir")), // Opción 7 deshabilitada
                 crearBotonSalir()
         );
 
@@ -88,7 +88,7 @@ public class VentanaPrincipal {
      * @return Label configurado como título.
      */
     private Label crearTitulo() {
-        Label titulo = new Label(bundle.getString("principal.menu"));
+        Label titulo = new Label(MessageManager.getMessage("principal.menu"));
         titulo.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
         return titulo;
     }
@@ -99,8 +99,8 @@ public class VentanaPrincipal {
      * @return Label configurado.
      */
     private Label crearLabel() {
-        Label label = new Label(bundle.getString("principal.seleccion"));
-        label.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        Label label = new Label(MessageManager.getMessage("principal.seleccion"));
+        label.setStyle(Constantes.FONT_SIZE_14_FONT_WEIGHT_BOLD);
         return label;
     }
 
@@ -126,7 +126,7 @@ public class VentanaPrincipal {
     private Button crearBotonDeshabilitado(String texto) {
         Button boton = new Button(texto);
         boton.setDisable(true);
-        boton.setStyle("-fx-opacity: 0.5;"); // Cambia la opacidad para indicar que está deshabilitado
+        boton.setStyle(OPACIDAD_DESACTIVADO); // Cambia la opacidad para indicar que está deshabilitado
         return boton;
     }
 
@@ -136,7 +136,7 @@ public class VentanaPrincipal {
      * @return Botón de salir configurado.
      */
     private Button crearBotonSalir() {
-        Button btnSalir = new Button(bundle.getString("principal.salir"));
+        Button btnSalir = new Button(MessageManager.getMessage("principal.salir"));
         btnSalir.setOnAction(_ -> stage.close());
         return btnSalir;
     }

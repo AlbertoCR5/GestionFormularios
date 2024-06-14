@@ -33,6 +33,7 @@ public class Preaviso {
     private String promotores;
     private String fechaConstitucion;
     private String electores;
+    private String fechaPreaviso;
     private String diaPreaviso;
     private String mesPreaviso;
     private String anioPreaviso;
@@ -215,13 +216,10 @@ public class Preaviso {
     }
 
     public void setMesElecciones(@NotNull String mesElecciones) throws CumplimentarPDFException {
-        if (mesElecciones.length() == 1) {
-            mesElecciones = STR."0\{mesElecciones}";
+        if (mesElecciones.isEmpty()) {
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.mes.elecciones.vacio"));
         }
-        if (!mesElecciones.matches("[0-9]+") || Integer.parseInt(mesElecciones) < Constantes.PRIMER_MES || Integer.parseInt(mesElecciones) > Constantes.ULTIMO_MES) {
-            throw new CumplimentarPDFException(MessageFormat.format(MessageManager.getMessage("error.mes.elecciones.incorrecto"), Constantes.PRIMER_MES, Constantes.ULTIMO_MES));
-        }
-        this.mesElecciones = Meses.obtenerNombrePorNumero(mesElecciones);
+        this.mesElecciones = mesElecciones;
     }
 
     public String getAnioElecciones() {
@@ -289,6 +287,17 @@ public class Preaviso {
         this.electores = electores;
     }
 
+    public void setFechaPreaviso(String fechaPreaviso) throws CumplimentarPDFException {
+        if (fechaPreaviso.isEmpty()) {
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.preaviso.incorrecto").concat(Constantes.FORMATO_FECHA));
+        }
+        this.fechaPreaviso = fechaPreaviso;
+
+        String[] partes = fechaPreaviso.split("/");
+        setDiaPreaviso(diaPreaviso = partes[0].length() == 1 ? STR."0\{partes[0]}" : partes[0]);
+        setMesPreaviso(mesPreaviso = partes[1].length() == 1 ? STR."0\{partes[1]}" : partes[1]);
+        setAnioPreaviso(anioPreaviso = partes[2]);
+    }
     public String getDiaPreaviso() {
         return diaPreaviso;
     }

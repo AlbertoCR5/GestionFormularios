@@ -1,6 +1,7 @@
 package com.example.proyecto.controller;
 
 import com.example.proyecto.modal.DatabaseManager;
+import com.example.proyecto.util.MessageManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,7 +22,6 @@ public class LoginManager {
 
     private static final Logger LOGGER = Logger.getLogger(LoginManager.class.getName());
     private final DatabaseManager databaseManager;
-    private final ResourceBundle bundle;
     private String usuarioActual;
 
     /**
@@ -31,7 +31,6 @@ public class LoginManager {
      */
     public LoginManager(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
-        this.bundle = ResourceBundle.getBundle("messages", Locale.getDefault());
     }
 
     /**
@@ -57,8 +56,7 @@ public class LoginManager {
             }
 
         } catch (SQLException e) {
-            String errorMessage = bundle.getString("login.error");
-            LOGGER.log(Level.SEVERE, errorMessage, e);
+            LOGGER.log(Level.SEVERE, MessageManager.getMessage("login.error")+ e.getMessage());
         }
         return false;
     }

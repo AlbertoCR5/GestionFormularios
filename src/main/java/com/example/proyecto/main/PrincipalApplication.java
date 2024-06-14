@@ -44,19 +44,13 @@ public class PrincipalApplication extends Application {
      * @throws IOException Si ocurre un error durante la inicialización.
      */
     private void iniciarAplicacion() throws IOException {
-        PrincipalView view = null;
+        PrincipalView view = inicializarVista();
         try {
-            view = new PrincipalView(null);
-            DatabaseManager dbManager = new DatabaseManager(view);
+            DatabaseManager dbManager = inicializarBaseDeDatos(view);
             LoginManager loginManager = new LoginManager(dbManager);
             PrincipalController controller = new PrincipalController(loginManager);
-            view = new PrincipalView(controller);
-
-            // Crea la base de datos al inicio de la aplicación
+            configurarVista(view, controller);
             dbManager.createNewDatabase();
-            // Establece la vista en el controlador
-            controller.setView(view);
-            // Muestra la ventana de login
             view.mostrarVentanaLogin();
         } catch (SQLException e) {
             view.mostrarMensaje(String.format("Error al mostrar la ventana de inicio de sesión: %s", e.getMessage()), false);
@@ -64,5 +58,36 @@ public class PrincipalApplication extends Application {
         } catch (Exception e) {
             System.err.println(STR."Error al iniciar la aplicación: \{e.getMessage()}");
         }
+    }
+
+    /**
+     * Inicializa la vista principal de la aplicación.
+     *
+     * @return La vista principal inicializada.
+     */
+    private PrincipalView inicializarVista() {
+        return new PrincipalView(null);
+    }
+
+    /**
+     * Inicializa el gestor de base de datos.
+     *
+     * @param view La vista principal de la aplicación.
+     * @return El gestor de base de datos inicializado.
+     * @throws SQLException Si ocurre un error durante la inicialización de la base de datos.
+     */
+    private DatabaseManager inicializarBaseDeDatos(PrincipalView view) throws SQLException {
+        return new DatabaseManager(view);
+    }
+
+    /**
+     * Configura la vista principal y el controlador.
+     *
+     * @param view La vista principal.
+     * @param controller El controlador principal.
+     */
+    private void configurarVista(PrincipalView view, PrincipalController controller) {
+        controller.setView(view);
+        view.setController(controller);
     }
 }

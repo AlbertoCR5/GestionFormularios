@@ -3,12 +3,12 @@ package com.example.proyecto.interfaz;
 import com.example.proyecto.modal.Modelo_5_1;
 import com.example.proyecto.modal.Modelo_5_2_Conclusion;
 import com.example.proyecto.modal.Modelo_5_2_Proceso;
+import com.example.proyecto.util.MessageManager;
 import com.example.proyecto.util.Registro;
 import javafx.application.Platform;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ResourceBundle;
 
 /**
  * La clase `VentanaModelosEscrutinio` gestiona la secuencia de ventanas para cumplimentar los modelos de escrutinio.
@@ -22,8 +22,6 @@ public class VentanaModelosEscrutinio {
     private final Modelo_5_1 nuevoModelo5_1;
     private final Modelo_5_2_Proceso nuevoModelo5_2Proceso;
     private final Modelo_5_2_Conclusion nuevoModeloConclusion;
-    private final ResourceBundle bundle;
-
 
     /**
      * Constructor de la clase VentanaModelosEscrutinio.
@@ -40,7 +38,6 @@ public class VentanaModelosEscrutinio {
         this.nuevoModelo5_1 = nuevoModelo5_1;
         this.nuevoModelo5_2Proceso = nuevoModelo5_2Proceso;
         this.nuevoModeloConclusion = nuevoModeloConclusion;
-        this.bundle = ResourceBundle.getBundle("messages", vistaPrincipal.getBundle().getLocale());
     }
 
     /**
@@ -51,7 +48,7 @@ public class VentanaModelosEscrutinio {
             try {
                 mostrarVentanaModelo51();
             } catch (IOException e) {
-                vistaPrincipal.mostrarMensaje(String.format(bundle.getString("modelo51.error_mostrar"), e.getMessage()), false);
+                vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("modelo51.error_mostrar"), e.getMessage()), false);
             }
         });
     }
@@ -76,7 +73,7 @@ public class VentanaModelosEscrutinio {
                 VentanaModeloConclusion ventanaConclusion = new VentanaModeloConclusion(vistaPrincipal, rutaEmpresa, nuevoModelo5_1, nuevoModelo5_2Proceso, nuevoModeloConclusion, registro);
                 ventanaConclusion.configurarVentanaConclusion();
             } catch (IOException e) {
-                vistaPrincipal.mostrarMensaje(String.format(bundle.getString("conclusion.error_mostrar"), e.getMessage()), false);
+                vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("conclusion.error_mostrar"), e.getMessage()), false);
             }
         });
     }

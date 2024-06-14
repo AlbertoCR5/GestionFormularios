@@ -1,7 +1,9 @@
 package com.example.proyecto.interfaz;
 
 import com.example.proyecto.modal.*;
+import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.CumplimentarPDFException;
+import com.example.proyecto.util.MessageManager;
 import com.example.proyecto.util.ValidadorCampos;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -37,7 +39,6 @@ public class VentanaModelo5_1 {
     private final Modelo_5_2_Proceso nuevoModelo5_2Proceso;
     private final Modelo_5_2_Conclusion nuevoModeloConclusion;
     private final Path rutaEmpresa;
-    private final ResourceBundle bundle;
 
     /**
      * Constructor para la clase `VentanaModelo5_1`.
@@ -55,7 +56,6 @@ public class VentanaModelo5_1 {
         this.nuevoModelo5_1 = nuevoModelo5_1;
         this.nuevoModelo5_2Proceso = nuevoModelo5_2Proceso;
         this.rutaEmpresa = rutaEmpresa;
-        this.bundle = ResourceBundle.getBundle("messages", vistaPrincipal.getBundle().getLocale());
     }
 
     /**
@@ -63,15 +63,15 @@ public class VentanaModelo5_1 {
      */
     public void configurarVentanaModelo5_1() {
         Stage stage = new Stage();
-        stage.setTitle(bundle.getString("modelo5_1.title"));
+        stage.setTitle(MessageManager.getMessage("modelo5_1.title"));
 
         VBox vbox = new VBox(10);
         vbox.setPadding(new Insets(10));
         vbox.setAlignment(Pos.CENTER);
 
         // Etiqueta para el número de preaviso
-        Label labelNumeroPreaviso = new Label(bundle.getString("modelo5_1.preaviso"));
-        labelNumeroPreaviso.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-underline: true;");
+        Label labelNumeroPreaviso = new Label(MessageManager.getMessage("modelo5_1.preaviso"));
+        labelNumeroPreaviso.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
         TextField textFieldNumeroPreaviso = new TextField();
         textFieldNumeroPreaviso.setMaxWidth(100);
 
@@ -81,8 +81,8 @@ public class VentanaModelo5_1 {
         vboxNumeroPreaviso.getChildren().addAll(labelNumeroPreaviso, textFieldNumeroPreaviso);
 
         // Etiqueta para la fecha del acta de escrutinio
-        Label labelFechaEscrutinio = new Label(bundle.getString("modelo5_1.fecha_escrutinio"));
-        labelFechaEscrutinio.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-underline: true;");
+        Label labelFechaEscrutinio = new Label(MessageManager.getMessage("modelo5_1.fecha_escrutinio"));
+        labelFechaEscrutinio.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
         labelFechaEscrutinio.setAlignment(Pos.CENTER);
 
         // DatePicker para seleccionar la fecha del acta de escrutinio
@@ -91,20 +91,20 @@ public class VentanaModelo5_1 {
         vbox.getChildren().addAll(vboxNumeroPreaviso, labelFechaEscrutinio, datePicker);
 
         // Etiqueta para los candidatos
-        Label labelCandidatosHeader = new Label(bundle.getString("modelo5_1.candidatos"));
-        labelCandidatosHeader.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-underline: true;");
+        Label labelCandidatosHeader = new Label(MessageManager.getMessage("modelo5_1.candidatos"));
+        labelCandidatosHeader.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
         labelCandidatosHeader.setAlignment(Pos.CENTER);
 
         // Botón para agregar candidatos
-        Button btnAgregarCandidato = new Button(bundle.getString("modelo5_1.agregar_candidato"));
+        Button btnAgregarCandidato = new Button(MessageManager.getMessage("modelo5_1.agregar_candidato"));
 
         vbox.getChildren().addAll(labelCandidatosHeader, btnAgregarCandidato);
 
         // Tabla para mostrar los candidatos
         TableView<Candidato> tableView = new TableView<>();
-        TableColumn<Candidato, String> colNombre = new TableColumn<>(bundle.getString("modelo5_1.nombre"));
-        TableColumn<Candidato, String> colDNI = new TableColumn<>(bundle.getString("modelo5_1.dni"));
-        TableColumn<Candidato, String> colSindicato = new TableColumn<>(bundle.getString("modelo5_1.sindicato"));
+        TableColumn<Candidato, String> colNombre = new TableColumn<>(MessageManager.getMessage("modelo5_1.nombre"));
+        TableColumn<Candidato, String> colDNI = new TableColumn<>(MessageManager.getMessage("modelo5_1.dni"));
+        TableColumn<Candidato, String> colSindicato = new TableColumn<>(MessageManager.getMessage("modelo5_1.sindicato"));
 
         colNombre.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getNombreApellidos()));
         colDNI.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getDni()));
@@ -127,7 +127,7 @@ public class VentanaModelo5_1 {
         vbox.getChildren().add(tableView);
 
         // Botón para guardar la información
-        Button btnGuardar = new Button(bundle.getString("modelo5_1.guardar"));
+        Button btnGuardar = new Button(MessageManager.getMessage("modelo5_1.guardar"));
         HBox guardarBox = new HBox(btnGuardar);
         guardarBox.setAlignment(Pos.CENTER);
         guardarBox.setPadding(new Insets(10, 0, 0, 0));
@@ -138,7 +138,7 @@ public class VentanaModelo5_1 {
 
         btnAgregarCandidato.setOnAction(_ -> {
             Dialog<Candidato> dialog = new Dialog<>();
-            dialog.setTitle(bundle.getString("modelo5_1.agregar_candidato"));
+            dialog.setTitle(MessageManager.getMessage("modelo5_1.agregar_candidato"));
 
             GridPane dialogPane = new GridPane();
             dialogPane.setHgap(10);
@@ -149,11 +149,11 @@ public class VentanaModelo5_1 {
             TextField dni = new TextField();
             TextField sindicato = new TextField();
 
-            dialogPane.add(new Label(bundle.getString("modelo5_1.nombre")), 0, 0);
+            dialogPane.add(new Label(MessageManager.getMessage("modelo5_1.nombre")), 0, 0);
             dialogPane.add(nombreApellidos, 1, 0);
-            dialogPane.add(new Label(bundle.getString("modelo5_1.dni")), 0, 1);
+            dialogPane.add(new Label(MessageManager.getMessage("modelo5_1.dni")), 0, 1);
             dialogPane.add(dni, 1, 1);
-            dialogPane.add(new Label(bundle.getString("modelo5_1.sindicato")), 0, 2);
+            dialogPane.add(new Label(MessageManager.getMessage("modelo5_1.sindicato")), 0, 2);
             dialogPane.add(sindicato, 1, 2);
 
             dialog.getDialogPane().setContent(dialogPane);
@@ -164,7 +164,7 @@ public class VentanaModelo5_1 {
             Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
             okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
                 if (!validadorCampos.verificarDNI(dni.getText())) {
-                    vistaPrincipal.mostrarMensaje(bundle.getString("modelo5_1.dni_invalido"), false);
+                    vistaPrincipal.mostrarMensaje(MessageManager.getMessage("modelo5_1.dni_invalido"), false);
                     event.consume(); // Consume el evento para evitar cerrar el diálogo
                     dni.requestFocus(); // Devuelve el foco al campo de texto
                 }
@@ -189,7 +189,7 @@ public class VentanaModelo5_1 {
         btnGuardar.setOnAction(_ -> {
             LocalDate fechaActa = datePicker.getValue();
             if (fechaActa == null || fechaActa.isBefore(LocalDate.now())) {
-                vistaPrincipal.mostrarMensaje(bundle.getString("modelo5_1.fecha_invalida"), false);
+                vistaPrincipal.mostrarMensaje(MessageManager.getMessage("modelo5_1.fecha_invalida"), false);
             } else {
                 try {
                     String nombreEmpresaCompleto = rutaEmpresa.getFileName().toString();
@@ -206,9 +206,9 @@ public class VentanaModelo5_1 {
                     new VentanaModelosEscrutinio(vistaPrincipal, rutaEmpresa, nuevoModelo5_1, nuevoModelo5_2Proceso, nuevoModeloConclusion).mostrarVentanaModeloConclusion();
                     stage.close();
                 } catch (CumplimentarPDFException | NumberFormatException ex) {
-                    vistaPrincipal.mostrarMensaje(String.format(bundle.getString("modelo5_1.error_guardar"), ex.getMessage()), false);
+                    vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("modelo5_1.error_guardar"), ex.getMessage()), false);
                 } catch (SQLException e) {
-                    vistaPrincipal.mostrarMensaje(String.format(bundle.getString("modelo5_1.error_db"), e.getMessage()), false);
+                    vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("modelo5_1.error_db"), e.getMessage()), false);
                 }
             }
         });
@@ -259,7 +259,7 @@ public class VentanaModelo5_1 {
                 try {
                     return LocalDate.parse(string, dateFormatter);
                 } catch (DateTimeParseException e) {
-                    vistaPrincipal.mostrarMensaje(bundle.getString("modelo5_1.fecha_invalida"), false);
+                    vistaPrincipal.mostrarMensaje(MessageManager.getMessage("modelo5_1.fecha_invalida"), false);
                     return null;
                 }
             }

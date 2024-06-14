@@ -111,6 +111,7 @@ public static final String PREAVISO = "preaviso";
     // Otras constantes
     public static final double ANCHO_BOTON = 250;
     public static final String BOLD_UNDERLINED_STYLE = "-fx-font-size: 16px; -fx-font-weight: bold; -fx-underline: true;";
+    public static final String FONT_SIZE_14_FONT_WEIGHT_BOLD = "-fx-font-size: 14px; -fx-font-weight: bold;";
 }
 
 

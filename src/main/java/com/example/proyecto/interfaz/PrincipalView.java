@@ -1,6 +1,7 @@
 package com.example.proyecto.interfaz;
 
 import com.example.proyecto.controller.PrincipalController;
+import com.example.proyecto.util.MessageManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -14,10 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
-
-import java.util.Locale;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 /**
  * La clase `PrincipalView` gestiona la interfaz principal de la aplicación.
@@ -28,9 +26,8 @@ import java.util.ResourceBundle;
  */
 public class PrincipalView {
 
-    private final PrincipalController controller;
+    private PrincipalController controller;
     private final Timeline timeline = new Timeline();
-    private ResourceBundle bundle;
 
     /**
      * Constructor de la clase PrincipalView.
@@ -39,32 +36,22 @@ public class PrincipalView {
      */
     public PrincipalView(PrincipalController controller) {
         this.controller = controller;
-        this.bundle = ResourceBundle.getBundle("messages", Locale.forLanguageTag("ES"));
     }
 
     /**
-     * Obtiene el ResourceBundle actual.
+     * Establece el controlador principal de la aplicación.
      *
-     * @return El ResourceBundle actual.
+     * @param controller El controlador principal.
      */
-    public ResourceBundle getBundle() {
-        return bundle;
-    }
-
-    /**
-     * Actualiza el ResourceBundle para cambiar el idioma de la interfaz.
-     *
-     * @param bundle El nuevo ResourceBundle a utilizar.
-     */
-    public void setBundle(ResourceBundle bundle) {
-        this.bundle = bundle;
+    public void setController(PrincipalController controller) {
+        this.controller = controller;
     }
 
     /**
      * Muestra la ventana de login de la aplicación.
      */
     public void mostrarVentanaLogin() {
-        VentanaLogin ventanaLogin = new VentanaLogin(controller, bundle);
+        VentanaLogin ventanaLogin = new VentanaLogin(controller);
         controller.setVentanaLoginActual(ventanaLogin);
         ventanaLogin.mostrarVentanaLogin();
     }
@@ -73,7 +60,7 @@ public class PrincipalView {
      * Muestra la ventana principal de la aplicación.
      */
     public void mostrarVentanaPrincipal() {
-        VentanaPrincipal ventanaPrincipal = new VentanaPrincipal(controller, bundle);
+        VentanaPrincipal ventanaPrincipal = new VentanaPrincipal(controller);
         ventanaPrincipal.mostrarVentanaPrincipal();
     }
 
@@ -89,10 +76,10 @@ public class PrincipalView {
             Alert alert;
             if (esInformacion) {
                 alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle(bundle.getString("info.title"));
+                alert.setTitle(MessageManager.getMessage("info.title"));
             } else {
                 alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle(bundle.getString("error.title"));
+                alert.setTitle(MessageManager.getMessage("error.title"));
             }
             alert.setHeaderText(null);
             alert.setContentText(mensaje);
@@ -127,7 +114,7 @@ public class PrincipalView {
         content.getChildren().add(mensaje);
 
         // Crear el texto adicional
-        Text continuarText = new Text(bundle.getString("conclusion.continuar"));
+        Text continuarText = new Text(MessageManager.getMessage("conclusion.continuar"));
         continuarText.setTextAlignment(TextAlignment.RIGHT);
         VBox.setMargin(continuarText, new Insets(0, 30, 0, 0));
         content.setAlignment(Pos.CENTER_RIGHT);
@@ -137,8 +124,8 @@ public class PrincipalView {
 
         // Crear una alerta de confirmación
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle(bundle.getString("conclusion.confirmacion"));
-        alert.setHeaderText(bundle.getString("conclusion.revisa_datos"));
+        alert.setTitle(MessageManager.getMessage("conclusion.confirmacion"));
+        alert.setHeaderText(MessageManager.getMessage("conclusion.revisa_datos"));
         alert.getDialogPane().setContent(content);
 
         return alert.showAndWait();
@@ -151,9 +138,9 @@ public class PrincipalView {
      */
     public String solicitarNombreEmpresa() {
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle(bundle.getString("empresa.nombre.titulo"));
-        dialog.setHeaderText(bundle.getString("empresa.nombre.encabezado"));
-        dialog.setContentText(bundle.getString("empresa.nombre.contenido"));
+        dialog.setTitle(MessageManager.getMessage("empresa.nombre.titulo"));
+        dialog.setHeaderText(MessageManager.getMessage("empresa.nombre.encabezado"));
+        dialog.setContentText(MessageManager.getMessage("empresa.nombre.contenido"));
 
         Optional<String> result = dialog.showAndWait();
         return result.orElse(null);

@@ -4,16 +4,16 @@ import com.example.proyecto.modal.DatabaseManager;
 import com.example.proyecto.modal.EleccionesDAO;
 import com.example.proyecto.modal.EmpresaDAO;
 import com.example.proyecto.modal.Preaviso;
+import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.CumplimentarPDFException;
+import com.example.proyecto.util.MessageManager;
+import com.example.proyecto.util.Meses;
 import com.example.proyecto.util.Registro;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -25,8 +25,8 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 /**
  * La clase `VentanaPreaviso` gestiona la interfaz de la ventana para los preavisos.
@@ -36,7 +36,6 @@ import java.util.ResourceBundle;
  */
 public class VentanaPreaviso {
 
-    private final ResourceBundle bundle;
     private final PrincipalView nuevaVentanaPreaviso;
     private final Preaviso nuevoPreaviso;
     private boolean alertaMostrada = false;
@@ -50,12 +49,10 @@ public class VentanaPreaviso {
     private TextField textFieldProvincia;
     private TextField textFieldNumTrabajadores;
     private TextField textFieldNumSegSocial;
-    private TextField textFieldMesEleccion;
+    private ComboBox<Meses> comboBoxMesEleccion;
     private TextField textFieldPromotores;
-    private TextField textFieldFechaInicio;
-    private TextField textFieldDiaPreaviso;
-    private TextField textFieldMesPreaviso;
-    private TextField textFieldAnioPreaviso;
+    private DatePicker datePickerFechaInicio;
+    private DatePicker datePickerFechaPreaviso;
 
     /**
      * Constructor de la clase VentanaPreaviso.
@@ -66,7 +63,6 @@ public class VentanaPreaviso {
     public VentanaPreaviso(PrincipalView principalView, Preaviso nuevoPreaviso) {
         this.nuevaVentanaPreaviso = principalView;
         this.nuevoPreaviso = nuevoPreaviso;
-        this.bundle = ResourceBundle.getBundle("messages", principalView.getBundle().getLocale());
     }
 
     /**
@@ -77,7 +73,7 @@ public class VentanaPreaviso {
     public void mostrarVentanaPreaviso() throws IOException {
         Stage ventanaDatos = new Stage();
         ventanaDatos.initModality(Modality.APPLICATION_MODAL);
-        ventanaDatos.setTitle(bundle.getString("preaviso.titulo"));
+        ventanaDatos.setTitle(MessageManager.getMessage("preaviso.titulo"));
 
         Registro registro = new Registro(nuevoPreaviso, nuevaVentanaPreaviso);
 
@@ -86,14 +82,14 @@ public class VentanaPreaviso {
 
         configurarValidadores();
 
-        Button btnRegistrar = new Button(bundle.getString("preaviso.registrar"));
+        Button btnRegistrar = new Button(MessageManager.getMessage("preaviso.registrar"));
         btnRegistrar.setOnAction(_ -> {
             try {
                 registrarPreaviso(registro, ventanaDatos);
             } catch (CumplimentarPDFException e) {
                 nuevaVentanaPreaviso.mostrarMensaje(e.getMessage(), false);
             } catch (SQLException e) {
-                nuevaVentanaPreaviso.mostrarMensaje(bundle.getString("preaviso.error_registro"), false);
+                nuevaVentanaPreaviso.mostrarMensaje(MessageManager.getMessage("preaviso.error_registro"), false);
             }
         });
 
@@ -135,27 +131,27 @@ public class VentanaPreaviso {
      * @param gridPane el GridPane donde se agregarán los campos.
      */
     private void agregarCampos(GridPane gridPane) {
-        agregarSeccion(gridPane, bundle.getString("preaviso.datos_empresa"), 0);
-        textFieldNombreEmpresa = agregarCampo(gridPane, bundle.getString("preaviso.nombre_empresa"), 1);
-        textFieldCIF = agregarCampo(gridPane, bundle.getString("preaviso.cif"), 2);
-        textFieldNombreComercial = agregarCampo(gridPane, bundle.getString("preaviso.nombre_comercial"), 3);
+        agregarSeccion(gridPane, MessageManager.getMessage("preaviso.datos_empresa"), 0);
+        textFieldNombreEmpresa = agregarCampo(gridPane, MessageManager.getMessage("preaviso.nombre_empresa"), 1);
+        textFieldCIF = agregarCampo(gridPane, MessageManager.getMessage("preaviso.cif"), 2);
+        textFieldNombreComercial = agregarCampo(gridPane, MessageManager.getMessage("preaviso.nombre_comercial"), 3);
 
-        agregarSeccion(gridPane, bundle.getString("preaviso.datos_centro"), 4);
-        textFieldNombreCentro = agregarCampo(gridPane, bundle.getString("preaviso.nombre_centro"), 5);
-        textFieldDireccion = agregarCampo(gridPane, bundle.getString("preaviso.direccion"), 6);
-        textFieldMunicipio = agregarCampo(gridPane, bundle.getString("preaviso.municipio"), 7);
-        textFieldCodigoPostal = agregarCampo(gridPane, bundle.getString("preaviso.codigo_postal"), 8);
-        textFieldProvincia = agregarCampo(gridPane, bundle.getString("preaviso.provincia"), 9);
-        textFieldNumTrabajadores = agregarCampo(gridPane, bundle.getString("preaviso.num_trabajadores"), 10);
-        textFieldNumSegSocial = agregarCampo(gridPane, bundle.getString("preaviso.num_seguridad_social"), 11);
+        agregarSeccion(gridPane, MessageManager.getMessage("preaviso.datos_centro"), 4);
+        textFieldNombreCentro = agregarCampo(gridPane, MessageManager.getMessage("preaviso.nombre_centro"), 5);
+        textFieldDireccion = agregarCampo(gridPane, MessageManager.getMessage("preaviso.direccion"), 6);
+        textFieldMunicipio = agregarCampo(gridPane, MessageManager.getMessage("preaviso.municipio"), 7);
+        textFieldCodigoPostal = agregarCampo(gridPane, MessageManager.getMessage("preaviso.codigo_postal"), 8);
+        textFieldProvincia = agregarCampo(gridPane, MessageManager.getMessage("preaviso.provincia"), 9);
+        textFieldNumTrabajadores = agregarCampo(gridPane, MessageManager.getMessage("preaviso.num_trabajadores"), 10);
+        textFieldNumSegSocial = agregarCampo(gridPane, MessageManager.getMessage("preaviso.num_seguridad_social"), 11);
 
-        agregarSeccion(gridPane, bundle.getString("preaviso.datos_eleccion"), 12);
-        textFieldMesEleccion = agregarCampo(gridPane, bundle.getString("preaviso.mes_eleccion"), 14);
-        textFieldPromotores = agregarCampo(gridPane, bundle.getString("preaviso.promotores"), 15);
-        textFieldFechaInicio = agregarCampo(gridPane, bundle.getString("preaviso.fecha_inicio"), 16);
-        textFieldDiaPreaviso = agregarCampo(gridPane, bundle.getString("preaviso.dia_preaviso"), 17);
-        textFieldMesPreaviso = agregarCampo(gridPane, bundle.getString("preaviso.mes_preaviso"), 18);
-        textFieldAnioPreaviso = agregarCampo(gridPane, bundle.getString("preaviso.anio_preaviso"), 19);
+        agregarSeccion(gridPane, MessageManager.getMessage("preaviso.datos_eleccion"), 12);
+        comboBoxMesEleccion = agregarComboBoxMeses(gridPane, MessageManager.getMessage("preaviso.mes_eleccion"), 13);
+        textFieldPromotores = agregarCampo(gridPane, MessageManager.getMessage("preaviso.promotores"), 14);
+        datePickerFechaInicio = agregarDatePicker(gridPane, MessageManager.getMessage("preaviso.fecha_inicio"), 15);
+        datePickerFechaPreaviso = agregarDatePicker(gridPane, MessageManager.getMessage("preaviso.fecha_preaviso"), 16);
+
+        configurarMesEleccionPorDefecto();
     }
 
     /**
@@ -167,7 +163,7 @@ public class VentanaPreaviso {
      */
     private void agregarSeccion(GridPane gridPane, String titulo, int rowIndex) {
         Label label = new Label(titulo);
-        label.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-underline: true;");
+        label.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
         gridPane.add(label, 0, rowIndex, 2, 1);
     }
 
@@ -189,6 +185,41 @@ public class VentanaPreaviso {
     }
 
     /**
+     * Agrega un ComboBox de meses al GridPane.
+     *
+     * @param gridPane el GridPane donde se agregará el ComboBox.
+     * @param labelText el texto de la etiqueta.
+     * @param rowIndex el índice de la fila donde se agregará el ComboBox.
+     * @return el ComboBox asociado.
+     */
+    private ComboBox<Meses> agregarComboBoxMeses(GridPane gridPane, String labelText, int rowIndex) {
+        Label label = new Label(labelText);
+        label.setStyle("-fx-font-size: 14px;");
+        ComboBox<Meses> comboBox = new ComboBox<>();
+        comboBox.getItems().setAll(Meses.values());
+        gridPane.add(label, 0, rowIndex);
+        gridPane.add(comboBox, 1, rowIndex);
+        return comboBox;
+    }
+
+    /**
+     * Agrega un DatePicker al GridPane.
+     *
+     * @param gridPane el GridPane donde se agregará el DatePicker.
+     * @param labelText el texto de la etiqueta.
+     * @param rowIndex el índice de la fila donde se agregará el DatePicker.
+     * @return el DatePicker asociado.
+     */
+    private DatePicker agregarDatePicker(GridPane gridPane, String labelText, int rowIndex) {
+        Label label = new Label(labelText);
+        label.setStyle("-fx-font-size: 14px;");
+        DatePicker datePicker = new DatePicker();
+        gridPane.add(label, 0, rowIndex);
+        gridPane.add(datePicker, 1, rowIndex);
+        return datePicker;
+    }
+
+    /**
      * Configura los validadores para los campos de texto.
      */
     private void configurarValidadores() {
@@ -199,11 +230,9 @@ public class VentanaPreaviso {
         addValidationListenerWithErrorHandling(textFieldCodigoPostal, (text, preaviso) -> preaviso.setCodigoPostal(text), Duration.seconds(0.1));
         addValidationListenerWithErrorHandling(textFieldNumTrabajadores, (text, preaviso) -> preaviso.setTotalTrabajadores(text), Duration.seconds(0.1));
         addValidationListenerWithErrorHandling(textFieldNumSegSocial, (text, preaviso) -> preaviso.setNumeroISS(text), Duration.seconds(0.1));
-        addValidationListenerWithErrorHandling(textFieldMesEleccion, (text, preaviso) -> preaviso.setMesElecciones(text), Duration.seconds(0.1));
-        addValidationListenerWithErrorHandling(textFieldFechaInicio, (text, preaviso) -> preaviso.setFechaConstitucion(text), Duration.seconds(0.1));
-        addValidationListenerWithErrorHandling(textFieldDiaPreaviso, (text, preaviso) -> preaviso.setDiaPreaviso(text), Duration.seconds(0.1));
-        addValidationListenerWithErrorHandling(textFieldMesPreaviso, (text, preaviso) -> preaviso.setMesPreaviso(text), Duration.seconds(0.1));
-        addValidationListenerWithErrorHandling(textFieldAnioPreaviso, (text, preaviso) -> preaviso.setAnioPreaviso(text), Duration.seconds(0.1));
+        addValidationListenerWithErrorHandling(comboBoxMesEleccion, (text, preaviso) -> preaviso.setMesElecciones(text.getNombre()), Duration.seconds(0.1));
+        addValidationListenerWithErrorHandling(datePickerFechaInicio.getEditor(), (text, preaviso) -> preaviso.setFechaConstitucion(text), Duration.seconds(0.1));
+        addValidationListenerWithErrorHandling(datePickerFechaPreaviso.getEditor(), (text, preaviso) -> preaviso.setFechaPreaviso(text), Duration.seconds(0.1));
     }
 
     /**
@@ -217,6 +246,8 @@ public class VentanaPreaviso {
         nuevoPreaviso.setNombreCentro(textFieldNombreCentro.getText().toUpperCase());
         nuevoPreaviso.setProvincia(textFieldProvincia.getText().toUpperCase());
         nuevoPreaviso.setPromotores(textFieldPromotores.getText().toUpperCase());
+
+        nuevoPreaviso.setMesElecciones(comboBoxMesEleccion.getValue().getNombre());
 
         GridPane mensajeConfirmacion = construirMensajeConfirmacion();
 
@@ -236,13 +267,37 @@ public class VentanaPreaviso {
                 registro.registrarNuevoPreaviso(nuevoPreaviso);
                 cerrarVentanaPreaviso(stage);
             } catch (SQLException e) {
-                nuevaVentanaPreaviso.mostrarMensaje(bundle.getString("preaviso.error_db") + e.getMessage(), false);
+                nuevaVentanaPreaviso.mostrarMensaje(MessageManager.getMessage("preaviso.error_db") + e.getMessage(), false);
             }
         }
     }
 
     private void cerrarVentanaPreaviso(Stage stage) {
         stage.close();
+    }
+
+    /**
+     * Configura el mes de elección por defecto en el ComboBox de acuerdo al número de trabajadores.
+     */
+    private void configurarMesEleccionPorDefecto() {
+        textFieldNumTrabajadores.focusedProperty().addListener((_, _, newValue) -> {
+            if (!newValue) {
+                try {
+                    int numTrabajadores = Integer.parseInt(textFieldNumTrabajadores.getText());
+                    LocalDate fechaActual = LocalDate.now();
+                    Meses mesSiguiente = Meses.values()[(fechaActual.getMonthValue()) % 12];
+                    Meses mesDosMesesDespues = Meses.values()[(fechaActual.getMonthValue() + 1) % 12];
+
+                    if (numTrabajadores < 51) {
+                        comboBoxMesEleccion.setValue(mesSiguiente);
+                    } else {
+                        comboBoxMesEleccion.setValue(mesDosMesesDespues);
+                    }
+                } catch (NumberFormatException e) {
+                    nuevaVentanaPreaviso.mostrarMensaje(MessageManager.getMessage("preaviso.numero_trabajadores_invalido"), false);
+                }
+            }
+        });
     }
 
     /**
@@ -279,22 +334,21 @@ public class VentanaPreaviso {
         gridPane.setVgap(10);
         gridPane.setPadding(new Insets(10));
 
-        agregarFila(gridPane, bundle.getString("preaviso.nombre_empresa"), textFieldNombreEmpresa.getText(), 0);
-        agregarFila(gridPane, bundle.getString("preaviso.cif"), textFieldCIF.getText(), 1);
-        agregarFila(gridPane, bundle.getString("preaviso.nombre_comercial"), textFieldNombreComercial.getText(), 2);
-        agregarFila(gridPane, bundle.getString("preaviso.nombre_centro"), textFieldNombreCentro.getText(), 3);
-        agregarFila(gridPane, bundle.getString("preaviso.direccion"), textFieldDireccion.getText(), 4);
-        agregarFila(gridPane, bundle.getString("preaviso.municipio"), textFieldMunicipio.getText(), 5);
-        agregarFila(gridPane, bundle.getString("preaviso.codigo_postal"), textFieldCodigoPostal.getText(), 6);
-        agregarFila(gridPane, bundle.getString("preaviso.provincia"), textFieldProvincia.getText(), 7);
-        agregarFila(gridPane, bundle.getString("preaviso.num_trabajadores"), textFieldNumTrabajadores.getText(), 8);
-        agregarFila(gridPane, bundle.getString("preaviso.num_seguridad_social"), textFieldNumSegSocial.getText(), 9);
-        agregarFila(gridPane, bundle.getString("preaviso.mes_eleccion"), textFieldMesEleccion.getText(), 10);
-        agregarFila(gridPane, bundle.getString("preaviso.promotores"), textFieldPromotores.getText(), 11);
-        agregarFila(gridPane, bundle.getString("preaviso.fecha_inicio"), textFieldFechaInicio.getText(), 12);
-        agregarFila(gridPane, bundle.getString("preaviso.dia_preaviso"), textFieldDiaPreaviso.getText(), 13);
-        agregarFila(gridPane, bundle.getString("preaviso.mes_preaviso"), textFieldMesPreaviso.getText(), 14);
-        agregarFila(gridPane, bundle.getString("preaviso.anio_preaviso"), textFieldAnioPreaviso.getText(), 15);
+        int rowIndex = 0;
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.nombre_empresa"), textFieldNombreEmpresa.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.cif"), textFieldCIF.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.nombre_comercial"), textFieldNombreComercial.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.nombre_centro"), textFieldNombreCentro.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.direccion"), textFieldDireccion.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.municipio"), textFieldMunicipio.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.codigo_postal"), textFieldCodigoPostal.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.provincia"), textFieldProvincia.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.num_trabajadores"), textFieldNumTrabajadores.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.num_seguridad_social"), textFieldNumSegSocial.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.mes_eleccion"), comboBoxMesEleccion.getValue() != null ? comboBoxMesEleccion.getValue().getNombre() : "", rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.promotores"), textFieldPromotores.getText(), rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.fecha_inicio"), datePickerFechaInicio.getValue() != null ? datePickerFechaInicio.getValue().toString() : "", rowIndex++);
+        agregarFila(gridPane, MessageManager.getMessage("preaviso.fecha_preaviso"), datePickerFechaPreaviso.getValue() != null ? datePickerFechaPreaviso.getValue().toString() : "", rowIndex++);
 
         return gridPane;
     }
