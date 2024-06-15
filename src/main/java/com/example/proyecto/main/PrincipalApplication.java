@@ -4,11 +4,13 @@ import com.example.proyecto.controller.LoginManager;
 import com.example.proyecto.controller.PrincipalController;
 import com.example.proyecto.interfaz.PrincipalView;
 import com.example.proyecto.modal.DatabaseManager;
+import com.example.proyecto.util.Constantes;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 /**
  * Clase principal para gestionar el menú de opciones y ejecutar las funcionalidades del programa.
@@ -34,14 +36,14 @@ public class PrincipalApplication extends Application {
         try {
             iniciarAplicacion();
         } catch (IOException e) {
-            System.err.println(STR."Error al iniciar la aplicación: \{e.getMessage()}");
+            Constantes.LOGGER.log(Level.SEVERE, "Error al iniciar la aplicación: {0}", e.getMessage());
         }
     }
 
     /**
      * Método que inicializa la aplicación configurando la vista principal, el controlador y la base de datos.
      *
-     * @throws IOException Si ocurre un error durante la inicialización.
+     * @throws IOException Sí ocurre un error durante la inicialización.
      */
     private void iniciarAplicacion() throws IOException {
         PrincipalView view = inicializarVista();
@@ -54,9 +56,9 @@ public class PrincipalApplication extends Application {
             view.mostrarVentanaLogin();
         } catch (SQLException e) {
             view.mostrarMensaje(String.format("Error al mostrar la ventana de inicio de sesión: %s", e.getMessage()), false);
-            System.err.println(STR."Error al crear la base de datos: \{e.getMessage()}");
+            Constantes.LOGGER.log(Level.SEVERE, "Error al crear la base de datos: {0}", e.getMessage());
         } catch (Exception e) {
-            System.err.println(STR."Error al iniciar la aplicación: \{e.getMessage()}");
+            Constantes.LOGGER.log(Level.SEVERE, "Error al iniciar la aplicación: {0}", e.getMessage());
         }
     }
 
@@ -74,7 +76,7 @@ public class PrincipalApplication extends Application {
      *
      * @param view La vista principal de la aplicación.
      * @return El gestor de base de datos inicializado.
-     * @throws SQLException Si ocurre un error durante la inicialización de la base de datos.
+     * @throws SQLException Sí ocurre un error durante la inicialización de la base de datos.
      */
     private DatabaseManager inicializarBaseDeDatos(PrincipalView view) throws SQLException {
         return new DatabaseManager(view);

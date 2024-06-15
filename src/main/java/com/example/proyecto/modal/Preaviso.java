@@ -4,6 +4,8 @@ import com.example.proyecto.util.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 
 /**
@@ -270,12 +272,13 @@ public class Preaviso {
 
     public void setFechaConstitucion(String fechaConstitucion) throws CumplimentarPDFException {
         if (!validarFecha.esFormatoFechaValido(fechaConstitucion) || fechaConstitucion.isEmpty()) {
-            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.constitucion.incorrecto").concat(Constantes.FORMATO_FECHA));
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.constitucion.incorrecto").concat(String.valueOf(Constantes.FORMATO_FECHA)));
         }
         String[] partes = fechaConstitucion.split("/");
         String dia = partes[0].length() == 1 ? STR."0\{partes[0]}" : partes[0];
         String mes = partes[1].length() == 1 ? STR."0\{partes[1]}" : partes[1];
         String anio = partes[2];
+
         this.fechaConstitucion = STR."\{dia}/\{mes}/\{anio}";
     }
 
@@ -287,17 +290,41 @@ public class Preaviso {
         this.electores = electores;
     }
 
+    /**
+     * Establece la fecha de preaviso y realiza las validaciones necesarias.
+     *
+     * @param fechaPreaviso La fecha de preaviso en formato dd/MM/yyyy.
+     * @throws CumplimentarPDFException Si la fecha es inválida o no cumple con los requisitos mínimos.
+     */
     public void setFechaPreaviso(String fechaPreaviso) throws CumplimentarPDFException {
+        // Verificar si la fecha de preaviso está vacía
         if (fechaPreaviso.isEmpty()) {
-            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.preaviso.incorrecto").concat(Constantes.FORMATO_FECHA));
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.preaviso.incorrecto").concat(" ").concat(Constantes.FORMATO_FECHA.toString().concat("holaqqq")));
         }
-        this.fechaPreaviso = fechaPreaviso;
+
+        try {
 
         String[] partes = fechaPreaviso.split("/");
-        setDiaPreaviso(diaPreaviso = partes[0].length() == 1 ? STR."0\{partes[0]}" : partes[0]);
-        setMesPreaviso(mesPreaviso = partes[1].length() == 1 ? STR."0\{partes[1]}" : partes[1]);
+        setDiaPreaviso(diaPreaviso = partes[0].length() == 1 ? "0" + partes[0] : partes[0]);
+        setMesPreaviso(mesPreaviso = partes[1].length() == 1 ? "0" + partes[1] : partes[1]);
         setAnioPreaviso(anioPreaviso = partes[2]);
+        fechaPreaviso = STR."\{diaPreaviso}/\{partes[1].length() == 1 ? "0" + partes[1] : partes[1]}/\{anioPreaviso}";
+
+        LocalDate fechaPreavisoDate = LocalDate.parse(fechaPreaviso, Constantes.FORMATO_FECHA);
+        LocalDate fechaConstitucionDate = LocalDate.parse(getFechaConstitucion(), Constantes.FORMATO_FECHA);
+
+        if (fechaConstitucion != null) {
+            long diasEntreFechas = java.time.temporal.ChronoUnit.DAYS.between(fechaPreavisoDate, fechaConstitucionDate);
+            if (diasEntreFechas < Constantes.DIAS_ENTRE_PREAVISO_Y_CONSTITUCION) {
+                throw new CumplimentarPDFException(MessageFormat.format(MessageManager.getMessage("preaviso.error_fechas"), Constantes.DIAS_ENTRE_PREAVISO_Y_CONSTITUCION));
+            }
+        }
+        this.fechaPreaviso = fechaPreaviso;
+        } catch (DateTimeParseException e) {
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.preaviso.incorrecto").concat(": ").concat(fechaPreaviso));
+        }
     }
+
     public String getDiaPreaviso() {
         return diaPreaviso;
     }

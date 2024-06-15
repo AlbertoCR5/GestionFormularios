@@ -2,6 +2,7 @@ package com.example.proyecto.controller;
 
 import com.example.proyecto.interfaz.*;
 import com.example.proyecto.modal.*;
+import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.DirectorioManager;
 import com.example.proyecto.util.MessageManager;
 import javafx.animation.KeyFrame;
@@ -14,12 +15,14 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.logging.Level;
 
 /**
  * La clase `PrincipalController` gestiona la lógica de la aplicación y la interacción entre las vistas y el modelo.
  * Se encarga de iniciar sesión y de cambiar entre diferentes vistas.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class PrincipalController {
 
@@ -34,7 +37,7 @@ public class PrincipalController {
      * Constructor de la clase PrincipalController.
      *
      * @param inicioSesion La instancia del gestor de inicio de sesión.
-     * @throws IOException Si ocurre un error al crear el directorio de elecciones.
+     * @throws IOException Sí ocurre un error al crear el directorio de elecciones.
      */
     public PrincipalController(LoginManager inicioSesion) throws IOException {
         this.inicioSesion = inicioSesion;
@@ -65,6 +68,7 @@ public class PrincipalController {
             }
         } catch (Exception e) {
             vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("login.error"), e.getMessage()), false);
+            Constantes.LOGGER.log(Level.SEVERE, "Error en iniciarSesion: {0}", e.getMessage());
         }
     }
 
@@ -115,6 +119,7 @@ public class PrincipalController {
             }
         } catch (Exception e) {
             vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("menu.error"), e.getMessage()), false);
+            Constantes.LOGGER.log(Level.SEVERE, "Error en tratarOpcion: {0}", e.getMessage());
         }
     }
 
@@ -131,6 +136,7 @@ public class PrincipalController {
                 nuevaVentanaPreaviso.mostrarVentanaPreaviso();
             } catch (IOException e) {
                 vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("preaviso.error"), e.getMessage()), false);
+                Constantes.LOGGER.log(Level.SEVERE, "Error en tratarPreaviso: {0}", e.getMessage());
             }
         })));
         timeline.play();

@@ -7,17 +7,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
-import java.util.ResourceBundle;
 
 /**
  * La clase `DirectorioManager` gestiona la creación y manejo de directorios en la aplicación.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class DirectorioManager {
 
-   PrincipalView ventanaPreaviso;
-    private final ResourceBundle bundle = ResourceBundle.getBundle("messages");
+    private PrincipalView view;
 
     /**
      * Crea el directorio de elecciones si no existe.
@@ -32,8 +31,10 @@ public class DirectorioManager {
         if (!directorioElecciones.exists()) {
             boolean dirCreated = directorioElecciones.mkdir();
             if (!dirCreated) {
-                ventanaPreaviso.mostrarMensaje(bundle.getString("error.crear.directorio") + rutaElecciones, false);
-                throw new IOException(rutaElecciones.toString());
+                if (view != null) {
+                    view.mostrarMensaje(MessageManager.getMessage("error.crear.directorio") + rutaElecciones, false);
+                }
+                throw new IOException(STR."No se pudo crear el directorio: \{rutaElecciones}");
             }
         }
         return rutaElecciones;
@@ -54,8 +55,10 @@ public class DirectorioManager {
         if (!directorioEmpresa.exists()) {
             boolean dirCreated = directorioEmpresa.mkdir();
             if (!dirCreated) {
-                ventanaPreaviso.mostrarMensaje(bundle.getString("error.crear.directorio") + rutaEmpresa, false);
-                throw new IOException(rutaEmpresa.toString());
+                if (view != null) {
+                    view.mostrarMensaje(MessageManager.getMessage("error.crear.directorio") + rutaEmpresa, false);
+                }
+                throw new IOException(STR."No se pudo crear el directorio: \{rutaEmpresa}");
             }
         }
         return rutaEmpresa;
@@ -69,7 +72,7 @@ public class DirectorioManager {
     public String[] generarRutasFormularios() {
         String[] rutaFormularios = new String[Constantes.DOCUMENTACION_DELEGADOS.length];
         for (int i = 0; i < Constantes.DOCUMENTACION_DELEGADOS.length; i++) {
-            rutaFormularios[i] = STR."\{Constantes.RUTA_DELEGADOS_JAR}/\{Constantes.DOCUMENTACION_DELEGADOS[i]}\{Constantes.EXTENSION_ARCHIVO}";
+            rutaFormularios[i] = String.format("%s/%s%s", Constantes.RUTA_DELEGADOS_JAR, Constantes.DOCUMENTACION_DELEGADOS[i], Constantes.EXTENSION_ARCHIVO);
         }
         return rutaFormularios;
     }
@@ -83,7 +86,7 @@ public class DirectorioManager {
     public String[] generarRutasFormulariosBuscados(Path rutaEmpresa) {
         String[] rutaFormulariosBuscados = new String[Constantes.DOCUMENTACION_DELEGADOS.length];
         for (int i = 0; i < Constantes.DOCUMENTACION_DELEGADOS.length; i++) {
-            rutaFormulariosBuscados[i] = String.valueOf(Paths.get(rutaEmpresa.toString(), rutaEmpresa.getFileName().toString()+ " ".concat( Constantes.DOCUMENTACION_DELEGADOS[i] + Constantes.EXTENSION_ARCHIVO)));
+            rutaFormulariosBuscados[i] = String.valueOf(Paths.get(rutaEmpresa.toString(), String.format("%s %s%s", rutaEmpresa.getFileName().toString(), Constantes.DOCUMENTACION_DELEGADOS[i], Constantes.EXTENSION_ARCHIVO)));
         }
         return rutaFormulariosBuscados;
     }
@@ -104,7 +107,9 @@ public class DirectorioManager {
                 }
             }
         } catch (IOException e) {
-            ventanaPreaviso.mostrarMensaje(bundle.getString("error.buscar.carpeta.empresa"), false);
+            if (view != null) {
+                view.mostrarMensaje(MessageManager.getMessage("error.buscar.carpeta.empresa"), false);
+            }
         }
         return null;
     }
@@ -119,9 +124,16 @@ public class DirectorioManager {
         return nombreEmpresa.replace(".", "").replace("/", "").replace("\\", "").replace(",", "");
     }
 
+    /**
+     * Copia los recursos de los formularios al directorio de destino.
+     *
+     * @param rutaDestino   La ruta de destino.
+     * @param nuevoPreaviso El objeto Preaviso con los datos necesarios.
+     * @throws IOException Sí ocurre un error durante la copia de los archivos.
+     */
     public void copiarRecursosADirectorio(String rutaDestino, Preaviso nuevoPreaviso) throws IOException {
         String[] formularios = generarRutasFormularios();
-        CumplimentarPreavisoPDF cumplimentarPreavisoPDF = new CumplimentarPreavisoPDF(ventanaPreaviso);
+        CumplimentarPreavisoPDF cumplimentarPreavisoPDF = new CumplimentarPreavisoPDF(view);
 
         for (String formulario : formularios) {
             String nombreArchivo = cumplimentarPreavisoPDF.generarNombreArchivo(formulario, nuevoPreaviso);

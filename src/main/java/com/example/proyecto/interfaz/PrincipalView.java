@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
+
 import java.util.Optional;
 
 /**
@@ -23,6 +24,7 @@ import java.util.Optional;
  * Utiliza JavaFX para la interfaz gráfica.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class PrincipalView {
 
@@ -70,7 +72,6 @@ public class PrincipalView {
      * @param mensaje      El mensaje a mostrar.
      * @param esInformacion Indica si el mensaje es de información (true) o de error (false).
      */
-
     public void mostrarMensaje(String mensaje, boolean esInformacion) {
         Platform.runLater(() -> {
             Alert alert;
@@ -85,15 +86,11 @@ public class PrincipalView {
             alert.setContentText(mensaje);
 
             if (esInformacion) {
-                // Detiene el Timeline anterior
-                timeline.stop();
-                // Crea un nuevo KeyFrame con una duración de 2 segundos
-                KeyFrame keyFrame = new KeyFrame(Duration.seconds(2), _ -> alert.close());
-                // Asigna el nuevo KeyFrame al Timeline
-                timeline.getKeyFrames().setAll(keyFrame);
+                timeline.stop(); // Detiene el Timeline anterior
+                KeyFrame keyFrame = new KeyFrame(Duration.seconds(2), _ -> alert.close()); // Crea un nuevo KeyFrame con una duración de 2 segundos
+                timeline.getKeyFrames().setAll(keyFrame); // Asigna el nuevo KeyFrame al Timeline
                 alert.show();
-                // Empieza el Timeline después de mostrar la alerta
-                timeline.play();
+                timeline.play(); // Empieza el Timeline después de mostrar la alerta
             } else {
                 alert.showAndWait();
             }
@@ -103,27 +100,23 @@ public class PrincipalView {
     /**
      * Muestra una alerta de confirmación con los mensajes correspondientes.
      *
+     * @param mensaje El mensaje a mostrar en la alerta.
      * @return Un Optional con el ButtonType seleccionado por el usuario.
      */
     public Optional<ButtonType> mostrarAlertaConfirmacion(GridPane mensaje) {
-        // Crear un VBox para contener el GridPane y el mensaje adicional
-        VBox content = new VBox();
+        VBox content = new VBox(); // Crear un VBox para contener el GridPane y el mensaje adicional
         content.setSpacing(10); // Espacio entre los elementos
 
-        // Añadir el GridPane al VBox
-        content.getChildren().add(mensaje);
+        content.getChildren().add(mensaje); // Añadir el GridPane al VBox
 
-        // Crear el texto adicional
-        Text continuarText = new Text(MessageManager.getMessage("conclusion.continuar"));
+        Text continuarText = new Text(MessageManager.getMessage("conclusion.continuar")); // Crear el texto adicional
         continuarText.setTextAlignment(TextAlignment.RIGHT);
         VBox.setMargin(continuarText, new Insets(0, 30, 0, 0));
         content.setAlignment(Pos.CENTER_RIGHT);
 
-        // Añadir el texto adicional al VBox
-        content.getChildren().add(continuarText);
+        content.getChildren().add(continuarText); // Añadir el texto adicional al VBox
 
-        // Crear una alerta de confirmación
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); // Crear una alerta de confirmación
         alert.setTitle(MessageManager.getMessage("conclusion.confirmacion"));
         alert.setHeaderText(MessageManager.getMessage("conclusion.revisa_datos"));
         alert.getDialogPane().setContent(content);

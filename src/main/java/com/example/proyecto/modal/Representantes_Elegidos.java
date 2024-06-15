@@ -122,12 +122,12 @@ public class Representantes_Elegidos {
             return;
         }
 
-        SimpleDateFormat formatoFecha = new SimpleDateFormat(Constantes.FORMATO_FECHA);
+        SimpleDateFormat formatoFecha = new SimpleDateFormat();
 
         try {
             this.fechaNacimiento = formatoFecha.parse(fechaNacimiento.toString());
         } catch (ParseException e) {
-            throw new IllegalArgumentException("El formato de la fecha de constitución es incorrecto. -->".concat(Constantes.FORMATO_FECHA.concat("\n")));
+            throw new IllegalArgumentException("El formato de la fecha de constitución es incorrecto. -->".concat(String.valueOf(Constantes.FORMATO_FECHA)));
         }
     }
 

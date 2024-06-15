@@ -1,6 +1,7 @@
 package com.example.proyecto.modal;
 
 import com.example.proyecto.interfaz.PrincipalView;
+import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.DirectorioManager;
 import com.example.proyecto.util.MessageManager;
 
@@ -8,18 +9,26 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
 
 /**
  * La clase EmpresaDAO se encarga de gestionar las operaciones de la base de datos relacionadas con la tabla Empresa.
  * Utiliza SQLite y JDBC para interactuar con la base de datos.
  *
- * @author Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class EmpresaDAO {
 
     private final PrincipalView view;
     private final DatabaseManager databaseManager;
 
+    /**
+     * Constructor de la clase EmpresaDAO.
+     *
+     * @param view La vista principal de la aplicación.
+     * @param databaseManager El gestor de base de datos.
+     */
     public EmpresaDAO(PrincipalView view, DatabaseManager databaseManager) {
         this.view = view;
         this.databaseManager = databaseManager;
@@ -28,7 +37,7 @@ public class EmpresaDAO {
     /**
      * Crea la tabla Empresa en la base de datos si no existe.
      *
-     * @throws SQLException Si ocurre un error al crear la tabla en la base de datos.
+     * @throws SQLException Sí ocurre un error al crear la tabla en la base de datos.
      */
     public void createTableEmpresa() throws SQLException {
         String sqlEmpresa = """
@@ -50,7 +59,7 @@ public class EmpresaDAO {
              Statement stmt = connection.createStatement()) {
             stmt.execute(sqlEmpresa);
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage("error.crear.tabla.empresa"), e.getMessage()), false);
+            handleSQLException(e, "error.crear.tabla.empresa");
         }
     }
 
@@ -58,7 +67,7 @@ public class EmpresaDAO {
      * Inserta una nueva empresa en la base de datos.
      *
      * @param datosEmpresa La empresa a insertar.
-     * @throws SQLException Si ocurre un error al insertar la empresa en la base de datos.
+     * @throws SQLException Sí ocurre un error al insertar la empresa en la base de datos.
      */
     public void insertEmpresa(Preaviso datosEmpresa) throws SQLException {
         String sqlEmpresa = "INSERT INTO Empresa(nombre, cif, direccion, municipio, provincia, codigo_postal) VALUES(?,?,?,?,?,?)";
@@ -73,7 +82,7 @@ public class EmpresaDAO {
             pstmt.setString(6, datosEmpresa.getCodigoPostal());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage("error.insertar.empresa"), e.getMessage()), false);
+            handleSQLException(e, "error.insertar.empresa");
         }
     }
 
@@ -83,7 +92,7 @@ public class EmpresaDAO {
      * @param totalTrabajadores El total de trabajadores.
      * @param otrosDatosEmpresa Otros datos de la empresa.
      * @param nombreEmpresa El nombre de la empresa a actualizar.
-     * @throws SQLException Si ocurre un error al actualizar la empresa en la base de datos.
+     * @throws SQLException Sí ocurre un error al actualizar la empresa en la base de datos.
      */
     public void updateEmpresaOtros(Modelo_5_2_Proceso totalTrabajadores, Modelo_5_2_Conclusion otrosDatosEmpresa, String nombreEmpresa) throws SQLException {
         String sqlEmpresa = "UPDATE Empresa SET cnae = ?, convenio = ?, numero_convenio = ?, total_electores = ? WHERE nombre = ?";
@@ -97,7 +106,20 @@ public class EmpresaDAO {
             pstmt.setString(5, nombreEmpresa);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage("error.actualizar.empresa"), e.getMessage()), false);
+            handleSQLException(e, "error.actualizar.empresa");
         }
+    }
+
+    /**
+     * Maneja las excepciones SQL mostrando el mensaje correspondiente y registrando el error.
+     *
+     * @param e La excepción SQL.
+     * @param mensajeClave La clave del mensaje de error en el MessageManager.
+     */
+    private void handleSQLException(SQLException e, String mensajeClave) {
+        if (view != null) {
+            view.mostrarMensaje(String.format(MessageManager.getMessage(mensajeClave), e.getMessage()), false);
+        }
+        Constantes.LOGGER.log(Level.SEVERE, "SQL Error: {0}", e.getMessage());
     }
 }

@@ -10,23 +10,26 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import java.util.Arrays;
 import java.util.List;
-import java.util.ResourceBundle;
 
 /**
  * La clase `VentanaPrincipal` gestiona la interfaz de la ventana principal de la aplicación.
  * Utiliza JavaFX para la interfaz gráfica.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class VentanaPrincipal {
 
-    public static final String OPACIDAD_DESACTIVADO = "-fx-opacity: 0.5;";
     private final PrincipalController controller;
     private final Stage stage;
 
+    /**
+     * Constructor de la clase VentanaPrincipal.
+     *
+     * @param controller El controlador principal de la aplicación.
+     */
     public VentanaPrincipal(PrincipalController controller) {
         this.controller = controller;
         this.stage = new Stage();
@@ -100,7 +103,7 @@ public class VentanaPrincipal {
      */
     private Label crearLabel() {
         Label label = new Label(MessageManager.getMessage("principal.seleccion"));
-        label.setStyle(Constantes.FONT_SIZE_14_FONT_WEIGHT_BOLD);
+        label.setStyle(Constantes.ESTILO_ETIQUETA_LOGIN);
         return label;
     }
 
@@ -126,7 +129,7 @@ public class VentanaPrincipal {
     private Button crearBotonDeshabilitado(String texto) {
         Button boton = new Button(texto);
         boton.setDisable(true);
-        boton.setStyle(OPACIDAD_DESACTIVADO); // Cambia la opacidad para indicar que está deshabilitado
+        boton.setStyle(Constantes.OPACIDAD_DESACTIVADO); // Cambia la opacidad para indicar que está deshabilitado
         return boton;
     }
 

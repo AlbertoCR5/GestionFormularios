@@ -16,13 +16,12 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.ResourceBundle;
-
 /**
  * La clase `VentanaLogin` gestiona la interfaz de la ventana de inicio de sesión.
  * Utiliza JavaFX para la interfaz gráfica.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class VentanaLogin {
     private final PrincipalController controller;
@@ -69,13 +68,13 @@ public class VentanaLogin {
         headerBox.getChildren().addAll(labelIniciarSesion, spacer, btnCambiarIdioma);
 
         Label usuarioLabel = new Label(MessageManager.getMessage("login.username"));
-        usuarioLabel.setStyle("-fx-font-size: 14px;");
+        usuarioLabel.setStyle(Constantes.ESTILO_ETIQUETA_LOGIN);
         TextField usuarioTextField = new TextField();
         usuarioTextField.setPrefWidth(250);
         usuarioTextField.setMaxWidth(250);
 
         Label contrasenaLabel = new Label(MessageManager.getMessage("login.password"));
-        contrasenaLabel.setStyle("-fx-font-size: 14px;");
+        contrasenaLabel.setStyle(Constantes.ESTILO_ETIQUETA_LOGIN);
         PasswordField contrasenaField = new PasswordField();
         contrasenaField.setPrefWidth(250);
         contrasenaField.setMaxWidth(250);
@@ -96,8 +95,8 @@ public class VentanaLogin {
 
         Scene scene = new Scene(vbox, 255, 210);
         stage.setScene(scene);
+        stage.setOnShown(_ -> usuarioTextField.requestFocus());
     }
-
 
     /**
      * Muestra la ventana de inicio de sesión.

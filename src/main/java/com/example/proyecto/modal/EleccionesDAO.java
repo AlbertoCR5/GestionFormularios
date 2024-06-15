@@ -1,22 +1,26 @@
 package com.example.proyecto.modal;
 
 import com.example.proyecto.interfaz.PrincipalView;
+import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.DirectorioManager;
 import com.example.proyecto.util.MessageManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 /**
  * La clase EleccionesDAO se encarga de las operaciones de base de datos para la tabla Elecciones.
  *
- * @author Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class EleccionesDAO {
 
     private final PrincipalView view;
     private final DatabaseManager databaseManager;
+
     /**
      * Constructor de la clase EleccionesDAO.
      *
@@ -31,26 +35,32 @@ public class EleccionesDAO {
     /**
      * Crea la tabla Elecciones en la base de datos si no existe.
      *
-     * @throws SQLException Si ocurre un error al crear la tabla en la base de datos.
+     * @throws SQLException Sí ocurre un error al crear la tabla en la base de datos.
      */
     public void createTableElecciones() throws SQLException {
-        String sqlElecciones = "CREATE TABLE IF NOT EXISTS Elecciones ("
-                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + " nombreEmpresa TEXT,"
-                + " numeroPreaviso TEXT,"
-                + " fechaConstitucion TEXT,"
-                + " fechaEscrutinio TEXT,"
-                + " FOREIGN KEY (nombreEmpresa) REFERENCES Empresa(nombre)"
-                + ");";
+        String sqlElecciones = """
+                CREATE TABLE IF NOT EXISTS Elecciones (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombreEmpresa TEXT,
+                numeroPreaviso TEXT,
+                fechaConstitucion TEXT,
+                fechaEscrutinio TEXT,
+                FOREIGN KEY (nombreEmpresa) REFERENCES Empresa(nombre)
+                );""";
 
         try (Connection connection = databaseManager.connect();
              PreparedStatement pstmt = connection.prepareStatement(sqlElecciones)) {
             pstmt.execute();
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage("error.crear.tabla.elecciones"), e.getMessage()), false);
+            handleSQLException(e, "error.crear.tabla.elecciones");
         }
     }
 
+    /**
+     * Inserta la fecha de constitución en la tabla Elecciones.
+     *
+     * @param nuevoPreaviso El objeto Preaviso con los datos de la constitución.
+     */
     public void insertFechaConstitucion(Preaviso nuevoPreaviso) {
         String sqlElecciones = "INSERT INTO Elecciones(nombreEmpresa, fechaConstitucion) VALUES(?, ?)";
 
@@ -60,17 +70,17 @@ public class EleccionesDAO {
             pstmt.setString(2, nuevoPreaviso.getFechaConstitucion());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage("error.insertar.eleccion"), e.getMessage()), false);
+            handleSQLException(e, "error.insertar.eleccion");
         }
     }
 
     /**
-     * Inserta una nueva elección en la base de datos.
+     * Actualiza una elección existente en la base de datos.
      *
      * @param fechas El objeto Modelo_5_1 con las fechas.
      * @param numeroPreaviso El objeto Modelo_5_2_Proceso con los datos del escrutinio.
      * @param nombreEmpresaCompleto El nombre completo de la empresa.
-     * @throws SQLException Si ocurre un error al insertar la elección en la base de datos.
+     * @throws SQLException Sí ocurre un error al actualizar la elección en la base de datos.
      */
     public void updateEleccion(Modelo_5_1 fechas, Modelo_5_2_Proceso numeroPreaviso, String nombreEmpresaCompleto) throws SQLException {
         String sqlElecciones = "UPDATE Elecciones SET fechaEscrutinio = ?, numeroPreaviso = ? WHERE nombreEmpresa = ?";
@@ -82,7 +92,20 @@ public class EleccionesDAO {
             pstmt.setString(3, nombreEmpresaCompleto);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage("error.actualizar.eleccion"), e.getMessage()), false);
+            handleSQLException(e, "error.actualizar.eleccion");
         }
+    }
+
+    /**
+     * Maneja las excepciones SQL mostrando el mensaje correspondiente y registrando el error.
+     *
+     * @param e La excepción SQL.
+     * @param mensajeClave La clave del mensaje de error en el MessageManager.
+     */
+    private void handleSQLException(SQLException e, String mensajeClave) {
+        if (view != null) {
+            view.mostrarMensaje(String.format(MessageManager.getMessage(mensajeClave), e.getMessage()), false);
+        }
+        Constantes.LOGGER.log(Level.SEVERE, "SQL Error: {0}", e.getMessage());
     }
 }

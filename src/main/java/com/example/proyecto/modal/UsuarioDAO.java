@@ -1,23 +1,32 @@
 package com.example.proyecto.modal;
 
 import com.example.proyecto.interfaz.PrincipalView;
+import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.MessageManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 /**
  * La clase UsuarioDAO se encarga de gestionar las operaciones de la base de datos relacionadas con la tabla Usuario.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class UsuarioDAO {
 
     private final PrincipalView view;
     private final DatabaseManager databaseManager;
 
+    /**
+     * Constructor de la clase UsuarioDAO.
+     *
+     * @param view La vista principal de la aplicación.
+     * @param databaseManager El gestor de base de datos.
+     */
     public UsuarioDAO(PrincipalView view, DatabaseManager databaseManager) {
         this.view = view;
         this.databaseManager = databaseManager;
@@ -45,9 +54,7 @@ public class UsuarioDAO {
                 insertUsuario("admin", "123456", true);
             }
         } catch (SQLException e) {
-            if (view != null) {
-                view.mostrarMensaje(String.format(MessageManager.getMessage("error.crear.tabla.usuario"), e.getMessage()), false);
-            }
+            handleSQLException(e, "error.crear.tabla.usuario");
         }
     }
 
@@ -59,14 +66,11 @@ public class UsuarioDAO {
      * @throws SQLException Si ocurre un error al ejecutar la consulta.
      */
     private boolean isTableEmpty(Connection connection) throws SQLException {
-        String sqlCheck = "SELECT COUNT(*) AS total FROM " + "Usuario";
+        String sqlCheck = "SELECT COUNT(*) AS total FROM Usuario";
         try (PreparedStatement pstmt = connection.prepareStatement(sqlCheck);
              ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("total") == 0;
-            }
+            return rs.next() && rs.getInt("total") == 0;
         }
-        return false;
     }
 
     /**
@@ -87,7 +91,7 @@ public class UsuarioDAO {
             pstmt.setInt(3, esAdmin ? 1 : 0);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage("error.insertar.usuario"), e.getMessage()), false);
+            handleSQLException(e, "error.insertar.usuario");
         }
     }
 
@@ -96,9 +100,8 @@ public class UsuarioDAO {
      *
      * @param nombreUsuario El nombre de usuario.
      * @param nuevaContrasena La nueva contraseña del usuario.
-     * @throws SQLException Si ocurre un error al actualizar la contraseña en la base de datos.
      */
-    public void updateContrasena(String nombreUsuario, String nuevaContrasena) throws SQLException {
+    public void updateContrasena(String nombreUsuario, String nuevaContrasena) {
         String sql = "UPDATE Usuario SET contrasena = ? WHERE nombre_usuario = ?";
 
         try (Connection connection = databaseManager.connect();
@@ -107,7 +110,7 @@ public class UsuarioDAO {
             pstmt.setString(2, nombreUsuario);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage("error.actualizar.contrasena"), e.getMessage()), false);
+            handleSQLException(e, "error.actualizar.contrasena");
         }
     }
 
@@ -132,7 +135,7 @@ public class UsuarioDAO {
                 return false;
             }
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage("error.obtener.contrasena"), e.getMessage()), false);
+            handleSQLException(e, "error.obtener.contrasena");
             return false;
         }
     }
@@ -141,9 +144,8 @@ public class UsuarioDAO {
      * Elimina un usuario de la base de datos.
      *
      * @param nombreUsuario El nombre de usuario.
-     * @throws SQLException Si ocurre un error al eliminar el usuario de la base de datos.
      */
-    public void deleteUsuario(String nombreUsuario) throws SQLException {
+    public void deleteUsuario(String nombreUsuario)  {
         String sql = "DELETE FROM Usuario WHERE nombre_usuario = ?";
 
         try (Connection connection = databaseManager.connect();
@@ -151,7 +153,7 @@ public class UsuarioDAO {
             pstmt.setString(1, nombreUsuario);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage("error.eliminar.usuario"), e.getMessage()), false);
+            handleSQLException(e, "error.eliminar.usuario");
         }
     }
 
@@ -175,8 +177,21 @@ public class UsuarioDAO {
                 return false;
             }
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage("error.obtener.admin"), e.getMessage()), false);
+            handleSQLException(e, "error.obtener.admin");
             return false;
         }
+    }
+
+    /**
+     * Maneja las excepciones SQL mostrando el mensaje correspondiente y registrando el error.
+     *
+     * @param e La excepción SQL.
+     * @param mensajeClave La clave del mensaje de error en el MessageManager.
+     */
+    private void handleSQLException(SQLException e, String mensajeClave) {
+        if (view != null) {
+            view.mostrarMensaje(String.format(MessageManager.getMessage(mensajeClave), e.getMessage()), false);
+        }
+        Constantes.LOGGER.log(Level.SEVERE, "SQL Error: {0}", e.getMessage());
     }
 }

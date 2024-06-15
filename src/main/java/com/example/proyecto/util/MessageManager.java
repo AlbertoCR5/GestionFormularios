@@ -10,6 +10,7 @@ import java.util.ResourceBundle;
  * automáticamente al idioma configurado.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class MessageManager {
     private static ResourceBundle bundle = ResourceBundle.getBundle("messages");

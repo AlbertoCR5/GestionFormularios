@@ -1,6 +1,10 @@
 package com.example.proyecto.util;
 
+import com.example.proyecto.modal.DatabaseManager;
+
 import java.io.File;
+import java.time.format.DateTimeFormatter;
+import java.util.logging.Logger;
 
 public class Constantes {
     // Provincias de Andalucía
@@ -12,7 +16,7 @@ public class Constantes {
     public static final String PROMOTORES = "UNIÓN GENERAL DE TRABAJADORES (UGT)";
 
     // Formatos de fecha y hora
-    public static final String FORMATO_FECHA = "dd/MM/yyyy";
+    public static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     public static final String FORMATO_HORA = "HH:mm";
 
     // Constantes de fechas
@@ -27,6 +31,7 @@ public class Constantes {
     public static final int MINIMO_ELECTORES = 6;
     public static final int MAXIMO_ELECTORES_DELEGADOS = 50;
     public static final int MAXIMO_1_DELEGADO = 30;
+    public static final int DIAS_ENTRE_PREAVISO_Y_CONSTITUCION = 32;
 
     // Cantidad de representantes
     public static final int CANTIDAD_REPRESENTANTES_3 = 3;
@@ -112,6 +117,18 @@ public static final String PREAVISO = "preaviso";
     public static final double ANCHO_BOTON = 250;
     public static final String BOLD_UNDERLINED_STYLE = "-fx-font-size: 16px; -fx-font-weight: bold; -fx-underline: true;";
     public static final String FONT_SIZE_14_FONT_WEIGHT_BOLD = "-fx-font-size: 14px; -fx-font-weight: bold;";
+    public static final Logger LOGGER = Logger.getLogger(DatabaseManager.class.getName());
+    public static final String ESTILO_ETIQUETA_LOGIN = "-fx-font-size: 14px;";
+    public static final String OPACIDAD_DESACTIVADO = "-fx-opacity: 0.5;";
+    public static final int ESPACIADO_VBOX = 10;
+    public static final int ESPACIADO_HGAP = 10;
+    public static final int ESPACIADO_VGAP = 10;
+    public static final int ESPACIADO_PADDING = 20;
+    public static final int ANCHO_VENTANA_PREAVISO = 600;
+    public static final int ALTO_VENTANA_PREAVISO = 700;
+    public static final int ANCHO_DATEPICKER = 110;
+    public static final String FONT_WEIGHT_BOLD = "-fx-font-weight: bold";
+    public static final double DURACION_VALIDACION = 0.1;
 }
 
 

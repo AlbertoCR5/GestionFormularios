@@ -1,26 +1,24 @@
 package com.example.proyecto.controller;
 
 import com.example.proyecto.modal.DatabaseManager;
+import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.MessageManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * La clase `LoginManager` gestiona la lógica de inicio de sesión de la aplicación.
  * Verifica las credenciales del usuario y controla el acceso al sistema.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class LoginManager {
 
-    private static final Logger LOGGER = Logger.getLogger(LoginManager.class.getName());
     private final DatabaseManager databaseManager;
     private String usuarioActual;
 
@@ -54,9 +52,8 @@ public class LoginManager {
                     return true; // Devuelve true si hay algún resultado, lo que significa que las credenciales son correctas
                 }
             }
-
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, MessageManager.getMessage("login.error")+ e.getMessage());
+            Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage("login.error") + e.getMessage(), e);
         }
         return false;
     }
