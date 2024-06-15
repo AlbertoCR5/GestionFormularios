@@ -5,11 +5,13 @@ import com.example.proyecto.controller.PrincipalController;
 import com.example.proyecto.interfaz.PrincipalView;
 import com.example.proyecto.modal.DatabaseManager;
 import com.example.proyecto.util.Constantes;
+import com.example.proyecto.util.MessageManager;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.logging.Level;
 
 /**
@@ -30,35 +32,33 @@ public class PrincipalApplication extends Application {
      * Configura y muestra la ventana principal de la aplicación.
      *
      * @param primaryStage El escenario principal de la aplicación.
+     * @throws IOException Si ocurre un error durante el inicio de la aplicación.
      */
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws IOException {
         try {
             iniciarAplicacion();
         } catch (IOException e) {
-            Constantes.LOGGER.log(Level.SEVERE, "Error al iniciar la aplicación: {0}", e.getMessage());
+            Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage("error.inicio.app"), e);
+            throw e;
         }
     }
 
     /**
      * Método que inicializa la aplicación configurando la vista principal, el controlador y la base de datos.
      *
-     * @throws IOException Sí ocurre un error durante la inicialización.
+     * @throws IOException Si ocurre un error durante la inicialización.
      */
     private void iniciarAplicacion() throws IOException {
         PrincipalView view = inicializarVista();
         try {
             DatabaseManager dbManager = inicializarBaseDeDatos(view);
-            LoginManager loginManager = new LoginManager(dbManager);
-            PrincipalController controller = new PrincipalController(loginManager);
-            configurarVista(view, controller);
-            dbManager.createNewDatabase();
-            view.mostrarVentanaLogin();
+            configurarAplicacion(view, dbManager);
         } catch (SQLException e) {
-            view.mostrarMensaje(String.format("Error al mostrar la ventana de inicio de sesión: %s", e.getMessage()), false);
-            Constantes.LOGGER.log(Level.SEVERE, "Error al crear la base de datos: {0}", e.getMessage());
-        } catch (Exception e) {
-            Constantes.LOGGER.log(Level.SEVERE, "Error al iniciar la aplicación: {0}", e.getMessage());
+            manejarErrorSQLException(view, e);
+        } catch (RuntimeException e) {
+            // Manejo específico de RuntimeException
+            Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage("error.runtime.app"), e);
         }
     }
 
@@ -76,10 +76,26 @@ public class PrincipalApplication extends Application {
      *
      * @param view La vista principal de la aplicación.
      * @return El gestor de base de datos inicializado.
-     * @throws SQLException Sí ocurre un error durante la inicialización de la base de datos.
+     * @throws SQLException Si ocurre un error durante la inicialización de la base de datos.
      */
     private DatabaseManager inicializarBaseDeDatos(PrincipalView view) throws SQLException {
         return new DatabaseManager(view);
+    }
+
+    /**
+     * Configura la aplicación estableciendo la vista principal, el controlador y el gestor de inicio de sesión.
+     *
+     * @param view La vista principal.
+     * @param dbManager El gestor de base de datos.
+     * @throws SQLException Si ocurre un error durante la configuración de la base de datos.
+     * @throws IOException Sí ocurre un error durante la configuración de la aplicación.
+     */
+    private void configurarAplicacion(PrincipalView view, DatabaseManager dbManager) throws SQLException, IOException {
+        LoginManager loginManager = new LoginManager(dbManager);
+        PrincipalController controller = new PrincipalController(loginManager);
+        configurarVista(view, controller);
+        dbManager.createNewDatabase();
+        view.mostrarVentanaLogin();
     }
 
     /**
@@ -91,5 +107,16 @@ public class PrincipalApplication extends Application {
     private void configurarVista(PrincipalView view, PrincipalController controller) {
         controller.setView(view);
         view.setController(controller);
+    }
+
+    /**
+     * Maneja los errores de SQL que ocurren durante la inicialización de la base de datos.
+     *
+     * @param view La vista principal de la aplicación.
+     * @param e La excepción de SQL.
+     */
+    private void manejarErrorSQLException(PrincipalView view, SQLException e) {
+        view.mostrarMensaje(MessageFormat.format(MessageManager.getMessage("error.sql.mensaje"), e.getMessage()), false);
+        Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage("error.crear.bd"), e);
     }
 }

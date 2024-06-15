@@ -20,6 +20,7 @@ import java.util.function.Consumer;
  * Utiliza PDFBox para la manipulación de los documentos PDF.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class CumplimentarEscrutinioPDF {
 
@@ -39,10 +40,9 @@ public class CumplimentarEscrutinioPDF {
      * Modifica los campos de texto en el formulario PDF.
      *
      * @param rutaFormularioPDF La ruta del formulario PDF.
-     * @param modelo Datos del modelo a usar.
      * @param fieldModifier Un Consumer que define cómo modificar los campos del formulario.
      */
-    private void modificarCamposTextoPDF(String rutaFormularioPDF, Object modelo, Consumer<PDAcroForm> fieldModifier) {
+    private void modificarCamposTextoPDF(String rutaFormularioPDF, Consumer<PDAcroForm> fieldModifier) {
         try (PDDocument pdfDocument = PDDocument.load(new File(rutaFormularioPDF))) {
             PDDocumentCatalog docCatalog = pdfDocument.getDocumentCatalog();
             pdfDocument.setAllSecurityToBeRemoved(true);
@@ -59,8 +59,11 @@ public class CumplimentarEscrutinioPDF {
         }
     }
 
+    /**
+     * Modifica los campos de texto en el formulario de modelo 5.1 PDF.
+     */
     public void modificarCamposTextoEscrutinioModelo5_1PDF(String rutaFormularioPDF, Modelo_5_1 nuevoModelo5_1) {
-        modificarCamposTextoPDF(rutaFormularioPDF, nuevoModelo5_1, acroForm -> {
+        modificarCamposTextoPDF(rutaFormularioPDF, acroForm -> {
             modificarCampoTexto(acroForm, "fechaEscrutinio", nuevoModelo5_1.getFechaEscrutinioLetras());
             ArrayList<Candidato> candidatos = nuevoModelo5_1.getCandidatos();
             for (int i = 0; i < candidatos.size(); i++) {
@@ -73,15 +76,16 @@ public class CumplimentarEscrutinioPDF {
         });
     }
 
+    /**
+     * Modifica los campos de texto en el formulario de modelo 5.2 (proceso) PDF.
+     */
     public void modificarCamposTextoEscrutinioModelo5_2ProcesoPDF(String rutaFormularioPDF, Modelo_5_1 nuevoModelo5_1, Modelo_5_2_Proceso nuevoModelo5_2_proceso) {
-        modificarCamposTextoPDF(rutaFormularioPDF, nuevoModelo5_1, acroForm -> {
+        modificarCamposTextoPDF(rutaFormularioPDF, acroForm -> {
             modificarCampoTexto(acroForm, "preaviso", nuevoModelo5_2_proceso.getPreaviso());
             modificarCampoTexto(acroForm, "dia", String.valueOf(nuevoModelo5_1.getDiaVotacion()));
             modificarCampoTexto(acroForm, "mes", nuevoModelo5_1.getMesVotacion());
             modificarCampoTexto(acroForm, "anio", String.valueOf(nuevoModelo5_1.getAnioVotacion()));
             modificarCampoTexto(acroForm, "totalElectores", String.valueOf(nuevoModelo5_2_proceso.getTotalElectores()));
-            //modificarCampoTexto(acroForm, "electoresVarones", String.valueOf(nuevoModelo5_2_proceso.getElectoresVarones()));
-            //modificarCampoTexto(acroForm, "electoresMujeres", String.valueOf((nuevoModelo5_2_proceso.getTotalElectores() - nuevoModelo5_2_proceso.getElectoresVarones())));
             modificarCampoTexto(acroForm, "numeroRepresentantes", String.valueOf(nuevoModelo5_2_proceso.getNumeroRepresentantes()));
             if (nuevoModelo5_2_proceso.getTotalVotantes() > 0) {
                 modificarCampoTexto(acroForm, "votantesVarones", String.valueOf(nuevoModelo5_2_proceso.getVotantesVarones()));
@@ -95,8 +99,11 @@ public class CumplimentarEscrutinioPDF {
         });
     }
 
+    /**
+     * Modifica los campos de texto en el formulario de modelo 5.2 (conclusión) PDF.
+     */
     public void modificarCamposTextoEscrutinioModelo5_2ConclusionPDF(String rutaFormularioPDF, Modelo_5_2_Conclusion nuevoModelo5_2_conclusion) {
-        modificarCamposTextoPDF(rutaFormularioPDF, nuevoModelo5_2_conclusion, acroForm -> {
+        modificarCamposTextoPDF(rutaFormularioPDF, acroForm -> {
             modificarCampoTexto(acroForm, "actividadEconomica", nuevoModelo5_2_conclusion.getActvEcono());
             modificarCampoTexto(acroForm, "actividadEconomica1", nuevoModelo5_2_conclusion.getActvEcono1());
             modificarCampoTexto(acroForm, "actividadEconomica2", nuevoModelo5_2_conclusion.getActvEcono2());
@@ -118,8 +125,11 @@ public class CumplimentarEscrutinioPDF {
         });
     }
 
+    /**
+     * Modifica los campos de texto en el formulario de modelo 9 PDF.
+     */
     public void modificarCamposTextoEscrutinioModelo9PDF(String rutaFormularioPDF, Modelo_5_1 nuevoModelo5_1, Modelo_5_2_Conclusion nuevoModelo5_2_Conclusion, Modelo_5_2_Proceso nuevoModelo5_2_Proceso) {
-        modificarCamposTextoPDF(rutaFormularioPDF, nuevoModelo5_1, acroForm -> {
+        modificarCamposTextoPDF(rutaFormularioPDF, acroForm -> {
             modificarCampoTexto(acroForm, "presidente", nuevoModelo5_2_Conclusion.getPresidente());
             modificarCampoTexto(acroForm, "dniPresidente", nuevoModelo5_2_Conclusion.getDniPresidente());
             modificarCampoTexto(acroForm, "dia", String.valueOf(nuevoModelo5_1.getDiaVotacion()));
@@ -129,8 +139,11 @@ public class CumplimentarEscrutinioPDF {
         });
     }
 
+    /**
+     * Modifica los campos de texto en el formulario de autorización PDF.
+     */
     public void modificarCamposTextoEscrutinioAutorizacionPDF(String rutaFormularioPDF, Modelo_5_1 nuevoModelo5_1, Modelo_5_2_Conclusion nuevoModelo5_2_Conclusion) {
-        modificarCamposTextoPDF(rutaFormularioPDF, nuevoModelo5_1, acroForm -> {
+        modificarCamposTextoPDF(rutaFormularioPDF, acroForm -> {
             modificarCampoTexto(acroForm, "nombrePresidente", nuevoModelo5_2_Conclusion.getPresidente());
             modificarCampoTexto(acroForm, "dia", String.valueOf(nuevoModelo5_1.getDiaVotacion()));
             modificarCampoTexto(acroForm, "mes", ConversorFechaToLetras.convertirMesALetras(nuevoModelo5_1.getFechaEscrutinio()));
@@ -151,7 +164,7 @@ public class CumplimentarEscrutinioPDF {
             try {
                 field.setValue(nuevoValor);
             } catch (IOException e) {
-                ventanaPreaviso.mostrarMensaje(STR."\{MessageManager.getMessage("error.modificar.campo")}\{campoID}: \{e.getMessage()}", false);
+                ventanaPreaviso.mostrarMensaje(String.format("%s%s: %s", MessageManager.getMessage("error.modificar.campo"), campoID, e.getMessage()), false);
             }
         } else {
             ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.campo.texto.no.encontrado") + campoID, false);
@@ -168,7 +181,7 @@ public class CumplimentarEscrutinioPDF {
     private void guardarPDF(String rutaFormularioPDF, PDDocument pdfDocument) throws IOException {
         pdfDocument.save(rutaFormularioPDF);
         documentosGuardados++;
-        if (documentosGuardados == 5){
+        if (documentosGuardados == 5) {
             ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("pdf.guardado.exitosamente") + rutaFormularioPDF, true);
             documentosGuardados = 0;
         }

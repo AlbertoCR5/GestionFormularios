@@ -3,6 +3,7 @@ package com.example.proyecto.modal;
 import com.example.proyecto.interfaz.PrincipalView;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.MessageManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,7 +28,7 @@ public class UsuarioDAO {
      * @param view La vista principal de la aplicación.
      * @param databaseManager El gestor de base de datos.
      */
-    public UsuarioDAO(PrincipalView view, DatabaseManager databaseManager) {
+    public UsuarioDAO(@NotNull PrincipalView view, @NotNull DatabaseManager databaseManager) {
         this.view = view;
         this.databaseManager = databaseManager;
     }
@@ -65,7 +66,7 @@ public class UsuarioDAO {
      * @return true si la tabla está vacía, false en caso contrario.
      * @throws SQLException Si ocurre un error al ejecutar la consulta.
      */
-    private boolean isTableEmpty(Connection connection) throws SQLException {
+    private boolean isTableEmpty(@NotNull Connection connection) throws SQLException {
         String sqlCheck = "SELECT COUNT(*) AS total FROM Usuario";
         try (PreparedStatement pstmt = connection.prepareStatement(sqlCheck);
              ResultSet rs = pstmt.executeQuery()) {
@@ -81,7 +82,7 @@ public class UsuarioDAO {
      * @param esAdmin Indica si el usuario es administrador.
      * @throws SQLException Si ocurre un error al insertar el usuario en la base de datos.
      */
-    public void insertUsuario(String nombreUsuario, String contrasena, boolean esAdmin) throws SQLException {
+    public void insertUsuario(@NotNull String nombreUsuario, @NotNull String contrasena, boolean esAdmin) throws SQLException {
         String sqlUsuario = "INSERT INTO Usuario(nombre_usuario, contrasena, es_admin) VALUES(?,?,?)";
 
         try (Connection connection = databaseManager.connect();
@@ -101,7 +102,7 @@ public class UsuarioDAO {
      * @param nombreUsuario El nombre de usuario.
      * @param nuevaContrasena La nueva contraseña del usuario.
      */
-    public void updateContrasena(String nombreUsuario, String nuevaContrasena) {
+    public void updateContrasena(@NotNull String nombreUsuario, @NotNull String nuevaContrasena) {
         String sql = "UPDATE Usuario SET contrasena = ? WHERE nombre_usuario = ?";
 
         try (Connection connection = databaseManager.connect();
@@ -121,7 +122,7 @@ public class UsuarioDAO {
      * @param contrasena La contraseña del usuario.
      * @return true si la contraseña es correcta, false en caso contrario.
      */
-    public boolean verificarContrasena(String nombreUsuario, String contrasena) {
+    public boolean verificarContrasena(@NotNull String nombreUsuario, @NotNull String contrasena) {
         String sql = "SELECT contrasena FROM Usuario WHERE nombre_usuario = ?";
 
         try (Connection connection = databaseManager.connect();
@@ -145,7 +146,7 @@ public class UsuarioDAO {
      *
      * @param nombreUsuario El nombre de usuario.
      */
-    public void deleteUsuario(String nombreUsuario)  {
+    public void deleteUsuario(@NotNull String nombreUsuario)  {
         String sql = "DELETE FROM Usuario WHERE nombre_usuario = ?";
 
         try (Connection connection = databaseManager.connect();
@@ -163,7 +164,7 @@ public class UsuarioDAO {
      * @param nombreUsuario El nombre de usuario.
      * @return true si el usuario es administrador, false en caso contrario.
      */
-    public boolean esAdmin(String nombreUsuario) {
+    public boolean esAdmin(@NotNull String nombreUsuario) {
         String sql = "SELECT es_admin FROM Usuario WHERE nombre_usuario = ?";
 
         try (Connection connection = databaseManager.connect();
@@ -188,10 +189,8 @@ public class UsuarioDAO {
      * @param e La excepción SQL.
      * @param mensajeClave La clave del mensaje de error en el MessageManager.
      */
-    private void handleSQLException(SQLException e, String mensajeClave) {
-        if (view != null) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage(mensajeClave), e.getMessage()), false);
-        }
-        Constantes.LOGGER.log(Level.SEVERE, "SQL Error: {0}", e.getMessage());
+    private void handleSQLException(@NotNull SQLException e, @NotNull String mensajeClave) {
+        view.mostrarMensaje(String.format(MessageManager.getMessage(mensajeClave), e.getMessage()), false);
+        Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage(mensajeClave), e);
     }
 }

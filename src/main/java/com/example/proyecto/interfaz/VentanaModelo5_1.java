@@ -30,6 +30,7 @@ import java.util.*;
  * La clase `VentanaModelo5_1` gestiona la ventana que solicita la fecha del acta de escrutinio y los datos de los candidatos.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class VentanaModelo5_1 {
 
@@ -39,6 +40,8 @@ public class VentanaModelo5_1 {
     private final Modelo_5_2_Proceso nuevoModelo5_2Proceso;
     private final Modelo_5_2_Conclusion nuevoModeloConclusion;
     private final Path rutaEmpresa;
+    private TextField textFieldNumeroPreaviso;
+    private TableView<Candidato> tableView;
 
     /**
      * Constructor para la clase `VentanaModelo5_1`.
@@ -49,12 +52,13 @@ public class VentanaModelo5_1 {
      * @param nuevoModelo5_2Proceso El modelo 5.2 Proceso que se va a utilizar para almacenar los datos ingresados.
      * @param nuevoModeloConclusion El modelo 5.2 Conclusión que se va a utilizar para almacenar los datos ingresados.
      */
-    public VentanaModelo5_1(PrincipalView vistaPrincipal, Path rutaEmpresa, Modelo_5_1 nuevoModelo5_1, Modelo_5_2_Proceso nuevoModelo5_2Proceso, Modelo_5_2_Conclusion nuevoModeloConclusion) {
+    public VentanaModelo5_1(@NotNull PrincipalView vistaPrincipal, @NotNull Path rutaEmpresa, @NotNull Modelo_5_1 nuevoModelo5_1,
+                            @NotNull Modelo_5_2_Proceso nuevoModelo5_2Proceso, @NotNull Modelo_5_2_Conclusion nuevoModeloConclusion) {
         this.vistaPrincipal = vistaPrincipal;
-        this.nuevoModeloConclusion = nuevoModeloConclusion;
         this.validadorCampos = new ValidadorCampos();
         this.nuevoModelo5_1 = nuevoModelo5_1;
         this.nuevoModelo5_2Proceso = nuevoModelo5_2Proceso;
+        this.nuevoModeloConclusion = nuevoModeloConclusion;
         this.rutaEmpresa = rutaEmpresa;
     }
 
@@ -65,42 +69,59 @@ public class VentanaModelo5_1 {
         Stage stage = new Stage();
         stage.setTitle(MessageManager.getMessage("modelo5_1.title"));
 
+        VBox vbox = crearVBox();
+        VBox vboxNumeroPreaviso = crearVBoxNumeroPreaviso();
+        DatePicker datePicker = getDatePicker();
+        Label labelCandidatosHeader = crearLabelCandidatosHeader();
+        Button btnAgregarCandidato = crearBotonAgregarCandidato();
+        tableView = crearTableViewCandidatos();
+        Button btnGuardar = crearBotonGuardar(stage, datePicker);
+
+        vbox.getChildren().addAll(vboxNumeroPreaviso, labelCandidatosHeader, datePicker, btnAgregarCandidato, tableView, crearGuardarBox(btnGuardar));
+
+        Scene scene = new Scene(vbox, 500, 400);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    @NotNull
+    private VBox crearVBox() {
         VBox vbox = new VBox(10);
         vbox.setPadding(new Insets(10));
         vbox.setAlignment(Pos.CENTER);
+        return vbox;
+    }
 
-        // Etiqueta para el número de preaviso
+    @NotNull
+    private VBox crearVBoxNumeroPreaviso() {
         Label labelNumeroPreaviso = new Label(MessageManager.getMessage("modelo5_1.preaviso"));
         labelNumeroPreaviso.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
-        TextField textFieldNumeroPreaviso = new TextField();
+        textFieldNumeroPreaviso = new TextField();
         textFieldNumeroPreaviso.setMaxWidth(100);
 
-        // Crear un VBox para el número de preaviso y el campo de texto
         VBox vboxNumeroPreaviso = new VBox(5);
         vboxNumeroPreaviso.setAlignment(Pos.CENTER);
         vboxNumeroPreaviso.getChildren().addAll(labelNumeroPreaviso, textFieldNumeroPreaviso);
+        return vboxNumeroPreaviso;
+    }
 
-        // Etiqueta para la fecha del acta de escrutinio
-        Label labelFechaEscrutinio = new Label(MessageManager.getMessage("modelo5_1.fecha_escrutinio"));
-        labelFechaEscrutinio.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
-        labelFechaEscrutinio.setAlignment(Pos.CENTER);
-
-        // DatePicker para seleccionar la fecha del acta de escrutinio
-        DatePicker datePicker = getDatePicker();
-
-        vbox.getChildren().addAll(vboxNumeroPreaviso, labelFechaEscrutinio, datePicker);
-
-        // Etiqueta para los candidatos
+    @NotNull
+    private Label crearLabelCandidatosHeader() {
         Label labelCandidatosHeader = new Label(MessageManager.getMessage("modelo5_1.candidatos"));
         labelCandidatosHeader.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
         labelCandidatosHeader.setAlignment(Pos.CENTER);
+        return labelCandidatosHeader;
+    }
 
-        // Botón para agregar candidatos
+    @NotNull
+    private Button crearBotonAgregarCandidato() {
         Button btnAgregarCandidato = new Button(MessageManager.getMessage("modelo5_1.agregar_candidato"));
+        btnAgregarCandidato.setOnAction(_ -> mostrarDialogoAgregarCandidato());
+        return btnAgregarCandidato;
+    }
 
-        vbox.getChildren().addAll(labelCandidatosHeader, btnAgregarCandidato);
-
-        // Tabla para mostrar los candidatos
+    @NotNull
+    private TableView<Candidato> crearTableViewCandidatos() {
         TableView<Candidato> tableView = new TableView<>();
         TableColumn<Candidato, String> colNombre = new TableColumn<>(MessageManager.getMessage("modelo5_1.nombre"));
         TableColumn<Candidato, String> colDNI = new TableColumn<>(MessageManager.getMessage("modelo5_1.dni"));
@@ -110,7 +131,12 @@ public class VentanaModelo5_1 {
         colDNI.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getDni()));
         colSindicato.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getSindicato()));
 
-        // Ajustar anchos de columnas
+        ajustarColumnas(tableView, colNombre, colDNI, colSindicato);
+        return tableView;
+    }
+
+    private void ajustarColumnas(@NotNull TableView<Candidato> tableView, @NotNull TableColumn<Candidato, String> colNombre,
+                                 @NotNull TableColumn<Candidato, String> colDNI, @NotNull TableColumn<Candidato, String> colSindicato) {
         colNombre.setMinWidth(280);
         colNombre.setStyle("-fx-alignment: CENTER-LEFT;");
         colDNI.setMinWidth(100);
@@ -119,130 +145,154 @@ public class VentanaModelo5_1 {
         colSindicato.setMinWidth(100);
         colSindicato.setMaxWidth(100);
         colSindicato.setStyle("-fx-alignment: CENTER;");
-
         Collections.addAll(tableView.getColumns(), colNombre, colDNI, colSindicato);
         tableView.setPrefHeight(200);
         tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+    }
 
-        vbox.getChildren().add(tableView);
-
-        // Botón para guardar la información
+    @NotNull
+    private Button crearBotonGuardar(@NotNull Stage stage, @NotNull DatePicker datePicker) {
         Button btnGuardar = new Button(MessageManager.getMessage("modelo5_1.guardar"));
+        btnGuardar.setOnAction(_ -> guardarInformacion(stage, datePicker));
+        return btnGuardar;
+    }
+
+    @NotNull
+    private HBox crearGuardarBox(@NotNull Button btnGuardar) {
         HBox guardarBox = new HBox(btnGuardar);
         guardarBox.setAlignment(Pos.CENTER);
         guardarBox.setPadding(new Insets(10, 0, 0, 0));
+        return guardarBox;
+    }
 
-        vbox.getChildren().add(guardarBox);
+    private void mostrarDialogoAgregarCandidato() {
+        Dialog<Candidato> dialog = new Dialog<>();
+        dialog.setTitle(MessageManager.getMessage("modelo5_1.agregar_candidato"));
 
-        ArrayList<Candidato> candidatos = new ArrayList<>();
+        GridPane dialogPane = crearDialogPane();
+        dialog.getDialogPane().setContent(dialogPane);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        btnAgregarCandidato.setOnAction(_ -> {
-            Dialog<Candidato> dialog = new Dialog<>();
-            dialog.setTitle(MessageManager.getMessage("modelo5_1.agregar_candidato"));
+        Platform.runLater(() -> dialogPane.getChildren().get(1).requestFocus());
 
-            GridPane dialogPane = new GridPane();
-            dialogPane.setHgap(10);
-            dialogPane.setVgap(10);
-            dialogPane.setPadding(new Insets(10));
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> validarDNI(dialogPane, event));
 
-            TextField nombreApellidos = new TextField();
-            TextField dni = new TextField();
-            TextField sindicato = new TextField();
-
-            dialogPane.add(new Label(MessageManager.getMessage("modelo5_1.nombre")), 0, 0);
-            dialogPane.add(nombreApellidos, 1, 0);
-            dialogPane.add(new Label(MessageManager.getMessage("modelo5_1.dni")), 0, 1);
-            dialogPane.add(dni, 1, 1);
-            dialogPane.add(new Label(MessageManager.getMessage("modelo5_1.sindicato")), 0, 2);
-            dialogPane.add(sindicato, 1, 2);
-
-            dialog.getDialogPane().setContent(dialogPane);
-            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-            Platform.runLater(nombreApellidos::requestFocus);
-
-            Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
-            okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
-                if (!validadorCampos.verificarDNI(dni.getText())) {
-                    vistaPrincipal.mostrarMensaje(MessageManager.getMessage("modelo5_1.dni_invalido"), false);
-                    event.consume(); // Consume el evento para evitar cerrar el diálogo
-                    dni.requestFocus(); // Devuelve el foco al campo de texto
-                }
-            });
-
-            dialog.setResultConverter(dialogButton -> {
-                if (dialogButton == ButtonType.OK) {
-                    try {
-                        return new Candidato(nombreApellidos.getText().toUpperCase(), dni.getText().toUpperCase(), sindicato.getText().toUpperCase());
-                    } catch (CumplimentarPDFException ex) {
-                        vistaPrincipal.mostrarMensaje(ex.getMessage(), false);
-                    }
-                }
-                return null;
-            });
-
-            Optional<Candidato> result = dialog.showAndWait();
-            result.ifPresent(candidatos::add);
-            tableView.getItems().setAll(candidatos);
-        });
-
-        btnGuardar.setOnAction(_ -> {
-            LocalDate fechaActa = datePicker.getValue();
-            if (fechaActa == null || fechaActa.isBefore(LocalDate.now())) {
-                vistaPrincipal.mostrarMensaje(MessageManager.getMessage("modelo5_1.fecha_invalida"), false);
-            } else {
-                try {
-                    String nombreEmpresaCompleto = rutaEmpresa.getFileName().toString();
-                    DatabaseManager dbManager = new DatabaseManager(vistaPrincipal);
-                    nuevoModelo5_2Proceso.setPreaviso(textFieldNumeroPreaviso.getText());
-                    nuevoModelo5_1.setFechaEscrutinio(datePicker.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                    candidatos.sort(Comparator.comparing(Candidato::getApellido));
-                    nuevoModelo5_1.setCandidatos(candidatos);
-                    for (Candidato candidato : nuevoModelo5_1.getCandidatos()) {
-                        CandidatosDAO candidatosDAO = new CandidatosDAO(vistaPrincipal, dbManager);
-                        candidatosDAO.insertCandidato(candidato, nombreEmpresaCompleto);
-                    }
-                    // Aquí guarda la información y continua con la siguiente ventana
-                    new VentanaModelosEscrutinio(vistaPrincipal, rutaEmpresa, nuevoModelo5_1, nuevoModelo5_2Proceso, nuevoModeloConclusion).mostrarVentanaModeloConclusion();
-                    stage.close();
-                } catch (CumplimentarPDFException | NumberFormatException ex) {
-                    vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("modelo5_1.error_guardar"), ex.getMessage()), false);
-                } catch (SQLException e) {
-                    vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("modelo5_1.error_db"), e.getMessage()), false);
-                }
+        dialog.setResultConverter(dialogButton -> {
+            try {
+                return obtenerResultadoDialogo(dialogButton, dialogPane);
+            } catch (CumplimentarPDFException e) {
+                throw new RuntimeException(e);
             }
         });
+        Optional<Candidato> result = dialog.showAndWait();
+        result.ifPresent(this::agregarCandidato);
+    }
 
-        Scene scene = new Scene(vbox, 500, 400);
-        stage.setScene(scene);
-        stage.show();
+    @NotNull
+    private GridPane crearDialogPane() {
+        GridPane dialogPane = new GridPane();
+        dialogPane.setHgap(10);
+        dialogPane.setVgap(10);
+        dialogPane.setPadding(new Insets(10));
+
+        dialogPane.add(new Label(MessageManager.getMessage("modelo5_1.nombre")), 0, 0);
+        dialogPane.add(new TextField(), 1, 0);
+        dialogPane.add(new Label(MessageManager.getMessage("modelo5_1.dni")), 0, 1);
+        dialogPane.add(new TextField(), 1, 1);
+        dialogPane.add(new Label(MessageManager.getMessage("modelo5_1.sindicato")), 0, 2);
+        dialogPane.add(new TextField(), 1, 2);
+        return dialogPane;
+    }
+
+    private void validarDNI(@NotNull GridPane dialogPane, @NotNull javafx.event.ActionEvent event) {
+        TextField dniField = (TextField) dialogPane.getChildren().get(3);
+        if (!validadorCampos.verificarDNI(dniField.getText())) {
+            vistaPrincipal.mostrarMensaje(MessageManager.getMessage("modelo5_1.dni_invalido"), false);
+            event.consume();
+            dniField.requestFocus();
+        }
+    }
+
+    private Candidato obtenerResultadoDialogo(ButtonType dialogButton, @NotNull GridPane dialogPane) throws CumplimentarPDFException {
+        if (dialogButton == ButtonType.OK) {
+            TextField nombreApellidos = (TextField) dialogPane.getChildren().get(1);
+            TextField dni = (TextField) dialogPane.getChildren().get(3);
+            TextField sindicato = (TextField) dialogPane.getChildren().get(5);
+            return new Candidato(nombreApellidos.getText().toUpperCase(), dni.getText().toUpperCase(), sindicato.getText().toUpperCase());
+        }
+        return null;
+    }
+
+    private void agregarCandidato(@NotNull Candidato candidato) {
+        nuevoModelo5_1.getCandidatos().add(candidato);
+        actualizarTablaCandidatos();
+    }
+
+    private void actualizarTablaCandidatos() {
+        tableView.getItems().setAll(nuevoModelo5_1.getCandidatos());
+    }
+
+    private void guardarInformacion(@NotNull Stage stage, @NotNull DatePicker datePicker) {
+        LocalDate fechaActa = datePicker.getValue();
+        if (fechaActa == null || fechaActa.isBefore(LocalDate.now())) {
+            vistaPrincipal.mostrarMensaje(MessageManager.getMessage("modelo5_1.fecha_invalida"), false);
+        } else {
+            try {
+                String nombreEmpresaCompleto = rutaEmpresa.getFileName().toString();
+                DatabaseManager dbManager = new DatabaseManager(vistaPrincipal);
+                nuevoModelo5_2Proceso.setPreaviso(textFieldNumeroPreaviso.getText());
+                nuevoModelo5_1.setFechaEscrutinio(datePicker.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                nuevoModelo5_1.getCandidatos().sort(Comparator.comparing(Candidato::getApellido));
+                guardarCandidatosEnBD(dbManager, nombreEmpresaCompleto);
+                new VentanaModelosEscrutinio(vistaPrincipal, rutaEmpresa, nuevoModelo5_1, nuevoModelo5_2Proceso, nuevoModeloConclusion).mostrarVentanaModeloConclusion();
+                stage.close();
+            } catch (CumplimentarPDFException | NumberFormatException | SQLException ex) {
+                manejarExcepciones(ex);
+            }
+        }
+    }
+
+    private void guardarCandidatosEnBD(@NotNull DatabaseManager dbManager, @NotNull String nombreEmpresaCompleto) throws SQLException {
+        for (Candidato candidato : nuevoModelo5_1.getCandidatos()) {
+            CandidatosDAO candidatosDAO = new CandidatosDAO(vistaPrincipal, dbManager);
+            candidatosDAO.insertCandidato(candidato, nombreEmpresaCompleto);
+        }
+    }
+
+    private void manejarExcepciones(@NotNull Exception ex) {
+        if (ex instanceof CumplimentarPDFException || ex instanceof NumberFormatException) {
+            vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("modelo5_1.error_guardar"), ex.getMessage()), false);
+        } else if (ex instanceof SQLException) {
+            vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("modelo5_1.error_db"), ex.getMessage()), false);
+        }
     }
 
     @NotNull
     private DatePicker getDatePicker() {
         DatePicker datePicker = getPicker();
-
-        // Añadir un listener para devolver el foco al DatePicker si la fecha es inválida
         datePicker.focusedProperty().addListener((_, _, newValue) -> {
-            if (!newValue) { // Cuando pierde el foco
+            if (!newValue) {
                 try {
                     datePicker.getConverter().fromString(datePicker.getEditor().getText());
                 } catch (DateTimeParseException e) {
-                    PauseTransition pause = new PauseTransition(Duration.seconds(0.1));
-                    pause.setOnFinished(_ -> datePicker.requestFocus()); // Devuelve el foco al DatePicker;
-                    pause.play();
-
+                    devolverFocoDatePicker(datePicker);
                 }
             }
         });
         return datePicker;
     }
 
-    private @NotNull DatePicker getPicker() {
+    private void devolverFocoDatePicker(@NotNull DatePicker datePicker) {
+        PauseTransition pause = new PauseTransition(Duration.seconds(0.1));
+        pause.setOnFinished(_ -> datePicker.requestFocus());
+        pause.play();
+    }
+
+    @NotNull
+    private DatePicker getPicker() {
         DatePicker datePicker = new DatePicker();
         datePicker.setPrefWidth(125);
-
-        // Configurar un StringConverter personalizado para manejar el formato y los errores de fecha
         datePicker.setConverter(new StringConverter<>() {
             private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 

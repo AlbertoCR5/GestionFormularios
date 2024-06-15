@@ -15,6 +15,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -45,7 +47,7 @@ public class PrincipalView {
      *
      * @param controller El controlador principal.
      */
-    public void setController(PrincipalController controller) {
+    public void setController(@NotNull PrincipalController controller) {
         this.controller = controller;
     }
 
@@ -69,19 +71,13 @@ public class PrincipalView {
     /**
      * Muestra un mensaje de información o error en la interfaz.
      *
-     * @param mensaje      El mensaje a mostrar.
+     * @param mensaje       El mensaje a mostrar.
      * @param esInformacion Indica si el mensaje es de información (true) o de error (false).
      */
-    public void mostrarMensaje(String mensaje, boolean esInformacion) {
+    public void mostrarMensaje(@NotNull String mensaje, boolean esInformacion) {
         Platform.runLater(() -> {
-            Alert alert;
-            if (esInformacion) {
-                alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle(MessageManager.getMessage("info.title"));
-            } else {
-                alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle(MessageManager.getMessage("error.title"));
-            }
+            Alert alert = esInformacion ? new Alert(Alert.AlertType.INFORMATION) : new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(MessageManager.getMessage(esInformacion ? "info.title" : "error.title"));
             alert.setHeaderText(null);
             alert.setContentText(mensaje);
 
@@ -103,17 +99,14 @@ public class PrincipalView {
      * @param mensaje El mensaje a mostrar en la alerta.
      * @return Un Optional con el ButtonType seleccionado por el usuario.
      */
-    public Optional<ButtonType> mostrarAlertaConfirmacion(GridPane mensaje) {
-        VBox content = new VBox(); // Crear un VBox para contener el GridPane y el mensaje adicional
-        content.setSpacing(10); // Espacio entre los elementos
-
+    public Optional<ButtonType> mostrarAlertaConfirmacion(@NotNull GridPane mensaje) {
+        VBox content = new VBox(10); // Crear un VBox con espacio entre los elementos
         content.getChildren().add(mensaje); // Añadir el GridPane al VBox
 
         Text continuarText = new Text(MessageManager.getMessage("conclusion.continuar")); // Crear el texto adicional
         continuarText.setTextAlignment(TextAlignment.RIGHT);
         VBox.setMargin(continuarText, new Insets(0, 30, 0, 0));
         content.setAlignment(Pos.CENTER_RIGHT);
-
         content.getChildren().add(continuarText); // Añadir el texto adicional al VBox
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION); // Crear una alerta de confirmación
@@ -127,8 +120,9 @@ public class PrincipalView {
     /**
      * Solicita el nombre de una empresa al usuario.
      *
-     * @return El nombre de la empresa ingresado por el usuario.
+     * @return El nombre de la empresa ingresado por el usuario o null si el usuario canceló.
      */
+    @Nullable
     public String solicitarNombreEmpresa() {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle(MessageManager.getMessage("empresa.nombre.titulo"));

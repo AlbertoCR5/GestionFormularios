@@ -4,6 +4,7 @@ import com.example.proyecto.interfaz.PrincipalView;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.DirectorioManager;
 import com.example.proyecto.util.MessageManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,7 +30,7 @@ public class EmpresaDAO {
      * @param view La vista principal de la aplicación.
      * @param databaseManager El gestor de base de datos.
      */
-    public EmpresaDAO(PrincipalView view, DatabaseManager databaseManager) {
+    public EmpresaDAO(@NotNull PrincipalView view, @NotNull DatabaseManager databaseManager) {
         this.view = view;
         this.databaseManager = databaseManager;
     }
@@ -69,7 +70,7 @@ public class EmpresaDAO {
      * @param datosEmpresa La empresa a insertar.
      * @throws SQLException Sí ocurre un error al insertar la empresa en la base de datos.
      */
-    public void insertEmpresa(Preaviso datosEmpresa) throws SQLException {
+    public void insertEmpresa(@NotNull Preaviso datosEmpresa) throws SQLException {
         String sqlEmpresa = "INSERT INTO Empresa(nombre, cif, direccion, municipio, provincia, codigo_postal) VALUES(?,?,?,?,?,?)";
 
         try (Connection conn = databaseManager.connect();
@@ -94,7 +95,7 @@ public class EmpresaDAO {
      * @param nombreEmpresa El nombre de la empresa a actualizar.
      * @throws SQLException Sí ocurre un error al actualizar la empresa en la base de datos.
      */
-    public void updateEmpresaOtros(Modelo_5_2_Proceso totalTrabajadores, Modelo_5_2_Conclusion otrosDatosEmpresa, String nombreEmpresa) throws SQLException {
+    public void updateEmpresaOtros(@NotNull Modelo_5_2_Proceso totalTrabajadores, @NotNull Modelo_5_2_Conclusion otrosDatosEmpresa, @NotNull String nombreEmpresa) throws SQLException {
         String sqlEmpresa = "UPDATE Empresa SET cnae = ?, convenio = ?, numero_convenio = ?, total_electores = ? WHERE nombre = ?";
 
         try (Connection conn = databaseManager.connect();
@@ -116,10 +117,8 @@ public class EmpresaDAO {
      * @param e La excepción SQL.
      * @param mensajeClave La clave del mensaje de error en el MessageManager.
      */
-    private void handleSQLException(SQLException e, String mensajeClave) {
-        if (view != null) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage(mensajeClave), e.getMessage()), false);
-        }
-        Constantes.LOGGER.log(Level.SEVERE, "SQL Error: {0}", e.getMessage());
+    private void handleSQLException(@NotNull SQLException e, @NotNull String mensajeClave) {
+        view.mostrarMensaje(String.format(MessageManager.getMessage(mensajeClave), e.getMessage()), false);
+        Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage(mensajeClave), e);
     }
 }

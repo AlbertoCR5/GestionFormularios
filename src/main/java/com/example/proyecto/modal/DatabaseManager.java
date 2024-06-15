@@ -3,6 +3,7 @@ package com.example.proyecto.modal;
 import com.example.proyecto.interfaz.PrincipalView;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.MessageManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.sql.Connection;
@@ -26,7 +27,7 @@ public class DatabaseManager {
      *
      * @param view La vista principal de la aplicación.
      */
-    public DatabaseManager(PrincipalView view) {
+    public DatabaseManager(@NotNull PrincipalView view) {
         this.view = view;
     }
 
@@ -36,7 +37,7 @@ public class DatabaseManager {
      * Si la base de datos especificada en DATABASE_URL no existe, SQLite creará una nueva.
      * Si la base de datos ya existe, SQLite simplemente se conectará a ella.
      *
-     * @throws SQLException Sí ocurre un error al conectar a la base de datos.
+     * @throws SQLException Si ocurre un error al conectar a la base de datos.
      */
     public void createNewDatabase() throws SQLException {
         // Crear el directorio si no existe
@@ -48,8 +49,7 @@ public class DatabaseManager {
             }
         }
 
-        try (Connection conn = connect()) {
-            if (conn != null) {
+        try (Connection _ = connect()) {
                 UsuarioDAO usuarioDAO = new UsuarioDAO(view, this);
                 EmpresaDAO empresaDAO = new EmpresaDAO(view, this);
                 EleccionesDAO eleccionesDAO = new EleccionesDAO(view, this);
@@ -59,11 +59,10 @@ public class DatabaseManager {
                 empresaDAO.createTableEmpresa();
                 eleccionesDAO.createTableElecciones();
                 candidatosDAO.createTableCandidatos();
-            }
         } catch (SQLException e) {
             view.mostrarMensaje(String.format(MessageManager.getMessage("error.database.create"), e.getMessage()), false);
-            Constantes.LOGGER.log(Level.SEVERE, "Error al crear la base de datos: {0}", e.getMessage());
-            throw e; // Rethrow the exception to ensure it is properly handled by the caller
+            Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage("error.database.create"), e);
+            throw e; // Relanza la excepción para asegurar que sea manejada correctamente por el llamador
         }
     }
 
@@ -71,15 +70,16 @@ public class DatabaseManager {
      * Establece una conexión con la base de datos SQLite.
      *
      * @return Connection a la base de datos.
-     * @throws SQLException Sí ocurre un error al conectar a la base de datos.
+     * @throws SQLException Si ocurre un error al conectar a la base de datos.
      */
+    @NotNull
     public Connection connect() throws SQLException {
         try {
             return DriverManager.getConnection(Constantes.DATABASE_URL);
         } catch (SQLException e) {
             view.mostrarMensaje(String.format(MessageManager.getMessage("error.database.connect"), e.getMessage()), false);
-            Constantes.LOGGER.log(Level.SEVERE, "Error al conectar a la base de datos: {0}", e.getMessage());
-            throw e; // Rethrow the exception to ensure it is properly handled by the caller
+            Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage("error.database.connect"), e);
+            throw e; // Relanza la excepción para asegurar que sea manejada correctamente por el llamador
         }
     }
 }

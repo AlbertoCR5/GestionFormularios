@@ -1,6 +1,10 @@
 package com.example.proyecto.controller;
 
-import com.example.proyecto.interfaz.*;
+import com.example.proyecto.interfaz.PrincipalView;
+import com.example.proyecto.interfaz.VentanaLogin;
+import com.example.proyecto.interfaz.VentanaModelosEscrutinio;
+import com.example.proyecto.interfaz.VentanaUsuario;
+import com.example.proyecto.interfaz.preaviso.VentanaPreaviso;
 import com.example.proyecto.modal.*;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.DirectorioManager;
@@ -14,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.Locale;
 import java.util.logging.Level;
 
@@ -28,29 +33,29 @@ public class PrincipalController {
 
     private final Timeline timeline = new Timeline();
     private final DirectorioManager directorioManager = new DirectorioManager();
-    private final LoginManager inicioSesion;
+    private final LoginManager loginManager;
     private final Path rutaElecciones;
-    private PrincipalView vistaPrincipal;
+    private PrincipalView principalView;
     private VentanaLogin ventanaLoginActual;
 
     /**
      * Constructor de la clase PrincipalController.
      *
-     * @param inicioSesion La instancia del gestor de inicio de sesión.
+     * @param loginManager La instancia del gestor de inicio de sesión.
      * @throws IOException Sí ocurre un error al crear el directorio de elecciones.
      */
-    public PrincipalController(LoginManager inicioSesion) throws IOException {
-        this.inicioSesion = inicioSesion;
+    public PrincipalController(LoginManager loginManager) throws IOException {
+        this.loginManager = loginManager;
         this.rutaElecciones = directorioManager.crearDirectorioElecciones();
     }
 
     /**
      * Establece la vista principal de la aplicación.
      *
-     * @param vistaPrincipal La vista principal.
+     * @param principalView La vista principal.
      */
-    public void setView(PrincipalView vistaPrincipal) {
-        this.vistaPrincipal = vistaPrincipal;
+    public void setView(PrincipalView principalView) {
+        this.principalView = principalView;
     }
 
     /**
@@ -60,15 +65,10 @@ public class PrincipalController {
      * @param contrasena La contraseña del usuario.
      */
     public void iniciarSesion(String usuario, String contrasena) {
-        try {
-            if (inicioSesion.verificarCredenciales(usuario, contrasena)) {
-                manejarInicioSesionCorrecto();
-            } else {
-                vistaPrincipal.mostrarMensaje(MessageManager.getMessage("login.credenciales.incorrectas"), false);
-            }
-        } catch (Exception e) {
-            vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("login.error"), e.getMessage()), false);
-            Constantes.LOGGER.log(Level.SEVERE, "Error en iniciarSesion: {0}", e.getMessage());
+        if (loginManager.verificarCredenciales(usuario, contrasena)) {
+            manejarInicioSesionCorrecto();
+        } else {
+            principalView.mostrarMensaje(MessageManager.getMessage("login.credenciales.incorrectas"), false);
         }
     }
 
@@ -77,9 +77,9 @@ public class PrincipalController {
      */
     private void manejarInicioSesionCorrecto() {
         Platform.runLater(() -> {
-            vistaPrincipal.mostrarMensaje(MessageManager.getMessage("login.correcto"), true);
+            principalView.mostrarMensaje(MessageManager.getMessage("login.correcto"), true);
             PauseTransition pause = new PauseTransition(Duration.seconds(2));
-            pause.setOnFinished(_ -> vistaPrincipal.mostrarVentanaPrincipal());
+            pause.setOnFinished(_ -> principalView.mostrarVentanaPrincipal());
             pause.play();
         });
     }
@@ -89,37 +89,17 @@ public class PrincipalController {
      *
      * @param opcion La opción seleccionada.
      */
-    public void tratarOpcion(int opcion) {
-        try {
-            switch (opcion) {
-                case 1:
-                    tratarPreaviso();
-                    break;
-                case 2:
-                    tratarModelosEscrutinio();
-                    break;
-                case 3:
-                    vistaPrincipal.mostrarMensaje(MessageManager.getMessage("menu.opcion.modelo73"), true);
-                    break;
-                case 4:
-                    vistaPrincipal.mostrarMensaje(MessageManager.getMessage("menu.opcion.anexoDelegados"), true);
-                    break;
-                case 5:
-                    vistaPrincipal.mostrarMensaje(MessageManager.getMessage("menu.opcion.calendarioComite"), true);
-                    break;
-                case 6:
-                    tratarUsuarios();
-                    break;
-                case 7:
-                    vistaPrincipal.mostrarMensaje(MessageManager.getMessage("menu.opcion.imprimir"), true);
-                    break;
-                default:
-                    vistaPrincipal.mostrarMensaje(MessageManager.getMessage("menu.opcion.noValida"), false);
-                    break;
-            }
-        } catch (Exception e) {
-            vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("menu.error"), e.getMessage()), false);
-            Constantes.LOGGER.log(Level.SEVERE, "Error en tratarOpcion: {0}", e.getMessage());
+    public void tratarOpcion(int opcion) throws IOException, SQLException {
+        switch (opcion) {
+            case 1 -> tratarPreaviso();
+            case 2 -> tratarModelosEscrutinio();
+            case 3 -> tratarModelo73();
+            case 4 -> tratarAnexoDelegados();
+            case 5 -> tratarCalendarioComite();
+            case 6 -> tratarSalidaSindical();
+            case 7 -> tratarUsuarios();
+            case 8 -> tratarImprimir();
+            default -> principalView.mostrarMensaje(MessageManager.getMessage("menu.opcion.noValida"), false);
         }
     }
 
@@ -127,39 +107,62 @@ public class PrincipalController {
      * Muestra la ventana de preaviso después de un pequeño retraso.
      */
     private void tratarPreaviso() {
-        vistaPrincipal.mostrarMensaje(MessageManager.getMessage("menu.opcion.preaviso"), true);
+        principalView.mostrarMensaje(MessageManager.getMessage("menu.opcion.preaviso"), true);
         timeline.getKeyFrames().clear();
         timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(2), _ -> Platform.runLater(() -> {
-            Preaviso preaviso = new Preaviso(); // Creamos la instancia de Preaviso
-            VentanaPreaviso nuevaVentanaPreaviso = new VentanaPreaviso(vistaPrincipal, preaviso); // Pasamos la instancia al constructor
             try {
-                nuevaVentanaPreaviso.mostrarVentanaPreaviso();
+                mostrarVentanaPreaviso();
             } catch (IOException e) {
-                vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("preaviso.error"), e.getMessage()), false);
-                Constantes.LOGGER.log(Level.SEVERE, "Error en tratarPreaviso: {0}", e.getMessage());
+                principalView.mostrarMensaje(String.format(MessageManager.getMessage("preaviso.error"), e.getMessage()), false);
+                Constantes.LOGGER.log(Level.SEVERE, "error.tratarPreaviso", e);
             }
         })));
         timeline.play();
     }
 
     /**
+     * Muestra la ventana de preaviso.
+     *
+     * @throws IOException Si ocurre un error al mostrar la ventana.
+     */
+    private void mostrarVentanaPreaviso() throws IOException {
+        Preaviso preaviso = new Preaviso(); // Creamos la instancia de Preaviso
+        VentanaPreaviso nuevaVentanaPreaviso = new VentanaPreaviso(principalView, preaviso); // Pasamos la instancia al constructor
+        nuevaVentanaPreaviso.mostrarVentanaPreaviso();
+    }
+
+    /**
      * Muestra la ventana de modelos de escrutinio después de solicitar el nombre de la empresa.
      */
-    private void tratarModelosEscrutinio() {
-        vistaPrincipal.mostrarMensaje(MessageManager.getMessage("menu.opcion.modelosEscrutinio"), true);
+    private void tratarModelosEscrutinio(){
+        principalView.mostrarMensaje(MessageManager.getMessage("menu.opcion.modelosEscrutinio"), true);
         timeline.getKeyFrames().clear();
         timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(2), _ -> Platform.runLater(() -> {
-            String nombreEmpresa = vistaPrincipal.solicitarNombreEmpresa();
-            Path rutaEmpresa = directorioManager.buscarCarpetaEmpresa(rutaElecciones, nombreEmpresa);
-            if (rutaEmpresa != null) {
-                vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("empresa.encontrada"), rutaEmpresa), true);
-                PauseTransition pause = getPauseTransition(rutaEmpresa);
-                pause.play();
-            } else {
-                vistaPrincipal.mostrarMensaje(MessageManager.getMessage("empresa.noEncontrada"), false);
+            try {
+                mostrarModelosEscrutinio();
+            } catch (IOException e) {
+                principalView.mostrarMensaje(String.format(MessageManager.getMessage("modelosEscrutinio.error"), e.getMessage()), false);
+                Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage("error.tratarPreaviso"), e);
             }
         })));
         timeline.play();
+    }
+
+    /**
+     * Muestra la ventana de modelos de escrutinio.
+     *
+     * @throws IOException Si ocurre un error al mostrar la ventana.
+     */
+    private void mostrarModelosEscrutinio() throws IOException {
+        String nombreEmpresa = principalView.solicitarNombreEmpresa();
+        Path rutaEmpresa = directorioManager.buscarCarpetaEmpresa(rutaElecciones, nombreEmpresa);
+        if (rutaEmpresa != null) {
+            principalView.mostrarMensaje(String.format(MessageManager.getMessage("empresa.encontrada"), rutaEmpresa), true);
+            PauseTransition pause = getPauseTransition(rutaEmpresa);
+            pause.play();
+        } else {
+            principalView.mostrarMensaje(MessageManager.getMessage("empresa.noEncontrada"), false);
+        }
     }
 
     /**
@@ -175,7 +178,7 @@ public class PrincipalController {
             Modelo_5_1 modelo51 = new Modelo_5_1();
             Modelo_5_2_Proceso modeloProceso = new Modelo_5_2_Proceso();
             Modelo_5_2_Conclusion modeloConclusion = new Modelo_5_2_Conclusion();
-            VentanaModelosEscrutinio ventanaModelosEscrutinio = new VentanaModelosEscrutinio(vistaPrincipal, rutaEmpresa, modelo51, modeloProceso, modeloConclusion);
+            VentanaModelosEscrutinio ventanaModelosEscrutinio = new VentanaModelosEscrutinio(principalView, rutaEmpresa, modelo51, modeloProceso, modeloConclusion);
             ventanaModelosEscrutinio.iniciarSecuencia();
         });
         return pause;
@@ -185,18 +188,71 @@ public class PrincipalController {
      * Muestra la ventana de usuarios con opciones específicas según el tipo de usuario (admin o regular).
      */
     private void tratarUsuarios() {
-        vistaPrincipal.mostrarMensaje(MessageManager.getMessage("menu.opcion.usuarios"), true);
+        principalView.mostrarMensaje(MessageManager.getMessage("menu.opcion.usuarios"), true);
         timeline.getKeyFrames().clear();
         timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(2), _ -> Platform.runLater(() -> {
-            String usuarioActual = inicioSesion.getUsuarioActual();
-
-            UsuarioDAO usuarioDAO = new UsuarioDAO(vistaPrincipal, new DatabaseManager(vistaPrincipal));
-            boolean esAdmin = usuarioDAO.esAdmin(usuarioActual);
-
-            VentanaUsuario ventanaUsuario = new VentanaUsuario(usuarioDAO, usuarioActual, esAdmin, vistaPrincipal);
-            ventanaUsuario.mostrarVentanaUsuario();
+            try {
+                mostrarVentanaUsuarios();
+            } catch (IOException | SQLException e) {
+                principalView.mostrarMensaje(String.format(MessageManager.getMessage("usuarios.error"), e.getMessage()), false);
+                Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage("error.tratarUsuarios"), e);
+            }
         })));
         timeline.play();
+    }
+
+    /**
+     * Muestra la ventana de usuarios.
+     *
+     * @throws IOException Si ocurre un error al mostrar la ventana.
+     * @throws SQLException Si ocurre un error al acceder a la base de datos.
+     */
+    private void mostrarVentanaUsuarios() throws IOException, SQLException {
+        String usuarioActual = loginManager.getUsuarioActual();
+        UsuarioDAO usuarioDAO = new UsuarioDAO(principalView, new DatabaseManager(principalView));
+        boolean esAdmin = usuarioDAO.esAdmin(usuarioActual);
+        VentanaUsuario ventanaUsuario = new VentanaUsuario(usuarioDAO, usuarioActual, esAdmin, principalView);
+        ventanaUsuario.mostrarVentanaUsuario();
+    }
+
+    /**
+     * Muestra la ventana de Modelo 73.
+     */
+    private void tratarModelo73() {
+        principalView.mostrarMensaje(MessageManager.getMessage("menu.opcion.modelo73"), true);
+        // Lógica pendiente de implementación
+    }
+
+    /**
+     * Muestra la ventana de Anexo Delegados.
+     */
+    private void tratarAnexoDelegados() {
+        principalView.mostrarMensaje(MessageManager.getMessage("menu.opcion.anexoDelegados"), true);
+        // Lógica pendiente de implementación
+    }
+
+    /**
+     * Muestra la ventana de Calendario Comité.
+     */
+    private void tratarCalendarioComite() {
+        principalView.mostrarMensaje(MessageManager.getMessage("menu.opcion.calendarioComite"), true);
+        // Lógica pendiente de implementación
+    }
+
+    /**
+     * Muestra la ventana de Salida Sindical.
+     */
+    private void tratarSalidaSindical() {
+        principalView.mostrarMensaje(MessageManager.getMessage("menu.opcion.salidaSindical"), true);
+        // Lógica pendiente de implementación
+    }
+
+    /**
+     * Muestra la ventana de Imprimir.
+     */
+    private void tratarImprimir() {
+        principalView.mostrarMensaje(MessageManager.getMessage("menu.opcion.imprimir"), true);
+        // Lógica pendiente de implementación
     }
 
     /**
@@ -224,3 +280,4 @@ public class PrincipalController {
         this.ventanaLoginActual = ventanaLogin;
     }
 }
+

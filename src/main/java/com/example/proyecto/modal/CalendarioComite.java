@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Date;
 
 /**
- * La clase `Calendario_Comite` extiende la clase `Preaviso`.
- * Esto significa que `Calendario_Comite` hereda algunas de las propiedades y métodos de `Preaviso`.
+ * La clase `com.example.proyecto.modal.Calendario_Comite` extiende la clase `Preaviso`.
+ * Esto significa que `com.example.proyecto.modal.Calendario_Comite` hereda algunas de las propiedades y métodos de `Preaviso`.
  * Esta clase representa el modelo con el cual se elabora el calendario para comités de empresa.
  *
  * @author Alberto Castro <AlbertoCastrovas@gmail.com>

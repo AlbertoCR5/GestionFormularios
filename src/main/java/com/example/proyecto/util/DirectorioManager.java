@@ -2,6 +2,7 @@ package com.example.proyecto.util;
 
 import com.example.proyecto.interfaz.PrincipalView;
 import com.example.proyecto.modal.Preaviso;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,16 +25,14 @@ public class DirectorioManager {
      * @return La ruta del directorio de elecciones.
      * @throws IOException Si ocurre un error al crear el directorio.
      */
-    public Path crearDirectorioElecciones() throws IOException {
+    public @NotNull Path crearDirectorioElecciones() throws IOException {
         String rutaBase = Constantes.RUTA_BASE;
         Path rutaElecciones = Paths.get(rutaBase, Constantes.NOMBRE_DIRECTORIO);
         File directorioElecciones = rutaElecciones.toFile();
         if (!directorioElecciones.exists()) {
             boolean dirCreated = directorioElecciones.mkdir();
             if (!dirCreated) {
-                if (view != null) {
-                    view.mostrarMensaje(MessageManager.getMessage("error.crear.directorio") + rutaElecciones, false);
-                }
+                mostrarMensajeError("error.crear.directorio", rutaElecciones.toString());
                 throw new IOException(STR."No se pudo crear el directorio: \{rutaElecciones}");
             }
         }
@@ -48,16 +47,14 @@ public class DirectorioManager {
      * @return La ruta del directorio de la empresa.
      * @throws IOException Si ocurre un error al crear el directorio.
      */
-    public Path crearDirectorioEmpresa(Path rutaElecciones, Preaviso nuevoPreaviso) throws IOException {
+    public @NotNull Path crearDirectorioEmpresa(@NotNull Path rutaElecciones, @NotNull Preaviso nuevoPreaviso) throws IOException {
         String nombreEmpresa = sanitizarNombreEmpresa(nuevoPreaviso.getNombreEmpresa());
         Path rutaEmpresa = Paths.get(rutaElecciones.toString(), nombreEmpresa);
         File directorioEmpresa = rutaEmpresa.toFile();
         if (!directorioEmpresa.exists()) {
             boolean dirCreated = directorioEmpresa.mkdir();
             if (!dirCreated) {
-                if (view != null) {
-                    view.mostrarMensaje(MessageManager.getMessage("error.crear.directorio") + rutaEmpresa, false);
-                }
+                mostrarMensajeError("error.crear.directorio", rutaEmpresa.toString());
                 throw new IOException(STR."No se pudo crear el directorio: \{rutaEmpresa}");
             }
         }
@@ -69,7 +66,7 @@ public class DirectorioManager {
      *
      * @return Un array de rutas de formularios.
      */
-    public String[] generarRutasFormularios() {
+    public @NotNull String[] generarRutasFormularios() {
         String[] rutaFormularios = new String[Constantes.DOCUMENTACION_DELEGADOS.length];
         for (int i = 0; i < Constantes.DOCUMENTACION_DELEGADOS.length; i++) {
             rutaFormularios[i] = String.format("%s/%s%s", Constantes.RUTA_DELEGADOS_JAR, Constantes.DOCUMENTACION_DELEGADOS[i], Constantes.EXTENSION_ARCHIVO);
@@ -83,7 +80,7 @@ public class DirectorioManager {
      * @param rutaEmpresa La ruta del directorio de la empresa.
      * @return Un array de rutas de formularios.
      */
-    public String[] generarRutasFormulariosBuscados(Path rutaEmpresa) {
+    public @NotNull String[] generarRutasFormulariosBuscados(@NotNull Path rutaEmpresa) {
         String[] rutaFormulariosBuscados = new String[Constantes.DOCUMENTACION_DELEGADOS.length];
         for (int i = 0; i < Constantes.DOCUMENTACION_DELEGADOS.length; i++) {
             rutaFormulariosBuscados[i] = String.valueOf(Paths.get(rutaEmpresa.toString(), String.format("%s %s%s", rutaEmpresa.getFileName().toString(), Constantes.DOCUMENTACION_DELEGADOS[i], Constantes.EXTENSION_ARCHIVO)));
@@ -98,7 +95,7 @@ public class DirectorioManager {
      * @param nombreEmpresa  El nombre de la empresa a buscar.
      * @return La ruta de la carpeta de la empresa si existe, null en caso contrario.
      */
-    public Path buscarCarpetaEmpresa(Path rutaElecciones, String nombreEmpresa) {
+    public Path buscarCarpetaEmpresa(@NotNull Path rutaElecciones, @NotNull String nombreEmpresa) {
         String nombreEmpresaSanitizado = sanitizarNombreEmpresa(nombreEmpresa);
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(rutaElecciones)) {
             for (Path entry : stream) {
@@ -107,9 +104,7 @@ public class DirectorioManager {
                 }
             }
         } catch (IOException e) {
-            if (view != null) {
-                view.mostrarMensaje(MessageManager.getMessage("error.buscar.carpeta.empresa"), false);
-            }
+            mostrarMensajeError("error.buscar.carpeta.empresa", "");
         }
         return null;
     }
@@ -120,7 +115,7 @@ public class DirectorioManager {
      * @param nombreEmpresa El nombre de la empresa a sanitizar.
      * @return El nombre de la empresa sanitizado.
      */
-    public static String sanitizarNombreEmpresa(String nombreEmpresa) {
+    public static @NotNull String sanitizarNombreEmpresa(@NotNull String nombreEmpresa) {
         return nombreEmpresa.replace(".", "").replace("/", "").replace("\\", "").replace(",", "");
     }
 
@@ -131,7 +126,7 @@ public class DirectorioManager {
      * @param nuevoPreaviso El objeto Preaviso con los datos necesarios.
      * @throws IOException Sí ocurre un error durante la copia de los archivos.
      */
-    public void copiarRecursosADirectorio(String rutaDestino, Preaviso nuevoPreaviso) throws IOException {
+    public void copiarRecursosADirectorio(@NotNull String rutaDestino, @NotNull Preaviso nuevoPreaviso) throws IOException {
         String[] formularios = generarRutasFormularios();
         CumplimentarPreavisoPDF cumplimentarPreavisoPDF = new CumplimentarPreavisoPDF(view);
 
@@ -157,7 +152,19 @@ public class DirectorioManager {
      * @param ruta La ruta del recurso dentro del JAR.
      * @return Un InputStream del recurso.
      */
-    public InputStream obtenerRecursoComoStream(String ruta) {
+    public InputStream obtenerRecursoComoStream(@NotNull String ruta) {
         return getClass().getResourceAsStream(ruta);
+    }
+
+    /**
+     * Muestra un mensaje de error.
+     *
+     * @param claveMensaje La clave del mensaje.
+     * @param detalles Los detalles adicionales.
+     */
+    private void mostrarMensajeError(@NotNull String claveMensaje, @NotNull String detalles) {
+        if (view != null) {
+            view.mostrarMensaje(MessageManager.getMessage(claveMensaje) + detalles, false);
+        }
     }
 }

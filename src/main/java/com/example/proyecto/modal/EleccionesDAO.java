@@ -4,6 +4,7 @@ import com.example.proyecto.interfaz.PrincipalView;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.DirectorioManager;
 import com.example.proyecto.util.MessageManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,7 +28,7 @@ public class EleccionesDAO {
      * @param view La vista principal de la aplicación.
      * @param databaseManager El gestor de la base de datos.
      */
-    public EleccionesDAO(PrincipalView view, DatabaseManager databaseManager) {
+    public EleccionesDAO(@NotNull PrincipalView view, @NotNull DatabaseManager databaseManager) {
         this.view = view;
         this.databaseManager = databaseManager;
     }
@@ -61,7 +62,7 @@ public class EleccionesDAO {
      *
      * @param nuevoPreaviso El objeto Preaviso con los datos de la constitución.
      */
-    public void insertFechaConstitucion(Preaviso nuevoPreaviso) {
+    public void insertFechaConstitucion(@NotNull Preaviso nuevoPreaviso) {
         String sqlElecciones = "INSERT INTO Elecciones(nombreEmpresa, fechaConstitucion) VALUES(?, ?)";
 
         try (Connection connection = databaseManager.connect();
@@ -82,7 +83,7 @@ public class EleccionesDAO {
      * @param nombreEmpresaCompleto El nombre completo de la empresa.
      * @throws SQLException Sí ocurre un error al actualizar la elección en la base de datos.
      */
-    public void updateEleccion(Modelo_5_1 fechas, Modelo_5_2_Proceso numeroPreaviso, String nombreEmpresaCompleto) throws SQLException {
+    public void updateEleccion(@NotNull Modelo_5_1 fechas, @NotNull Modelo_5_2_Proceso numeroPreaviso, @NotNull String nombreEmpresaCompleto) throws SQLException {
         String sqlElecciones = "UPDATE Elecciones SET fechaEscrutinio = ?, numeroPreaviso = ? WHERE nombreEmpresa = ?";
 
         try (Connection connection = databaseManager.connect();
@@ -102,10 +103,8 @@ public class EleccionesDAO {
      * @param e La excepción SQL.
      * @param mensajeClave La clave del mensaje de error en el MessageManager.
      */
-    private void handleSQLException(SQLException e, String mensajeClave) {
-        if (view != null) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage(mensajeClave), e.getMessage()), false);
-        }
-        Constantes.LOGGER.log(Level.SEVERE, "SQL Error: {0}", e.getMessage());
+    private void handleSQLException(@NotNull SQLException e, @NotNull String mensajeClave) {
+        view.mostrarMensaje(String.format(MessageManager.getMessage(mensajeClave), e.getMessage()), false);
+        Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage(mensajeClave), e);
     }
 }

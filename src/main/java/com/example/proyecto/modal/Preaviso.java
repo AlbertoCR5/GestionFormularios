@@ -11,6 +11,9 @@ import java.util.Calendar;
 /**
  * Clase que representa un preaviso para elecciones en una empresa.
  * Incluye la información necesaria para la generación de un preaviso y métodos para validar y establecer esta información.
+ *
+ * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class Preaviso {
 
@@ -166,7 +169,7 @@ public class Preaviso {
     }
 
     public void setCodigoPostal(@NotNull String codigoPostal) throws CumplimentarPDFException {
-        if (codigoPostal.length() != Constantes.DIGITOS_CODIGO_POSTAL) {
+        if (codigoPostal.length() != Constantes.DIGITOS_CODIGO_POSTAL || !codigoPostal.matches("[0-9]+")) {
             throw new CumplimentarPDFException(MessageManager.getMessage("error.codigo.postal.incorrecto"));
         }
         this.codigoPostal = codigoPostal;
@@ -186,7 +189,7 @@ public class Preaviso {
 
     public void setProvincia(String provincia) {
         if (provincia.isEmpty()) {
-            provincia = Constantes.PROVINCIAS_ANDALUCIA[7];
+            provincia = ProvinciasAndalucia.SEVILLA.getNombre();
         }
         this.provincia = provincia;
     }
@@ -263,6 +266,9 @@ public class Preaviso {
     }
 
     public void setPromotores(String promotores) {
+        if (promotores.isEmpty()) {
+            promotores = Constantes.PROMOTORES;
+        }
         this.promotores = promotores;
     }
 
@@ -290,6 +296,9 @@ public class Preaviso {
         this.electores = electores;
     }
 
+    public String getFechaPreaviso() {
+        return fechaPreaviso;
+    }
     /**
      * Establece la fecha de preaviso y realiza las validaciones necesarias.
      *

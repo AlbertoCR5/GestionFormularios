@@ -10,6 +10,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,7 +34,7 @@ public class VentanaPrincipal {
      *
      * @param controller El controlador principal de la aplicación.
      */
-    public VentanaPrincipal(PrincipalController controller) {
+    public VentanaPrincipal(@NotNull PrincipalController controller) {
         this.controller = controller;
         this.stage = new Stage();
         configurarVentanaPrincipal();
@@ -52,8 +56,8 @@ public class VentanaPrincipal {
                 crearBotonDeshabilitado(MessageManager.getMessage("principal.modelo_73")), // Opción 3 deshabilitada
                 crearBotonDeshabilitado(MessageManager.getMessage("principal.anexo_delegados")), // Opción 4 deshabilitada
                 crearBotonDeshabilitado(MessageManager.getMessage("principal.calendario_comite")), // Opción 5 deshabilitada
-                crearBoton(MessageManager.getMessage("principal.usuarios"), 6),
-                crearBotonDeshabilitado(MessageManager.getMessage("principal.imprimir")), // Opción 7 deshabilitada
+                crearBoton(MessageManager.getMessage("principal.usuarios"), 7),
+                crearBotonDeshabilitado(MessageManager.getMessage("principal.imprimir")), // Opción 8 deshabilitada
                 crearBotonSalir()
         );
 
@@ -114,9 +118,15 @@ public class VentanaPrincipal {
      * @param opcion La opción que representa el botón.
      * @return Botón configurado.
      */
-    private Button crearBoton(String texto, int opcion) {
+    private Button crearBoton(@NotNull String texto, int opcion) {
         Button boton = new Button(texto);
-        boton.setOnAction(_ -> controller.tratarOpcion(opcion));
+        boton.setOnAction(_ -> {
+            try {
+                controller.tratarOpcion(opcion);
+            } catch (IOException | SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
         return boton;
     }
 
@@ -126,7 +136,7 @@ public class VentanaPrincipal {
      * @param texto El texto del botón.
      * @return Botón deshabilitado configurado.
      */
-    private Button crearBotonDeshabilitado(String texto) {
+    private Button crearBotonDeshabilitado(@NotNull String texto) {
         Button boton = new Button(texto);
         boton.setDisable(true);
         boton.setStyle(Constantes.OPACIDAD_DESACTIVADO); // Cambia la opacidad para indicar que está deshabilitado
@@ -149,7 +159,7 @@ public class VentanaPrincipal {
      *
      * @param botones Los botones a configurar.
      */
-    private void configurarAnchoBotones(List<Button> botones) {
+    private void configurarAnchoBotones(@NotNull List<Button> botones) {
         for (Button boton : botones) {
             boton.setPrefWidth(Constantes.ANCHO_BOTON);
         }

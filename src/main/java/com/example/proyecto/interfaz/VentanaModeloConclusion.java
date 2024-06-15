@@ -8,26 +8,24 @@ import com.example.proyecto.util.Registro;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Optional;
 
-
 /**
  * La clase `VentanaModeloConclusion` gestiona la ventana que solicita los datos del modelo de conclusión.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class VentanaModeloConclusion {
 
@@ -48,7 +46,9 @@ public class VentanaModeloConclusion {
      * @param modeloConclusion El modelo de conclusión que se va a utilizar para almacenar los datos ingresados.
      * @param registro El registro donde se almacenarán los modelos de escrutinio.
      */
-    public VentanaModeloConclusion(PrincipalView vistaPrincipal, Path rutaEmpresa, Modelo_5_1 nuevoModelo5_1, Modelo_5_2_Proceso nuevoModeloProceso, Modelo_5_2_Conclusion modeloConclusion, Registro registro) {
+    public VentanaModeloConclusion(@NotNull PrincipalView vistaPrincipal, @NotNull Path rutaEmpresa,
+                                   @NotNull Modelo_5_1 nuevoModelo5_1, @NotNull Modelo_5_2_Proceso nuevoModeloProceso,
+                                   @NotNull Modelo_5_2_Conclusion modeloConclusion, @NotNull Registro registro) {
         this.vistaPrincipal = vistaPrincipal;
         this.rutaEmpresa = rutaEmpresa;
         this.nuevoModelo5_1 = nuevoModelo5_1;
@@ -116,7 +116,7 @@ public class VentanaModeloConclusion {
         return textField;
     }
 
-    private Button crearBotonGuardar(Stage stage, TextField textFieldActividadEconomica, TextField textFieldConvenio, TextField textFieldNumeroConvenio, TextField textFieldTrabajadoresFijos) {
+    private Button crearBotonGuardar(@NotNull Stage stage, TextField textFieldActividadEconomica, TextField textFieldConvenio, TextField textFieldNumeroConvenio, TextField textFieldTrabajadoresFijos) {
         Button btnGuardar = new Button(MessageManager.getMessage("conclusion.guardar"));
         btnGuardar.setOnAction(_ -> guardarDatos(stage, textFieldActividadEconomica, textFieldConvenio, textFieldNumeroConvenio, textFieldTrabajadoresFijos));
         return btnGuardar;
@@ -129,7 +129,7 @@ public class VentanaModeloConclusion {
         return guardarBox;
     }
 
-    private void guardarDatos(Stage stage, TextField textFieldActividadEconomica, TextField textFieldConvenio, TextField textFieldNumeroConvenio, TextField textFieldTrabajadoresFijos) {
+    private void guardarDatos(@NotNull Stage stage, TextField textFieldActividadEconomica, TextField textFieldConvenio, TextField textFieldNumeroConvenio, TextField textFieldTrabajadoresFijos) {
         try {
             modeloConclusion.setActvEcono(textFieldActividadEconomica.getText().toUpperCase());
             modeloConclusion.setNombreConvenio(textFieldConvenio.getText().toUpperCase());
@@ -170,49 +170,48 @@ public class VentanaModeloConclusion {
         agregarFila(gridPane, MessageManager.getMessage("conclusion.trabajadores_fijos"), textFieldTrabajadoresFijos.getText(), rowIndex++);
 
         // Agregar encabezado para candidatos
-        Text candidatosHeader = new Text("\n" + MessageManager.getMessage("modelo5_1.candidatos") + ":\n");
+        Text candidatosHeader = new Text(STR."\n\{MessageManager.getMessage("modelo5_1.candidatos")}:\n");
         gridPane.add(candidatosHeader, 0, rowIndex, 2, 1);
         GridPane.setMargin(candidatosHeader, new Insets(10, 0, 0, 0));
         rowIndex++;
 
         // Agregar información de candidatos
         for (Candidato candidato : nuevoModelo5_1.getCandidatos()) {
-            agregarFila(gridPane, " - " + MessageManager.getMessage("modelo5_1.nombre"), candidato.getNombreApellidos(), rowIndex++);
-            agregarFila(gridPane, " - " + MessageManager.getMessage("modelo5_1.dni"), candidato.getDni(), rowIndex++);
-            agregarFila(gridPane, " - " + MessageManager.getMessage("modelo5_1.sindicato"), candidato.getSindicato(), rowIndex++);
+            agregarFila(gridPane, STR." - \{MessageManager.getMessage("modelo5_1.nombre")}", candidato.getNombreApellidos(), rowIndex++);
+            agregarFila(gridPane, STR." - \{MessageManager.getMessage("modelo5_1.dni")}", candidato.getDni(), rowIndex++);
+            agregarFila(gridPane, STR." - \{MessageManager.getMessage("modelo5_1.sindicato")}", candidato.getSindicato(), rowIndex++);
         }
 
         return gridPane;
     }
 
     // Método auxiliar para agregar una fila al GridPane
-    private void agregarFila(GridPane gridPane, String label, String value, int rowIndex) {
-        Text labelText = new Text(label + ": ");
+    private void agregarFila(@NotNull GridPane gridPane, String label, String value, int rowIndex) {
+        Text labelText = new Text(STR."\{label}: ");
         Text valueText = new Text(value);
-        valueText.setStyle("-fx-font-weight: bold");
+        valueText.setStyle(Constantes.FONT_WEIGHT_BOLD);
 
         gridPane.add(labelText, 0, rowIndex);
         gridPane.add(valueText, 1, rowIndex);
     }
-
-
 
     /**
      * Muestra una ventana de confirmación para revisar los datos ingresados.
      * Si el usuario confirma, se registran los modelos de escrutinio y se muestra un mensaje de éxito.
      *
      * @param stage La ventana actual que se está mostrando.
+     * @param mensajeConfirmacion El mensaje de confirmación que se mostrará.
      * @throws CumplimentarPDFException Si ocurre un error al registrar los modelos de escrutinio.
      */
-    private void mostrarConfirmacion(Stage stage, GridPane mensajeConfirmacion) throws CumplimentarPDFException {
+    private void mostrarConfirmacion(@NotNull Stage stage, @NotNull GridPane mensajeConfirmacion) throws CumplimentarPDFException {
         Optional<ButtonType> result = vistaPrincipal.mostrarAlertaConfirmacion(mensajeConfirmacion);
         if (result.isPresent() && result.get() == ButtonType.OK) { // Si el usuario confirma
             // Registrar los modelos de escrutinio
             registro.registrarModelosEscrutinio(nuevoModelo5_1, nuevoModeloProceso, modeloConclusion, rutaEmpresa);
             // Mostrar un mensaje de éxito
-            vistaPrincipal.mostrarMensaje(MessageManager.getMessage("conclusion.datos_guardados"), true);            // Cerrar la ventana actual
+            vistaPrincipal.mostrarMensaje(MessageManager.getMessage("conclusion.datos_guardados"), true);
+            // Cerrar la ventana actual
             stage.close();
         }
     }
 }
-

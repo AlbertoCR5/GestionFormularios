@@ -3,6 +3,8 @@ package com.example.proyecto.controller;
 import com.example.proyecto.modal.DatabaseManager;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.MessageManager;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,7 +29,7 @@ public class LoginManager {
      *
      * @param databaseManager La instancia de `DatabaseManager`.
      */
-    public LoginManager(DatabaseManager databaseManager) {
+    public LoginManager(@NotNull DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
     }
 
@@ -38,7 +40,7 @@ public class LoginManager {
      * @param contrasena La contraseña del usuario.
      * @return true si las credenciales son válidas, false en caso contrario.
      */
-    public boolean verificarCredenciales(String usuario, String contrasena) {
+    public boolean verificarCredenciales(@NotNull String usuario, @NotNull String contrasena) {
         String sqlLogin = "SELECT * FROM Usuario WHERE nombre_usuario = ? AND contrasena = ?";
         try (Connection conn = databaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sqlLogin)) {
@@ -53,7 +55,9 @@ public class LoginManager {
                 }
             }
         } catch (SQLException e) {
-            Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage("login.error") + e.getMessage(), e);
+            Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage("login.error"), e);
+        } catch (Exception e) {
+            Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage("login.error.desconocido"), e);
         }
         return false;
     }
@@ -61,8 +65,9 @@ public class LoginManager {
     /**
      * Obtiene el nombre del usuario actual.
      *
-     * @return El nombre del usuario actual.
+     * @return El nombre del usuario actual, o null si no hay usuario logueado.
      */
+    @Nullable
     public String getUsuarioActual() {
         return usuarioActual;
     }

@@ -2,7 +2,6 @@ package com.example.proyecto.modal;
 
 import com.example.proyecto.util.CumplimentarPDFException;
 import com.example.proyecto.util.ValidadorCampos;
-import com.example.proyecto.util.ValidadorFecha;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,7 +14,6 @@ public class Modelo_3 extends Preaviso {
 
     // Validadores necesarios para la clase
     private final ValidadorCampos validarHora = new ValidadorCampos();
-    private final ValidadorFecha extraerFecha = new ValidadorFecha();
     private final ValidadorCampos verificarDNI = new ValidadorCampos();
 
     // Atributos de la clase

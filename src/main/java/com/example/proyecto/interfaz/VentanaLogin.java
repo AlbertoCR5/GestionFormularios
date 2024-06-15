@@ -15,6 +15,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * La clase `VentanaLogin` gestiona la interfaz de la ventana de inicio de sesión.
@@ -32,7 +33,7 @@ public class VentanaLogin {
      *
      * @param controller El controlador principal que maneja la lógica de inicio de sesión.
      */
-    public VentanaLogin(PrincipalController controller) {
+    public VentanaLogin(@NotNull PrincipalController controller) {
         this.controller = controller;
         this.stage = new Stage();
         controller.setVentanaLoginActual(this);
@@ -63,6 +64,7 @@ public class VentanaLogin {
         btnCambiarIdioma.setOnAction(_ -> {
             String nuevoIdioma = btnCambiarIdioma.getText().equals("ES") ? "en" : "es";
             controller.cambiarIdioma(nuevoIdioma);
+            btnCambiarIdioma.setText(nuevoIdioma.equals("en") ? "ES" : "EN");
         });
 
         headerBox.getChildren().addAll(labelIniciarSesion, spacer, btnCambiarIdioma);

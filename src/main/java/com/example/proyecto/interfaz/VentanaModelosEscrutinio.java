@@ -6,6 +6,7 @@ import com.example.proyecto.modal.Modelo_5_2_Proceso;
 import com.example.proyecto.util.MessageManager;
 import com.example.proyecto.util.Registro;
 import javafx.application.Platform;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,6 +15,7 @@ import java.nio.file.Path;
  * La clase `VentanaModelosEscrutinio` gestiona la secuencia de ventanas para cumplimentar los modelos de escrutinio.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class VentanaModelosEscrutinio {
 
@@ -32,7 +34,9 @@ public class VentanaModelosEscrutinio {
      * @param nuevoModelo5_2Proceso El modelo 5_2 de proceso que se va a cumplimentar.
      * @param nuevoModeloConclusion El modelo 5_2 de conclusión que se va a cumplimentar.
      */
-    public VentanaModelosEscrutinio(PrincipalView vistaPrincipal, Path rutaEmpresa, Modelo_5_1 nuevoModelo5_1, Modelo_5_2_Proceso nuevoModelo5_2Proceso, Modelo_5_2_Conclusion nuevoModeloConclusion) {
+    public VentanaModelosEscrutinio(@NotNull PrincipalView vistaPrincipal, @NotNull Path rutaEmpresa,
+                                    @NotNull Modelo_5_1 nuevoModelo5_1, @NotNull Modelo_5_2_Proceso nuevoModelo5_2Proceso,
+                                    @NotNull Modelo_5_2_Conclusion nuevoModeloConclusion) {
         this.vistaPrincipal = vistaPrincipal;
         this.rutaEmpresa = rutaEmpresa;
         this.nuevoModelo5_1 = nuevoModelo5_1;
@@ -48,7 +52,7 @@ public class VentanaModelosEscrutinio {
             try {
                 mostrarVentanaModelo51();
             } catch (IOException e) {
-                vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("modelo51.error_mostrar"), e.getMessage()), false);
+                mostrarMensajeError("modelo51.error_mostrar", e);
             }
         });
     }
@@ -73,8 +77,18 @@ public class VentanaModelosEscrutinio {
                 VentanaModeloConclusion ventanaConclusion = new VentanaModeloConclusion(vistaPrincipal, rutaEmpresa, nuevoModelo5_1, nuevoModelo5_2Proceso, nuevoModeloConclusion, registro);
                 ventanaConclusion.configurarVentanaConclusion();
             } catch (IOException e) {
-                vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage("conclusion.error_mostrar"), e.getMessage()), false);
+                mostrarMensajeError("conclusion.error_mostrar", e);
             }
         });
+    }
+
+    /**
+     * Muestra un mensaje de error en la vista principal.
+     *
+     * @param claveMensaje La clave del mensaje de error en el MessageManager.
+     * @param e La excepción que ocurrió.
+     */
+    private void mostrarMensajeError(@NotNull String claveMensaje, @NotNull IOException e) {
+        vistaPrincipal.mostrarMensaje(String.format(MessageManager.getMessage(claveMensaje), e.getMessage()), false);
     }
 }

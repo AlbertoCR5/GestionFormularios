@@ -5,6 +5,7 @@ import com.example.proyecto.modal.Modelo_5_1;
 import com.example.proyecto.modal.Modelo_5_2_Conclusion;
 import com.example.proyecto.modal.Modelo_5_2_Proceso;
 import com.example.proyecto.modal.Preaviso;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,6 +15,7 @@ import java.nio.file.Path;
  * Utiliza `DirectorioManager` para gestionar directorios y `CumplimentarPDF` para manipular formularios PDF.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class Registro {
 
@@ -32,18 +34,18 @@ public class Registro {
      *
      * @param nuevoPreaviso El preaviso que se va a registrar.
      * @param ventanaPreaviso La vista de la ventana de preaviso.
-     * @throws IOException Si ocurre un error al crear el directorio de elecciones.
+     * @throws IOException Sí ocurre un error al crear el directorio de elecciones.
      */
-    public Registro(Preaviso nuevoPreaviso, PrincipalView ventanaPreaviso) throws IOException {
+    public Registro(@NotNull Preaviso nuevoPreaviso, @NotNull PrincipalView ventanaPreaviso) throws IOException {
         this.nuevoPreaviso = nuevoPreaviso;
         this.ventanaPreaviso = ventanaPreaviso;
         this.directorioManager = new DirectorioManager();
         this.cumplimentarPreavisoPDF = new CumplimentarPreavisoPDF(ventanaPreaviso);
         this.rutaElecciones = directorioManager.crearDirectorioElecciones();
-        nuevoModelo51 = null;
-        nuevoModelo52Proceso = null;
-        nuevoModelo52Conclusion = null;
-        cumplimentarEscrutinioPDF = null;
+        this.nuevoModelo51 = null;
+        this.nuevoModelo52Proceso = null;
+        this.nuevoModelo52Conclusion = null;
+        this.cumplimentarEscrutinioPDF = null;
     }
 
     /**
@@ -53,9 +55,9 @@ public class Registro {
      * @param nuevoModelo52Proceso El modelo 5.2 de proceso de escrutinio.
      * @param nuevoModelo52Conclusion El modelo 5.2 de conclusión de escrutinio.
      * @param ventanaPreaviso La vista de la ventana de preaviso.
-     * @throws IOException Si ocurre un error al crear el directorio de elecciones.
+     * @throws IOException Sí ocurre un error al crear el directorio de elecciones.
      */
-    public Registro(Modelo_5_1 nuevoModelo51, Modelo_5_2_Proceso nuevoModelo52Proceso, Modelo_5_2_Conclusion nuevoModelo52Conclusion, PrincipalView ventanaPreaviso) throws IOException {
+    public Registro(@NotNull Modelo_5_1 nuevoModelo51, @NotNull Modelo_5_2_Proceso nuevoModelo52Proceso, @NotNull Modelo_5_2_Conclusion nuevoModelo52Conclusion, @NotNull PrincipalView ventanaPreaviso) throws IOException {
         this.nuevoPreaviso = null;
         this.nuevoModelo51 = nuevoModelo51;
         this.nuevoModelo52Proceso = nuevoModelo52Proceso;
@@ -69,8 +71,10 @@ public class Registro {
 
     /**
      * Registra un nuevo preaviso creando los directorios y modificando los formularios PDF.
+     *
+     * @param nuevoPreaviso El preaviso que se va a registrar.
      */
-    public void registrarNuevoPreaviso(Preaviso nuevoPreaviso) {
+    public void registrarNuevoPreaviso(@NotNull Preaviso nuevoPreaviso) {
         try {
             Path rutaDirectorioEmpresa = directorioManager.crearDirectorioEmpresa(rutaElecciones, nuevoPreaviso);
             directorioManager.copiarRecursosADirectorio(rutaDirectorioEmpresa.toString(), nuevoPreaviso);
@@ -94,23 +98,27 @@ public class Registro {
      * @param rutaFormularioPDF Ruta del formulario PDF.
      * @param rutaDirectorioEmpresa Ruta del directorio de la empresa.
      */
-    private void procesarFormularioPreaviso(String rutaFormularioPDF, Path rutaDirectorioEmpresa) {
-        if (rutaFormularioPDF.contains(Constantes.PREAVISO)) {
-            cumplimentarPreavisoPDF.modificarCamposTextoPreavisoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
-        } else if (rutaFormularioPDF.contains(Constantes.CALENDARIO_DELEGADOS)) {
-            cumplimentarPreavisoPDF.modificarCamposTextoCalendarioDelegadosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
-        } else if (rutaFormularioPDF.contains(Constantes.MODELO_3)) {
-            cumplimentarPreavisoPDF.modificarCamposTextoModelo3PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
-        } else if (rutaFormularioPDF.contains(Constantes.MODELO_5_1)) {
-            cumplimentarPreavisoPDF.modificarCamposTextoModelo5_1PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
-        } else if (rutaFormularioPDF.contains(Constantes.MODELO_5_2_CONCLUSION)) {
-            cumplimentarPreavisoPDF.modificarCamposTextoModelo5_2ConclusionPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
-        } else if (rutaFormularioPDF.contains(Constantes.MODELO_5_2_PROCESO)) {
-            cumplimentarPreavisoPDF.modificarCamposTextoModelo5_2ProcesoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
-        } else if (rutaFormularioPDF.contains(Constantes.MODELO_9)) {
-            cumplimentarPreavisoPDF.modificarCamposTextoModelo9PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
-        } else if (rutaFormularioPDF.contains(Constantes.AUTORIZACION)) {
-            cumplimentarPreavisoPDF.modificarCamposTextoAutorizacionPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+    private void procesarFormularioPreaviso(@NotNull String rutaFormularioPDF, @NotNull Path rutaDirectorioEmpresa) {
+        try {
+            if (rutaFormularioPDF.contains(Constantes.PREAVISO)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoPreavisoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.CALENDARIO_DELEGADOS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoCalendarioDelegadosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_3)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo3PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_5_1)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo5_1PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_5_2_CONCLUSION)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo5_2ConclusionPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_5_2_PROCESO)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo5_2ProcesoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_9)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo9PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.AUTORIZACION)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoAutorizacionPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            }
+        } catch (Exception e) {
+            ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
         }
     }
 
@@ -122,8 +130,7 @@ public class Registro {
      * @param nuevoModelo52Conclusion El modelo 5.2 de conclusión de escrutinio.
      * @param rutaEmpresa La ruta de la empresa.
      */
-    public void registrarModelosEscrutinio(Modelo_5_1 nuevoModelo51, Modelo_5_2_Proceso nuevoModelo52Proceso, Modelo_5_2_Conclusion nuevoModelo52Conclusion, Path rutaEmpresa) {
-        if (nuevoModelo51 != null && nuevoModelo52Proceso != null && nuevoModelo52Conclusion != null) {
+    public void registrarModelosEscrutinio(@NotNull Modelo_5_1 nuevoModelo51, @NotNull Modelo_5_2_Proceso nuevoModelo52Proceso, @NotNull Modelo_5_2_Conclusion nuevoModelo52Conclusion, @NotNull Path rutaEmpresa) {
             String[] rutaFormularios = directorioManager.generarRutasFormulariosBuscados(rutaEmpresa);
             for (String rutaFormularioPDF : rutaFormularios) {
                 try {
@@ -132,10 +139,6 @@ public class Registro {
                     ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
                 }
             }
-        }
-        else {
-            ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.modelos.nulos"), false);
-        }
     }
 
     /**
@@ -146,17 +149,21 @@ public class Registro {
      * @param nuevoModelo52Proceso El modelo 5.2 de proceso de escrutinio.
      * @param nuevoModelo52Conclusion El modelo 5.2 de conclusión de escrutinio.
      */
-    private void procesarFormularioEscrutinio(String rutaFormularioPDF, Modelo_5_1 nuevoModelo51, Modelo_5_2_Proceso nuevoModelo52Proceso, Modelo_5_2_Conclusion nuevoModelo52Conclusion) {
-        if (rutaFormularioPDF.contains(Constantes.MODELO_5_1)) {
-            cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioModelo5_1PDF(rutaFormularioPDF, nuevoModelo51);
-        } else if (rutaFormularioPDF.contains(Constantes.MODELO_5_2_PROCESO)) {
-            cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioModelo5_2ProcesoPDF(rutaFormularioPDF, nuevoModelo51, nuevoModelo52Proceso);
-        } else if (rutaFormularioPDF.contains(Constantes.MODELO_5_2_CONCLUSION)) {
-            cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioModelo5_2ConclusionPDF(rutaFormularioPDF, nuevoModelo52Conclusion);
-        } else if (rutaFormularioPDF.contains(Constantes.MODELO_9)) {
-            cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioModelo9PDF(rutaFormularioPDF, nuevoModelo51, nuevoModelo52Conclusion, nuevoModelo52Proceso);
-        } else if (rutaFormularioPDF.contains(Constantes.AUTORIZACION)) {
-            cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioAutorizacionPDF(rutaFormularioPDF, nuevoModelo51, nuevoModelo52Conclusion);
+    private void procesarFormularioEscrutinio(@NotNull String rutaFormularioPDF, @NotNull Modelo_5_1 nuevoModelo51, @NotNull Modelo_5_2_Proceso nuevoModelo52Proceso, @NotNull Modelo_5_2_Conclusion nuevoModelo52Conclusion) {
+        try {
+            if (rutaFormularioPDF.contains(Constantes.MODELO_5_1)) {
+                cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioModelo5_1PDF(rutaFormularioPDF, nuevoModelo51);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_5_2_PROCESO)) {
+                cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioModelo5_2ProcesoPDF(rutaFormularioPDF, nuevoModelo51, nuevoModelo52Proceso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_5_2_CONCLUSION)) {
+                cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioModelo5_2ConclusionPDF(rutaFormularioPDF, nuevoModelo52Conclusion);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_9)) {
+                cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioModelo9PDF(rutaFormularioPDF, nuevoModelo51, nuevoModelo52Conclusion, nuevoModelo52Proceso);
+            } else if (rutaFormularioPDF.contains(Constantes.AUTORIZACION)) {
+                cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioAutorizacionPDF(rutaFormularioPDF, nuevoModelo51, nuevoModelo52Conclusion);
+            }
+        } catch (Exception e) {
+            ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
         }
     }
 }

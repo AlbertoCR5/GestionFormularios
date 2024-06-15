@@ -3,6 +3,7 @@ package com.example.proyecto.modal;
 import com.example.proyecto.interfaz.PrincipalView;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.MessageManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +29,7 @@ public class CandidatosDAO {
      * @param view La vista principal de la aplicación.
      * @param databaseManager El gestor de la base de datos.
      */
-    public CandidatosDAO(PrincipalView view, DatabaseManager databaseManager) {
+    public CandidatosDAO(@NotNull PrincipalView view, @NotNull DatabaseManager databaseManager) {
         this.view = view;
         this.databaseManager = databaseManager;
     }
@@ -61,9 +62,8 @@ public class CandidatosDAO {
      *
      * @param candidato El candidato a insertar.
      * @param nombreEmpresaCompleto El nombre completo de la empresa.
-     * @throws SQLException Sí ocurre un error al insertar el candidato en la base de datos.
      */
-    public void insertCandidato(Candidato candidato, String nombreEmpresaCompleto) throws SQLException {
+    public void insertCandidato(@NotNull Candidato candidato, @NotNull String nombreEmpresaCompleto) {
         String sqlCandidatos = "INSERT INTO Candidatos(nombreEmpresa, nombreApellidos, sindicato) VALUES(?, ?, ?)";
 
         try (Connection connection = databaseManager.connect();
@@ -83,10 +83,8 @@ public class CandidatosDAO {
      * @param e La excepción SQL.
      * @param mensajeClave La clave del mensaje de error en el MessageManager.
      */
-    private void handleSQLException(SQLException e, String mensajeClave) {
-        if (view != null) {
-            view.mostrarMensaje(String.format(MessageManager.getMessage(mensajeClave), e.getMessage()), false);
-        }
-        Constantes.LOGGER.log(Level.SEVERE, "SQL Error: {0}", e.getMessage());
+    private void handleSQLException(@NotNull SQLException e, @NotNull String mensajeClave) {
+        view.mostrarMensaje(String.format(MessageManager.getMessage(mensajeClave), e.getMessage()), false);
+        Constantes.LOGGER.log(Level.SEVERE, MessageManager.getMessage(mensajeClave), e);
     }
 }
