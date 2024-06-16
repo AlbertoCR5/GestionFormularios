@@ -1,10 +1,7 @@
 package com.example.proyecto.util;
 
 import com.example.proyecto.interfaz.PrincipalView;
-import com.example.proyecto.modal.Modelo_5_1;
-import com.example.proyecto.modal.Modelo_5_2_Conclusion;
-import com.example.proyecto.modal.Modelo_5_2_Proceso;
-import com.example.proyecto.modal.Preaviso;
+import com.example.proyecto.modal.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -26,7 +23,9 @@ public class Registro {
     private final PrincipalView ventanaPreaviso;
     private final DirectorioManager directorioManager;
     private final CumplimentarPreavisoPDF cumplimentarPreavisoPDF;
+    private final CumplimentarPreavisoComitePDF cumplimentarPreavisoComitePDF;
     private final CumplimentarEscrutinioPDF cumplimentarEscrutinioPDF;
+    private final CumplimentarEscrutinioComitePDF cumplimentarEscrutinioComitePDF;
     private final Path rutaElecciones;
 
     /**
@@ -41,11 +40,13 @@ public class Registro {
         this.ventanaPreaviso = ventanaPreaviso;
         this.directorioManager = new DirectorioManager();
         this.cumplimentarPreavisoPDF = new CumplimentarPreavisoPDF(ventanaPreaviso);
+        this.cumplimentarPreavisoComitePDF = new CumplimentarPreavisoComitePDF(ventanaPreaviso);
         this.rutaElecciones = directorioManager.crearDirectorioElecciones();
         this.nuevoModelo51 = null;
         this.nuevoModelo52Proceso = null;
         this.nuevoModelo52Conclusion = null;
         this.cumplimentarEscrutinioPDF = null;
+        this.cumplimentarEscrutinioComitePDF = null;
     }
 
     /**
@@ -67,6 +68,26 @@ public class Registro {
         this.cumplimentarEscrutinioPDF = new CumplimentarEscrutinioPDF(ventanaPreaviso);
         this.rutaElecciones = directorioManager.crearDirectorioElecciones();
         this.cumplimentarPreavisoPDF = null;
+        this.cumplimentarPreavisoComitePDF = null;
+        this.cumplimentarEscrutinioComitePDF = null;
+    }
+
+    public Registro(@NotNull Modelo_4_Especialistas nuevoModelo4Especialistas, @NotNull Modelo_4_Tecnicos nuevoModelo4Tecnicos, @NotNull Modelo_6_1_Especialistas nuevoModelo61Especialistas,
+                    @NotNull Modelo_6_2_Especialistas nuevoModelo62Especialistas, @NotNull Modelo_6_3_Especialistas nuevoModelo63Especialistas, @NotNull Modelo_6_1_Tecnicos nuevoModelo61Tecnicos,
+                    @NotNull Modelo_6_2_Tecnicos nuevoModelo62Tecnicos, @NotNull Modelo_6_3_Tecnicos nuevoModelo63Tecnicos, @NotNull Modelo_7_1 nuevoModelo71, @NotNull Modelo_7_2 nuevoModelo72,
+                    @NotNull Modelo_7_3_Acta_Global nuevoModelo73ActaGlobal, @NotNull Modelo_7_3_Anexo nuevoModelo73Anexo, @NotNull Modelo_7_3_Proceso nuevcModelo73Proces,
+                    @NotNull CalendarioComite nuevoCalendarioComite, @NotNull Autorizacion nuevaAutorizacion, @NotNull PrincipalView ventanaPreaviso) throws IOException {
+        this.nuevoPreaviso = null;
+        this.nuevoModelo51 = null;
+        this.nuevoModelo52Proceso = null;
+        this.nuevoModelo52Conclusion = null;
+        this.ventanaPreaviso = ventanaPreaviso;
+        this.directorioManager = new DirectorioManager();
+        this.cumplimentarEscrutinioPDF = new CumplimentarEscrutinioPDF(ventanaPreaviso);
+        this.rutaElecciones = directorioManager.crearDirectorioElecciones();
+        this.cumplimentarPreavisoPDF = null;
+        this.cumplimentarPreavisoComitePDF = null;
+        this.cumplimentarEscrutinioComitePDF = new CumplimentarEscrutinioComitePDF(ventanaPreaviso);
     }
 
     /**
@@ -193,39 +214,39 @@ public class Registro {
     private void procesarFormularioPreavisoComite(String rutaFormularioPDF, Path rutaDirectorioEmpresa) {
         try {
             if (rutaFormularioPDF.contains(Constantes.PREAVISO)) {
-                cumplimentarPreavisoPDFComite.modificarCamposTextoPreavisoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoPDF.modificarCamposTextoPreavisoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.CALENDARIO_COMITE)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoCalendarioComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoCalendarioComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_3)) {
                 cumplimentarPreavisoPDF.modificarCamposTextoModelo3PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_4_ESPECIALISTAS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo4EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo4EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_4_TECNICOS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo4TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo4TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_1_ESPECIALISTAS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_1EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo6_1EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_1_TECNICOS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_1TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo6_1TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_2_ESPECIALISTAS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_2EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo6_2EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_2_TECNICOS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_2TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo6_2TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_3_ESPECIALISTAS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_3EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo6_3EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_3_TECNICOS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_3TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo6_3TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_1)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_1PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo7_1PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_2)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_2PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo7_2PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_ACTA_GLOBAL)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3ActaGlobalPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo7_3ActaGlobalPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_ANEXO)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3AnexoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo7_3AnexoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_PROCESO)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3ProcesoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo7_3ProcesoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_9_COMITE)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo9ComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarPreavisoComitePDF.modificarCamposTextoModelo9ComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.AUTORIZACION)) {
                 cumplimentarPreavisoPDF.modificarCamposTextoAutorizacionPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             }
@@ -237,33 +258,33 @@ public class Registro {
     private void procesarFormularioEscrutinioComite(@NotNull String rutaFormularioPDF, @NotNull Preaviso nuevoPreaviso, @NotNull Path rutaDirectorioEmpresa) {
         try {
             if (rutaFormularioPDF.contains(Constantes.CALENDARIO_COMITE)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoCalendarioComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoCalendarioComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_1_ESPECIALISTAS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_1EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo6_1EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_1_TECNICOS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_1TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo6_1TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_2_ESPECIALISTAS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_2EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo6_2EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_2_TECNICOS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_2TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo6_2TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_3_ESPECIALISTAS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_3EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo6_3EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_3_TECNICOS)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_3TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo6_3TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_1)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_1PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo7_1PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_2)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_2PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo7_2PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_ACTA_GLOBAL)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3ActaGlobalPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo7_3ActaGlobalPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_ANEXO)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3AnexoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo7_3AnexoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_PROCESO)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3ProcesoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo7_3ProcesoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.MODELO_9_COMITE)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoModelo9ComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoModelo9ComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             } else if (rutaFormularioPDF.contains(Constantes.AUTORIZACION)) {
-                cumplimentarPreavisoPDF.modificarCamposTextoAutorizacionPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+                cumplimentarEscrutinioComitePDF.modificarCamposTextoAutorizacionPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
             }
         } catch (Exception e) {
             ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
