@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Clase utilitaria para convertir fechas en diferentes formatos a letras.
+ * Proporciona métodos para convertir fechas en formato numérico a letras.
  */
 public class ConversorFechaToLetras {
 
@@ -19,7 +20,7 @@ public class ConversorFechaToLetras {
         String mes = convertirMesALetras(partes[1]);
         String anio = partes[2];
 
-        dia = (dia.length() == 1 ? "0" + dia : dia);
+        dia = dia.length() == 1 ? "0" + dia : dia;
         return dia + " - " + mes + " - " + anio;
     }
 
@@ -35,7 +36,7 @@ public class ConversorFechaToLetras {
         String mes = partes[1].length() == 1 ? "0" + partes[1] : partes[1];
         String anio = partes[2];
 
-        anio = convertirDiaALetras(anio.substring(anio.length() - 2));
+        anio = convertirAnioALetras(anio);
         return (convertirDiaALetras(dia) + " de " + convertirMesALetras(mes) + " de dos mil " + anio).toUpperCase();
     }
 
@@ -59,10 +60,16 @@ public class ConversorFechaToLetras {
         if (mes.length() == 1) {
             mes = "0" + mes;
         }
-        if (mes.length() > 2) {
-            String[] partes = mes.split("/");
-            mes = partes[1];
-        }
         return Meses.obtenerNombrePorNumero(mes);
+    }
+
+    /**
+     * Convierte un año en formato numérico a letras.
+     *
+     * @param anio El año en formato numérico.
+     * @return El año en letras.
+     */
+    private static String convertirAnioALetras(String anio) {
+        return Dias.obtenerNombrePorNumero(anio.substring(anio.length() - 2));
     }
 }

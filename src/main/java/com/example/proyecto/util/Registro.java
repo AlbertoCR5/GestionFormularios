@@ -74,7 +74,7 @@ public class Registro {
      *
      * @param nuevoPreaviso El preaviso que se va a registrar.
      */
-    public void registrarNuevoPreaviso(@NotNull Preaviso nuevoPreaviso) {
+    public void registrarNuevoPreavisoDelegado(@NotNull Preaviso nuevoPreaviso) {
         try {
             Path rutaDirectorioEmpresa = directorioManager.crearDirectorioEmpresa(rutaElecciones, nuevoPreaviso);
             directorioManager.copiarRecursosADirectorio(rutaDirectorioEmpresa.toString(), nuevoPreaviso);
@@ -162,6 +162,40 @@ public class Registro {
             } else if (rutaFormularioPDF.contains(Constantes.AUTORIZACION)) {
                 cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioAutorizacionPDF(rutaFormularioPDF, nuevoModelo51, nuevoModelo52Conclusion);
             }
+        } catch (Exception e) {
+            ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
+        }
+    }
+
+    /**
+     * Registra un nuevo preaviso para más de 50 trabajadores.
+     *
+     * @param nuevoPreaviso El preaviso que se va a registrar.
+     */
+    public void registrarNuevoPreavisoComite(Preaviso nuevoPreaviso) {
+        try {
+            Path rutaDirectorioEmpresa = directorioManager.crearDirectorioEmpresa(rutaElecciones, nuevoPreaviso);
+            directorioManager.copiarRecursosADirectorio(rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            String[] rutaFormularios = directorioManager.generarRutasFormularios();
+
+            for (String rutaFormularioPDF : rutaFormularios) {
+                try {
+                    procesarFormularioPreavisoComite(rutaFormularioPDF, rutaDirectorioEmpresa);
+                } catch (Exception e) {
+                    ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
+                }
+            }
+        } catch (IOException e) {
+            ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.crear.directorio") + e.getMessage(), false);
+        }
+    }
+
+    private void procesarFormularioPreavisoComite(String rutaFormularioPDF, Path rutaDirectorioEmpresa) {
+        try {
+//            if (rutaFormularioPDF.contains(Constantes.PREAVISO)) {
+//                cumplimentarPreavisoComitePDF.modificarCamposTextoComitePDF(rutaFormularioPDF, nuevoPreaviso);
+//            }
+            // Agregar otros formularios específicos para más de 50 trabajadores aquí
         } catch (Exception e) {
             ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
         }

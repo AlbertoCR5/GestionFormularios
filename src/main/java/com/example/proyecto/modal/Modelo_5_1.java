@@ -14,6 +14,7 @@ import java.util.Calendar;
  * datos de los candidatos y reclamaciones.
  *
  * @autor Alberto Castro
+ * @version 1.0
  */
 public class Modelo_5_1 extends Modelo_3 {
 

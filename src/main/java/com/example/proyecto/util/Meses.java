@@ -2,6 +2,10 @@ package com.example.proyecto.util;
 
 /**
  * Enumeración que representa los meses del año con su número y nombre.
+ * Proporciona métodos para obtener el nombre del mes a partir de su número.
+ *
+ * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public enum Meses {
 
@@ -21,15 +25,31 @@ public enum Meses {
     private final String numero;
     private final String nombre;
 
+    /**
+     * Constructor de la enumeración.
+     *
+     * @param numero El número del mes.
+     * @param nombre El nombre del mes.
+     */
     Meses(String numero, String nombre) {
         this.numero = numero;
         this.nombre = nombre;
     }
 
+    /**
+     * Obtiene el número del mes.
+     *
+     * @return El número del mes.
+     */
     public String getNumero() {
         return numero;
     }
 
+    /**
+     * Obtiene el nombre del mes.
+     *
+     * @return El nombre del mes.
+     */
     public String getNombre() {
         return nombre;
     }

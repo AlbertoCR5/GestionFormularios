@@ -12,10 +12,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Modelo_3 extends Preaviso {
 
-    // Validadores necesarios para la clase
-    private final ValidadorCampos validarHora = new ValidadorCampos();
-    private final ValidadorCampos verificarDNI = new ValidadorCampos();
-
     // Atributos de la clase
     private String municipioElecciones;
     private String horas;
@@ -91,7 +87,7 @@ public class Modelo_3 extends Preaviso {
      * @throws CumplimentarPDFException Si la hora no es válida.
      */
     public void setHoras(String horas) throws CumplimentarPDFException {
-        if (!validarHora.validarHora(horas)) {
+        if (!ValidadorCampos.validarHora(horas)) {
             throw new CumplimentarPDFException("ERROR, Hora introducida no válida");
         }
         this.horas = horas;
@@ -186,7 +182,7 @@ public class Modelo_3 extends Preaviso {
      * @throws CumplimentarPDFException Si el DNI no es válido.
      */
     public void setDniPresidente(String dniPresidente) throws CumplimentarPDFException {
-        if (!verificarDNI.verificarDNI(dniPresidente)) {
+        if (!ValidadorCampos.verificarDNI(dniPresidente)) {
             throw new CumplimentarPDFException("ERROR, DNI introducido incorrecto");
         }
         this.dniPresidente = dniPresidente;
@@ -203,7 +199,7 @@ public class Modelo_3 extends Preaviso {
      * @throws CumplimentarPDFException Si el DNI no es válido.
      */
     public void setDniVocal(String dniVocal) throws CumplimentarPDFException {
-        if (!verificarDNI.verificarDNI(dniVocal)) {
+        if (!ValidadorCampos.verificarDNI(dniVocal)) {
             throw new CumplimentarPDFException("ERROR, DNI introducido incorrecto");
         }
         this.dniVocal = dniVocal;
@@ -220,7 +216,7 @@ public class Modelo_3 extends Preaviso {
      * @throws CumplimentarPDFException Si el DNI no es válido.
      */
     public void setDniSecretario(String dniSecretario) throws CumplimentarPDFException {
-        if (!verificarDNI.verificarDNI(dniSecretario)) {
+        if (!ValidadorCampos.verificarDNI(dniSecretario)) {
             throw new CumplimentarPDFException("ERROR, DNI introducido incorrecto");
         }
         this.dniSecretario = dniSecretario;

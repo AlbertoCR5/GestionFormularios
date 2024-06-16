@@ -6,6 +6,10 @@ import java.util.Date;
 
 /**
  * Clase utilitaria para validar fechas.
+ * Proporciona métodos para verificar el formato de una fecha y extraer sus componentes.
+ *
+ * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class ValidadorFecha {
 
@@ -25,7 +29,7 @@ public class ValidadorFecha {
             return false;
         }
 
-        SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat formatoFecha = new SimpleDateFormat();
         formatoFecha.setLenient(false);
 
         try {
@@ -38,10 +42,15 @@ public class ValidadorFecha {
         }
     }
 
+    /**
+     * Extrae el día, mes y año de una fecha dada.
+     *
+     * @param fecha La fecha de la cual extraer los componentes.
+     */
     private void extraerDiaMesAnio(Date fecha) {
         java.time.LocalDate localDate = fecha.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
-        this.dia = String.valueOf(localDate.getDayOfMonth());
-        this.mes = String.valueOf(localDate.getMonthValue());
+        this.dia = String.format("%02d", localDate.getDayOfMonth());
+        this.mes = String.format("%02d", localDate.getMonthValue());
         this.anio = String.valueOf(localDate.getYear());
     }
 

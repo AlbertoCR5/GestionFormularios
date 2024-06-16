@@ -9,6 +9,7 @@ import com.example.proyecto.util.ValidadorFecha;
  * y los sindicatos a los que representan.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class Modelo_9 extends Preaviso {
 
@@ -44,7 +45,7 @@ public class Modelo_9 extends Preaviso {
      * @param direccion Dirección de la empresa.
      * @param municipio Municipio de la empresa.
      * @param provincia Provincia de la empresa.
-     * @throws CumplimentarPDFException Si hay un error en la creación del PDF.
+     * @throws CumplimentarPDFException Sí hay un error en la creación del PDF.
      */
     public Modelo_9(String nombreEmpresa, String CIF, String nombreComercial, String nombreCentro, String direccion, String municipio, String provincia) throws CumplimentarPDFException {
         super(nombreEmpresa, CIF, nombreComercial, nombreCentro, direccion, municipio, provincia);
@@ -72,7 +73,7 @@ public class Modelo_9 extends Preaviso {
      * @param representantesElegidos2 Representantes elegidos del segundo sindicato.
      * @param sindicato3 Tercer sindicato.
      * @param representantesElegidos3 Representantes elegidos del tercer sindicato.
-     * @throws CumplimentarPDFException Si hay un error en la creación del PDF.
+     * @throws CumplimentarPDFException Sí hay un error en la creación del PDF.
      */
     public Modelo_9(String nombreEmpresa, String CIF, String nombreComercial, String nombreCentro, String direccion, String municipio,
                     String provincia, String presidente, String dniPresidente, String dia, String mes, String anio,

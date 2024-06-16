@@ -1,16 +1,14 @@
 package com.example.proyecto.util;
 
 import com.example.proyecto.modal.DatabaseManager;
-
 import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
 
+/**
+ * Clase que contiene constantes utilizadas en el proyecto.
+ */
 public class Constantes {
-    // Provincias de Andalucía
-    public static final String[] PROVINCIAS_ANDALUCIA = {
-            "ALMERÍA", "CÁDIZ", "CÓRDOBA", "GRANADA", "HUELVA", "JAÉN", "MÁLAGA", "SEVILLA"
-    };
 
     // Información de promotores
     public static final String PROMOTORES = "UNIÓN GENERAL DE TRABAJADORES (UGT)";
@@ -38,16 +36,14 @@ public class Constantes {
     public static final int CANTIDAD_REPRESENTANTES_1 = 1;
 
     // Rutas de archivos
-    public static final String RUTA_BASE = STR."\{System.getProperty("user.home")}\{File.separator}Documents";
-    //public static final String RUTA_BASE_WORK = System.getProperty("user.home");
+    public static final String RUTA_BASE = String.format("%s%sDocuments", System.getProperty("user.home"), File.separator);
     public static final String NOMBRE_DIRECTORIO = "Elecciones";
-    //public static final String DATABASE_WORK = RUTA_BASE_WORK.concat(File.separator).concat(Constantes.NOMBRE_DIRECTORIO);
-    public static final String DATABASE = RUTA_BASE.concat(File.separator).concat(Constantes.NOMBRE_DIRECTORIO);
-    public static final String DATABASE_URL = STR."jdbc:sqlite:\{DATABASE.concat(File.separator).concat(NOMBRE_DIRECTORIO.concat(".db"))}";
+    public static final String DATABASE = String.format("%s%s%s", RUTA_BASE, File.separator, NOMBRE_DIRECTORIO);
+    public static final String DATABASE_URL = String.format("jdbc:sqlite:%s%s%s.db", DATABASE, File.separator, NOMBRE_DIRECTORIO);
 
     // Rutas relativas
-    public static final String RUTA_DELEGADOS = System.getProperty("user.dir").concat("\\src\\main\\resources\\Delegados");
-    public static final String RUTA_DELEGADOS_JAR= "/Delegados";
+    public static final String RUTA_DELEGADOS = String.format("%s\\src\\main\\resources\\Delegados", System.getProperty("user.dir"));
+    public static final String RUTA_DELEGADOS_JAR = "/Delegados";
     public static final String RUTA_TEMPORAL = System.getProperty("java.io.tmpdir") + "/proyecto_temp";
 
     // Salidas sindicales
@@ -55,14 +51,14 @@ public class Constantes {
     public static final String SALIDA_SINDICAL_COMPLETA = "Salida Sindical Completa";
     public static final String SALIDA_SINDICAL_HORAS = "Salida Sindical Horas";
 
-// Ruta de preaviso
-public static final String PREAVISO = "preaviso";
+    // Ruta de preaviso
+    public static final String PREAVISO = "preaviso";
 
     // Directorios de actas para delegados
     public static final String AUTORIZACION = "autorizacion";
     public static final String DELEGADO_PREVENCION = "anexo_delegado_prevencion";
     public static final String CALENDARIO_DELEGADOS = "calendario_delegado";
-    public     static final String MODELO_3 = "modelo_3";
+    public static final String MODELO_3 = "modelo_3";
     public static final String MODELO_5_1 = "modelo_5_1";
     public static final String MODELO_5_2_PROCESO = "modelo_5_2_proceso";
     public static final String MODELO_5_2_CONCLUSION = "modelo_5_2_conclusion";
@@ -129,6 +125,5 @@ public static final String PREAVISO = "preaviso";
     public static final int ANCHO_DATEPICKER = 110;
     public static final String FONT_WEIGHT_BOLD = "-fx-font-weight: bold";
     public static final double DURACION_VALIDACION = 0.1;
+
 }
-
-

@@ -2,6 +2,10 @@ package com.example.proyecto.util;
 
 /**
  * Clase utilitaria para validar diversos campos.
+ * Proporciona métodos para validar DNI, CIF y formato de hora.
+ *
+ * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class ValidadorCampos {
 
@@ -11,7 +15,7 @@ public class ValidadorCampos {
      * @param dni El DNI a verificar.
      * @return true si el DNI es válido, false en caso contrario.
      */
-    public boolean verificarDNI(String dni) {
+    public static boolean verificarDNI(String dni) {
         if (dni == null || dni.length() != 9) {
             return false;
         }
@@ -30,6 +34,12 @@ public class ValidadorCampos {
         return letraCalculada == letra.charAt(0);
     }
 
+    /**
+     * Calcula la letra correspondiente a un número de DNI.
+     *
+     * @param numeroDNI El número del DNI.
+     * @return La letra correspondiente.
+     */
     private static char calcularLetraDNI(int numeroDNI) {
         String caracteres = "TRWAGMYFPDXBNJZSQVHLCKE";
         int indice = numeroDNI % 23;
@@ -42,7 +52,7 @@ public class ValidadorCampos {
      * @param cif El CIF a verificar.
      * @return true si el CIF es válido, false en caso contrario.
      */
-    public boolean verificarCIF(String cif) {
+    public static boolean verificarCIF(String cif) {
         cif = cif.trim().toUpperCase();
         if (cif.length() != 9) {
             return false;
@@ -58,16 +68,7 @@ public class ValidadorCampos {
         }
 
         int digitoControl = Character.getNumericValue(cif.charAt(8));
-        int suma = 0;
-
-        for (int i = 2; i <= 8; i++) {
-            int digito = Character.getNumericValue(cif.charAt(i - 1));
-            if (i % 2 == 0) {
-                digito *= 2;
-                digito = digito < 10 ? digito : digito - 9;
-            }
-            suma += digito;
-        }
+        int suma = calcularSumaCif(cif);
 
         int resto = suma % 10;
         int resultado = resto == 0 ? 0 : 10 - resto;
@@ -76,12 +77,31 @@ public class ValidadorCampos {
     }
 
     /**
+     * Calcula la suma para la verificación del CIF.
+     *
+     * @param cif El CIF a verificar.
+     * @return La suma calculada.
+     */
+    private static int calcularSumaCif(String cif) {
+        int suma = 0;
+        for (int i = 1; i < 8; i++) {
+            int digito = Character.getNumericValue(cif.charAt(i));
+            if (i % 2 != 0) {
+                digito *= 2;
+                digito = digito < 10 ? digito : digito - 9;
+            }
+            suma += digito;
+        }
+        return suma;
+    }
+
+    /**
      * Valida si una hora tiene un formato válido.
      *
      * @param hora La hora en formato de cadena.
      * @return true si el formato es válido, false en caso contrario.
      */
-    public boolean validarHora(String hora) {
+    public static boolean validarHora(String hora) {
         if (!hora.matches("^([0-9]{2}):([0-9]{2})$")) {
             return false;
         }

@@ -62,7 +62,11 @@ public class PreavisoRegistrar {
 
                 // Registra el preaviso
                 Registro registro = new Registro(nuevoPreaviso, nuevaVentanaPreaviso);
-                registro.registrarNuevoPreaviso(nuevoPreaviso);
+                if (Integer.parseInt(nuevoPreaviso.getTotalTrabajadores()) > 50) {
+                    registro.registrarNuevoPreavisoComite(nuevoPreaviso);
+                } else {
+                    registro.registrarNuevoPreavisoDelegado(nuevoPreaviso);
+                }
                 stage.close();
             } catch (SQLException | IOException e) {
                 nuevaVentanaPreaviso.mostrarMensaje(MessageManager.getMessage("preaviso.error_db") + e.getMessage(), false);

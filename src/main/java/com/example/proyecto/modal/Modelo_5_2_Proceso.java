@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
  * Esta clase representa el Modelo_5_2_proceso en el cual se especifican datos de la empresa
  *
  * @author Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public class Modelo_5_2_Proceso {
 

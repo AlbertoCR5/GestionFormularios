@@ -2,6 +2,10 @@ package com.example.proyecto.util;
 
 /**
  * Enumeración que representa los días del mes con su número y nombre.
+ * Proporciona métodos para obtener el nombre del día a partir de su número.
+ *
+ * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
+ * @version 1.0
  */
 public enum Dias {
 
@@ -40,15 +44,31 @@ public enum Dias {
     private final String numero;
     private final String nombre;
 
+    /**
+     * Constructor de la enumeración.
+     *
+     * @param numero El número del día.
+     * @param nombre El nombre del día.
+     */
     Dias(String numero, String nombre) {
         this.numero = numero;
         this.nombre = nombre;
     }
 
+    /**
+     * Obtiene el número del día.
+     *
+     * @return El número del día.
+     */
     public String getNumero() {
         return numero;
     }
 
+    /**
+     * Obtiene el nombre del día.
+     *
+     * @return El nombre del día.
+     */
     public String getNombre() {
         return nombre;
     }
