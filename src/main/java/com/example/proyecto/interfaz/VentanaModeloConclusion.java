@@ -207,7 +207,7 @@ public class VentanaModeloConclusion {
         Optional<ButtonType> result = vistaPrincipal.mostrarAlertaConfirmacion(mensajeConfirmacion);
         if (result.isPresent() && result.get() == ButtonType.OK) { // Si el usuario confirma
             // Registrar los modelos de escrutinio
-            registro.registrarModelosEscrutinio(nuevoModelo5_1, nuevoModeloProceso, modeloConclusion, rutaEmpresa);
+            registro.registrarModelosEscrutinioDelegados(nuevoModelo5_1, nuevoModeloProceso, modeloConclusion, rutaEmpresa);
             // Mostrar un mensaje de éxito
             vistaPrincipal.mostrarMensaje(MessageManager.getMessage("conclusion.datos_guardados"), true);
             // Cerrar la ventana actual

@@ -78,11 +78,11 @@ public class Registro {
         try {
             Path rutaDirectorioEmpresa = directorioManager.crearDirectorioEmpresa(rutaElecciones, nuevoPreaviso);
             directorioManager.copiarRecursosADirectorio(rutaDirectorioEmpresa.toString(), nuevoPreaviso);
-            String[] rutaFormularios = directorioManager.generarRutasFormularios();
+            String[] rutaFormularios = directorioManager.generarRutasFormulariosDelegados();
 
             for (String rutaFormularioPDF : rutaFormularios) {
                 try {
-                    procesarFormularioPreaviso(rutaFormularioPDF, rutaDirectorioEmpresa);
+                    procesarFormularioPreavisoDelegados(rutaFormularioPDF, rutaDirectorioEmpresa);
                 } catch (Exception e) {
                     ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
                 }
@@ -98,7 +98,7 @@ public class Registro {
      * @param rutaFormularioPDF Ruta del formulario PDF.
      * @param rutaDirectorioEmpresa Ruta del directorio de la empresa.
      */
-    private void procesarFormularioPreaviso(@NotNull String rutaFormularioPDF, @NotNull Path rutaDirectorioEmpresa) {
+    private void procesarFormularioPreavisoDelegados(@NotNull String rutaFormularioPDF, @NotNull Path rutaDirectorioEmpresa) {
         try {
             if (rutaFormularioPDF.contains(Constantes.PREAVISO)) {
                 cumplimentarPreavisoPDF.modificarCamposTextoPreavisoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
@@ -130,11 +130,11 @@ public class Registro {
      * @param nuevoModelo52Conclusion El modelo 5.2 de conclusión de escrutinio.
      * @param rutaEmpresa La ruta de la empresa.
      */
-    public void registrarModelosEscrutinio(@NotNull Modelo_5_1 nuevoModelo51, @NotNull Modelo_5_2_Proceso nuevoModelo52Proceso, @NotNull Modelo_5_2_Conclusion nuevoModelo52Conclusion, @NotNull Path rutaEmpresa) {
+    public void registrarModelosEscrutinioDelegados(@NotNull Modelo_5_1 nuevoModelo51, @NotNull Modelo_5_2_Proceso nuevoModelo52Proceso, @NotNull Modelo_5_2_Conclusion nuevoModelo52Conclusion, @NotNull Path rutaEmpresa) {
             String[] rutaFormularios = directorioManager.generarRutasFormulariosBuscados(rutaEmpresa);
             for (String rutaFormularioPDF : rutaFormularios) {
                 try {
-                    procesarFormularioEscrutinio(rutaFormularioPDF, nuevoModelo51, nuevoModelo52Proceso, nuevoModelo52Conclusion);
+                    procesarFormularioEscrutinioDelegados(rutaFormularioPDF, nuevoModelo51, nuevoModelo52Proceso, nuevoModelo52Conclusion);
                 } catch (Exception e) {
                     ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
                 }
@@ -149,7 +149,7 @@ public class Registro {
      * @param nuevoModelo52Proceso El modelo 5.2 de proceso de escrutinio.
      * @param nuevoModelo52Conclusion El modelo 5.2 de conclusión de escrutinio.
      */
-    private void procesarFormularioEscrutinio(@NotNull String rutaFormularioPDF, @NotNull Modelo_5_1 nuevoModelo51, @NotNull Modelo_5_2_Proceso nuevoModelo52Proceso, @NotNull Modelo_5_2_Conclusion nuevoModelo52Conclusion) {
+    private void procesarFormularioEscrutinioDelegados(@NotNull String rutaFormularioPDF, @NotNull Modelo_5_1 nuevoModelo51, @NotNull Modelo_5_2_Proceso nuevoModelo52Proceso, @NotNull Modelo_5_2_Conclusion nuevoModelo52Conclusion) {
         try {
             if (rutaFormularioPDF.contains(Constantes.MODELO_5_1)) {
                 cumplimentarEscrutinioPDF.modificarCamposTextoEscrutinioModelo5_1PDF(rutaFormularioPDF, nuevoModelo51);
@@ -176,7 +176,7 @@ public class Registro {
         try {
             Path rutaDirectorioEmpresa = directorioManager.crearDirectorioEmpresa(rutaElecciones, nuevoPreaviso);
             directorioManager.copiarRecursosADirectorio(rutaDirectorioEmpresa.toString(), nuevoPreaviso);
-            String[] rutaFormularios = directorioManager.generarRutasFormularios();
+            String[] rutaFormularios = directorioManager.generarRutasFormulariosDelegados();
 
             for (String rutaFormularioPDF : rutaFormularios) {
                 try {
@@ -192,12 +192,83 @@ public class Registro {
 
     private void procesarFormularioPreavisoComite(String rutaFormularioPDF, Path rutaDirectorioEmpresa) {
         try {
-//            if (rutaFormularioPDF.contains(Constantes.PREAVISO)) {
-//                cumplimentarPreavisoComitePDF.modificarCamposTextoComitePDF(rutaFormularioPDF, nuevoPreaviso);
-//            }
-            // Agregar otros formularios específicos para más de 50 trabajadores aquí
+            if (rutaFormularioPDF.contains(Constantes.PREAVISO)) {
+                cumplimentarPreavisoPDFComite.modificarCamposTextoPreavisoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.CALENDARIO_COMITE)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoCalendarioComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_3)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo3PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_4_ESPECIALISTAS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo4EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_4_TECNICOS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo4TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_1_ESPECIALISTAS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_1EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_1_TECNICOS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_1TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_2_ESPECIALISTAS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_2EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_2_TECNICOS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_2TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_3_ESPECIALISTAS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_3EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_3_TECNICOS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_3TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_1)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_1PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_2)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_2PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_ACTA_GLOBAL)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3ActaGlobalPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_ANEXO)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3AnexoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_PROCESO)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3ProcesoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_9_COMITE)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo9ComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.AUTORIZACION)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoAutorizacionPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            }
         } catch (Exception e) {
             ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
         }
     }
+
+    private void procesarFormularioEscrutinioComite(@NotNull String rutaFormularioPDF, @NotNull Preaviso nuevoPreaviso, @NotNull Path rutaDirectorioEmpresa) {
+        try {
+            if (rutaFormularioPDF.contains(Constantes.CALENDARIO_COMITE)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoCalendarioComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_1_ESPECIALISTAS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_1EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_1_TECNICOS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_1TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_2_ESPECIALISTAS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_2EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_2_TECNICOS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_2TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_3_ESPECIALISTAS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_3EspecialistasPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_6_3_TECNICOS)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo6_3TecnicosPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_1)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_1PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_2)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_2PDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_ACTA_GLOBAL)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3ActaGlobalPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_ANEXO)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3AnexoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_7_3_PROCESO)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo7_3ProcesoPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.MODELO_9_COMITE)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoModelo9ComitePDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            } else if (rutaFormularioPDF.contains(Constantes.AUTORIZACION)) {
+                cumplimentarPreavisoPDF.modificarCamposTextoAutorizacionPDF(rutaFormularioPDF, rutaDirectorioEmpresa.toString(), nuevoPreaviso);
+            }
+        } catch (Exception e) {
+            ventanaPreaviso.mostrarMensaje(MessageManager.getMessage("error.procesar.formulario") + e.getMessage(), false);
+        }
+    }
+
+
 }

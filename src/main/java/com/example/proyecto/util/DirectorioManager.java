@@ -66,12 +66,25 @@ public class DirectorioManager {
      *
      * @return Un array de rutas de formularios.
      */
-    public @NotNull String[] generarRutasFormularios() {
-        String[] rutaFormularios = new String[Constantes.DOCUMENTACION_DELEGADOS.length];
+    public @NotNull String[] generarRutasFormulariosDelegados() {
+        String[] rutaFormulariosDelegados = new String[Constantes.DOCUMENTACION_DELEGADOS.length];
         for (int i = 0; i < Constantes.DOCUMENTACION_DELEGADOS.length; i++) {
-            rutaFormularios[i] = String.format("%s/%s%s", Constantes.RUTA_DELEGADOS_JAR, Constantes.DOCUMENTACION_DELEGADOS[i], Constantes.EXTENSION_ARCHIVO);
+            rutaFormulariosDelegados[i] = String.format("%s/%s%s", Constantes.RUTA_DELEGADOS_JAR, Constantes.DOCUMENTACION_DELEGADOS[i], Constantes.EXTENSION_ARCHIVO);
         }
-        return rutaFormularios;
+        return rutaFormulariosDelegados;
+    }
+
+    /**
+     * Genera las rutas de los formularios necesarios para el proceso de preaviso.
+     *
+     * @return Un array de rutas de formularios.
+     */
+    public @NotNull String[] generarRutasFormulariosComite() {
+        String[] rutaFormulariosComite = new String[Constantes.DOCUMENTACION_DELEGADOS.length];
+        for (int i = 0; i < Constantes.DOCUMENTACION_DELEGADOS.length; i++) {
+            rutaFormulariosComite[i] = String.format("%s/%s%s", Constantes.RUTA_DELEGADOS_JAR, Constantes.DOCUMENTACION_DELEGADOS[i], Constantes.EXTENSION_ARCHIVO);
+        }
+        return rutaFormulariosComite;
     }
 
     /**
@@ -127,7 +140,7 @@ public class DirectorioManager {
      * @throws IOException Sí ocurre un error durante la copia de los archivos.
      */
     public void copiarRecursosADirectorio(@NotNull String rutaDestino, @NotNull Preaviso nuevoPreaviso) throws IOException {
-        String[] formularios = generarRutasFormularios();
+        String[] formularios = generarRutasFormulariosDelegados();
         CumplimentarPreavisoPDF cumplimentarPreavisoPDF = new CumplimentarPreavisoPDF(view);
 
         for (String formulario : formularios) {

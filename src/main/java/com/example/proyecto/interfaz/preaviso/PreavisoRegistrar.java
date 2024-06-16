@@ -62,7 +62,7 @@ public class PreavisoRegistrar {
 
                 // Registra el preaviso
                 Registro registro = new Registro(nuevoPreaviso, nuevaVentanaPreaviso);
-                if (Integer.parseInt(nuevoPreaviso.getTotalTrabajadores()) > 50) {
+                if (Integer.parseInt(nuevoPreaviso.getTotalTrabajadores()) > Constantes.MAXIMO_ELECTORES_DELEGADOS) {
                     registro.registrarNuevoPreavisoComite(nuevoPreaviso);
                 } else {
                     registro.registrarNuevoPreavisoDelegado(nuevoPreaviso);
