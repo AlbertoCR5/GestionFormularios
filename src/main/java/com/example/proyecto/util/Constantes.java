@@ -115,7 +115,8 @@ public class Constantes {
     public static final String BOLD_UNDERLINED_STYLE = "-fx-font-size: 16px; -fx-font-weight: bold; -fx-underline: true;";
     public static final String FONT_SIZE_14_FONT_WEIGHT_BOLD = "-fx-font-size: 14px; -fx-font-weight: bold;";
     public static final Logger LOGGER = Logger.getLogger(DatabaseManager.class.getName());
-    public static final String ESTILO_ETIQUETA_LOGIN = "-fx-font-size: 14px;";
+    public static final String ESTILO_ETIQUETA_14PX = "-fx-font-size: 14px;";
+    public static final String ESTILO_ETIQUETA_12PX = "-fx-font-size: 12px;";
     public static final String OPACIDAD_DESACTIVADO = "-fx-opacity: 0.5;";
     public static final int ESPACIADO_VBOX = 10;
     public static final int ESPACIADO_HGAP = 10;

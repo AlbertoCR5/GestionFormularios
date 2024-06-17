@@ -107,7 +107,7 @@ public class VentanaPrincipal {
      */
     private Label crearLabel() {
         Label label = new Label(MessageManager.getMessage("principal.seleccion"));
-        label.setStyle(Constantes.ESTILO_ETIQUETA_LOGIN);
+        label.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
         return label;
     }
 

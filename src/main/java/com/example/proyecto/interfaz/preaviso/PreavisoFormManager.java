@@ -148,7 +148,7 @@ public class PreavisoFormManager {
      */
     private TextField agregarCampo(@NotNull GridPane gridPane, @NotNull String labelText, int rowIndex) {
         Label label = new Label(labelText);
-        label.setStyle(Constantes.ESTILO_ETIQUETA_LOGIN);
+        label.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
         TextField textField = new TextField();
         gridPane.add(label, 0, rowIndex);
         gridPane.add(textField, 1, rowIndex);
@@ -157,7 +157,7 @@ public class PreavisoFormManager {
 
     private ComboBox<ProvinciasAndalucia> agregarComboBoxProvincias(@NotNull GridPane gridPane, @NotNull String labelText, int rowIndex) {
         Label label = new Label(labelText);
-        label.setStyle(Constantes.ESTILO_ETIQUETA_LOGIN);
+        label.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
         ComboBox<ProvinciasAndalucia> comboBox = new ComboBox<>();
         comboBox.getItems().setAll(ProvinciasAndalucia.values());
         comboBox.setValue(ProvinciasAndalucia.SEVILLA); // Seleccionar Sevilla por defecto
@@ -176,7 +176,7 @@ public class PreavisoFormManager {
      */
     private ComboBox<Meses> agregarComboBoxMeses(@NotNull GridPane gridPane, @NotNull String labelText, int rowIndex) {
         Label label = new Label(labelText);
-        label.setStyle(Constantes.ESTILO_ETIQUETA_LOGIN);
+        label.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
         ComboBox<Meses> comboBox = new ComboBox<>();
         comboBox.getItems().setAll(Meses.values());
         gridPane.add(label, 0, rowIndex);
@@ -194,7 +194,7 @@ public class PreavisoFormManager {
      */
     private DatePicker agregarDatePicker(@NotNull GridPane gridPane, @NotNull String labelText, int rowIndex) {
         Label label = new Label(labelText);
-        label.setStyle(Constantes.ESTILO_ETIQUETA_LOGIN);
+        label.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
         DatePicker datePicker = new DatePicker();
         datePicker.setPrefWidth(Constantes.ANCHO_DATEPICKER);
         gridPane.add(label, 0, rowIndex);

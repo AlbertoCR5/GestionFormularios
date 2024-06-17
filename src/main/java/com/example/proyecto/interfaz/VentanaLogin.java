@@ -70,13 +70,13 @@ public class VentanaLogin {
         headerBox.getChildren().addAll(labelIniciarSesion, spacer, btnCambiarIdioma);
 
         Label usuarioLabel = new Label(MessageManager.getMessage("login.username"));
-        usuarioLabel.setStyle(Constantes.ESTILO_ETIQUETA_LOGIN);
+        usuarioLabel.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
         TextField usuarioTextField = new TextField();
         usuarioTextField.setPrefWidth(250);
         usuarioTextField.setMaxWidth(250);
 
         Label contrasenaLabel = new Label(MessageManager.getMessage("login.password"));
-        contrasenaLabel.setStyle(Constantes.ESTILO_ETIQUETA_LOGIN);
+        contrasenaLabel.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
         PasswordField contrasenaField = new PasswordField();
         contrasenaField.setPrefWidth(250);
         contrasenaField.setMaxWidth(250);

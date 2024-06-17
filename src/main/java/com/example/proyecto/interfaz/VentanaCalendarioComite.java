@@ -1,7 +1,9 @@
 package com.example.proyecto.interfaz;
 
 import com.example.proyecto.modal.Preaviso;
+import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.ConversorFechaToLetras;
+import com.example.proyecto.util.MessageManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -10,14 +12,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * La clase `CalendarioComite` gestiona la visualización y el manejo de la ventana del calendario del comité.
+ * La clase `VentanaCalendarioComite` gestiona la visualización y el manejo de la ventana del calendario del comité.
  * Permite al usuario ingresar información específica del calendario y guardar los datos.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
@@ -29,7 +33,7 @@ public class VentanaCalendarioComite {
     private final List<TextField> textFields = new ArrayList<>();
 
     /**
-     * Constructor para la clase `CalendarioComiteView`.
+     * Constructor para la clase `VentanaCalendarioComite`.
      *
      * @param preaviso El preaviso asociado con el calendario del comité.
      */
@@ -42,96 +46,107 @@ public class VentanaCalendarioComite {
      */
     public void mostrar() {
         Stage stage = new Stage();
-        stage.setTitle("Calendario del Comité");
+        stage.setTitle(MessageManager.getMessage("calendario_comite.titulo"));
 
-        // Configuración del VBox principal
-        VBox vboxPrincipal = new VBox(10);
-        vboxPrincipal.setAlignment(Pos.TOP_CENTER);
-        vboxPrincipal.setPadding(new Insets(10));
+        VBox vboxPrincipal = crearVBoxPrincipal();
+        GridPane gridPane = crearGridPane();
+        agregarCamposFormulario(gridPane);
+        agregarBotones(gridPane, stage);
 
-        Label titulo = new Label("CALENDARIO_COMITE");
-        titulo.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-        vboxPrincipal.getChildren().add(titulo);
+        vboxPrincipal.getChildren().addAll(crearTitulo(MessageManager.getMessage("calendario_comite.titulo1")),
+                crearTitulo(MessageManager.getMessage("calendario_comite.titulo2")), new Region(), gridPane);
 
-        // Configuración del GridPane
-        GridPane gridPane = new GridPane();
-        gridPane.setAlignment(Pos.CENTER);
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setPadding(new Insets(10, 10, 10, 10));
-
-        int row = 0;
-
-        // Campos del formulario
-        Label labelEmpresa = new Label("Empresa:");
-        labelEmpresa.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
-        Label textFieldEmpresa = new Label(preaviso.getNombreEmpresa());
-        textFieldEmpresa.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
-        gridPane.add(labelEmpresa, 0, row);
-        gridPane.add(textFieldEmpresa, 1, row++, 2, 1);
-
-        Label labelFechaConstitucion = new Label("Constitución Mesa Electoral");
-        labelFechaConstitucion.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
-        Label textFieldFechaConstitucion = new Label(ConversorFechaToLetras.convertirFechaGuiones(preaviso.getFechaConstitucion()));
-        textFieldFechaConstitucion.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
-        gridPane.add(labelFechaConstitucion, 0, row);
-        gridPane.add(textFieldFechaConstitucion, 2, row++, 2, 1);
-
-        // Agregar campos divididos en columnas
-        agregarCampo(gridPane, "Exposición del Censo Electoral:", "(3 días naturales)", row++);
-        agregarCampo(gridPane, "Reclamaciones al Censo Electoral:", "(1 día natural)", row++);
-        agregarCampo(gridPane, "Resolución de Reclamaciones:", "(1 día natural)", row++);
-        agregarCampo(gridPane, "Exposición del Censo Definitivo:", "(1 día natural)", row++);
-        agregarCampo(gridPane, "Presentación de Candidaturas:", "(9 días naturales)", row++);
-        agregarCampo(gridPane, "Exposición de Candidaturas presentadas:", "(2 días laborales)", row++);
-        agregarCampo(gridPane, "Reclamación a las Candidaturas presentadas:", "(1 día laboral)", row++);
-        agregarCampo(gridPane, "Resolución y Proclamación definitiva de Candidaturas:", "(1 día hábil)", row++);
-        agregarCampo(gridPane, "Propaganda Electoral:", "(4 días naturales)", row++);
-        agregarCampo(gridPane, "Jornada de Reflexión:", "(1 día natural)", row++);
-        agregarCampo(gridPane, "Día de la Votación:", "(1 día laboral)", row++);
-
-        // Campo para horario de votación
-        Label labelHorario = new Label("Horario de Votación:");
-        labelHorario.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
-        gridPane.add(labelHorario, 0, row);
-        HBox hBoxHorarioVotacion = crearCamposHora();
-        gridPane.add(hBoxHorarioVotacion, 2, row++);
-
-        // Botones de Guardar, Cancelar y Limpiar
-        HBox hBox = new HBox();
-        hBox.setAlignment(Pos.CENTER);
-        hBox.setSpacing(10);
-
-        Button btnGuardar = new Button("Guardar");
-        btnGuardar.setOnAction(_ -> {
-            // Lógica para guardar los datos del calendario
-            stage.close();
-        });
-
-        Button btnCancelar = new Button("Cancelar");
-        btnCancelar.setOnAction(_ -> stage.close());
-
-        Button btnLimpiar = new Button("Limpiar");
-        btnLimpiar.setOnAction(_ -> limpiarCampos());
-
-        hBox.getChildren().addAll(btnGuardar, btnCancelar, btnLimpiar);
-        gridPane.add(hBox, 0, ++row, 3, 1);
-
-        vboxPrincipal.getChildren().add(gridPane);
-
-        // Configuración de la escena y muestra de la ventana
-        Scene scene = new Scene(vboxPrincipal, 1200, 650);
+        Scene scene = new Scene(vboxPrincipal, 1150, 700);
         stage.setScene(scene);
         stage.show();
     }
 
     /**
+     * Crea un VBox con la configuración principal.
+     *
+     * @return VBox configurado.
+     */
+    private VBox crearVBoxPrincipal() {
+        VBox vbox = new VBox(10);
+        vbox.setAlignment(Pos.TOP_CENTER);
+        vbox.setPadding(new Insets(10));
+        return vbox;
+    }
+
+    /**
+     * Crea un GridPane con la configuración principal.
+     *
+     * @return GridPane configurado.
+     */
+    private GridPane crearGridPane() {
+        GridPane gridPane = new GridPane();
+        gridPane.setAlignment(Pos.CENTER);
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.setPadding(new Insets(5, 5, 5, 5));
+        return gridPane;
+    }
+
+    /**
+     * Agrega los campos del formulario al GridPane.
+     *
+     * @param gridPane El GridPane al que se agregarán los campos.
+     */
+    private void agregarCamposFormulario(GridPane gridPane) {
+        int row = 0;
+
+        agregarCampoEmpresa(gridPane, row++);
+        agregarCampoFechaConstitucion(gridPane, row++);
+
+        agregarCampo(gridPane, MessageManager.getMessage("calendario_comite.exposicion_censo"), "(3 días naturales)", row++);
+        agregarCampo(gridPane, MessageManager.getMessage("calendario_comite.reclamaciones_censo"), "(1 día natural)", row++);
+        agregarCampo(gridPane, MessageManager.getMessage("calendario_comite.resolucion_reclamaciones"), "(1 día natural)", row++);
+        agregarCampo(gridPane, MessageManager.getMessage("calendario_comite.exposicion_censo_definitivo"), "(1 día natural)", row++);
+        agregarCampo(gridPane, MessageManager.getMessage("calendario_comite.presentacion_candidaturas"), "(9 días naturales)", row++);
+        agregarCampo(gridPane, MessageManager.getMessage("calendario_comite.exposicion_candidaturas"), "(2 días laborales)", row++);
+        agregarCampo(gridPane, MessageManager.getMessage("calendario_comite.reclamacion_candidaturas"), "(1 día laboral)", row++);
+        agregarCampo(gridPane, MessageManager.getMessage("calendario_comite.proclamacion_candidaturas"), "(1 día hábil)", row++);
+        agregarCampo(gridPane, MessageManager.getMessage("calendario_comite.propaganda_electoral"), "(4 días naturales)", row++);
+        agregarCampo(gridPane, MessageManager.getMessage("calendario_comite.jornada_reflexion"), "(1 día natural)", row++);
+        agregarCampo(gridPane, MessageManager.getMessage("calendario_comite.dia_votacion"), "(1 día laboral)", row++);
+
+        agregarCampoHorarioVotacion(gridPane, row);
+    }
+
+    /**
+     * Agrega los botones de guardar, cancelar y limpiar al GridPane.
+     *
+     * @param gridPane El GridPane al que se agregarán los botones.
+     * @param stage    La ventana actual.
+     */
+    private void agregarBotones(GridPane gridPane, Stage stage) {
+        HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER);
+        hBox.setSpacing(10);
+
+        Button btnGuardar = new Button(MessageManager.getMessage("boton.guardar"));
+        btnGuardar.setOnAction(_ -> {
+            // Lógica para guardar los datos del calendario
+            stage.close();
+        });
+
+        Button btnCancelar = new Button(MessageManager.getMessage("boton.cancelar"));
+        btnCancelar.setOnAction(_ -> stage.close());
+
+        Button btnLimpiar = new Button(MessageManager.getMessage("boton.limpiar"));
+        btnLimpiar.setOnAction(_ -> limpiarCampos());
+
+        hBox.getChildren().addAll(btnGuardar, btnCancelar, btnLimpiar);
+        gridPane.add(hBox, 0, 12, 3, 1);
+    }
+
+    /**
      * Método auxiliar para agregar un campo al GridPane.
      *
-     * @param gridPane     El GridPane al que se agregará el campo.
-     * @param label1       La primera parte de la etiqueta del campo.
-     * @param label2       La segunda parte de la etiqueta del campo.
-     * @param row          La fila en la que se agregará el campo.
+     * @param gridPane El GridPane al que se agregará el campo.
+     * @param label1   La primera parte de la etiqueta del campo.
+     * @param label2   La segunda parte de la etiqueta del campo.
+     * @param row      La fila en la que se agregará el campo.
      */
     private void agregarCampo(GridPane gridPane, String label1, String label2, int row) {
         agregarCampo(gridPane, label1, label2, "", row);
@@ -148,9 +163,9 @@ public class VentanaCalendarioComite {
      */
     private void agregarCampo(GridPane gridPane, String label1, String label2, String valorInicial, int row) {
         Label lbl1 = new Label(label1);
-        lbl1.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        lbl1.setStyle(Constantes.FONT_SIZE_14_FONT_WEIGHT_BOLD);
         Label lbl2 = new Label(label2);
-        lbl2.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        lbl2.setStyle(Constantes.FONT_SIZE_14_FONT_WEIGHT_BOLD);
         HBox hbox = crearCamposFecha(valorInicial);
         gridPane.add(lbl1, 0, row);
         gridPane.add(lbl2, 1, row);
@@ -165,25 +180,26 @@ public class VentanaCalendarioComite {
      */
     private HBox crearCamposFecha(String valorInicial) {
         HBox hbox = new HBox(5);
+        hbox.setAlignment(Pos.CENTER_LEFT);
         TextField textFieldDiaInicio = new TextField();
         textFieldDiaInicio.setPrefWidth(35);
-        textFieldDiaInicio.setStyle("-fx-font-size: 14px;");
+        textFieldDiaInicio.setStyle(Constantes.ESTILO_ETIQUETA_12PX);
         TextField textFieldMesInicio = new TextField();
         textFieldMesInicio.setPrefWidth(100);
-        textFieldMesInicio.setStyle("-fx-font-size: 14px;");
-        TextField textFieldAnioInicio = new TextField();
+        textFieldMesInicio.setStyle(Constantes.ESTILO_ETIQUETA_12PX);
+        TextField textFieldAnioInicio = new TextField(LocalDate.now().getYear() % 100 + "");
         textFieldAnioInicio.setPrefWidth(35);
-        textFieldAnioInicio.setStyle("-fx-font-size: 14px;");
+        textFieldAnioInicio.setStyle(Constantes.ESTILO_ETIQUETA_12PX);
 
         TextField textFieldDiaFin = new TextField();
         textFieldDiaFin.setPrefWidth(35);
-        textFieldDiaFin.setStyle("-fx-font-size: 14px;");
+        textFieldDiaFin.setStyle(Constantes.ESTILO_ETIQUETA_12PX);
         TextField textFieldMesFin = new TextField();
         textFieldMesFin.setPrefWidth(100);
-        textFieldMesFin.setStyle("-fx-font-size: 14px;");
-        TextField textFieldAnioFin = new TextField();
+        textFieldMesFin.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
+        TextField textFieldAnioFin = new TextField(LocalDate.now().getYear() % 100 + "");
         textFieldAnioFin.setPrefWidth(35);
-        textFieldAnioFin.setStyle("-fx-font-size: 14px;");
+        textFieldAnioFin.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
 
         textFields.add(textFieldDiaInicio);
         textFields.add(textFieldMesInicio);
@@ -193,8 +209,8 @@ public class VentanaCalendarioComite {
         textFields.add(textFieldAnioFin);
 
         hbox.getChildren().addAll(
-                new Label("Desde el"), textFieldDiaInicio, new Label("de"), textFieldMesInicio, new Label("de 20"), textFieldAnioInicio,
-                new Label("hasta el"), textFieldDiaFin, new Label("de"), textFieldMesFin, new Label("de 20"), textFieldAnioFin
+                crearLabel(MessageManager.getMessage("calendario_comite.desde_el")), textFieldDiaInicio, crearLabel(MessageManager.getMessage("calendario_comite.de")), textFieldMesInicio, crearLabel(MessageManager.getMessage("calendario_comite.de_20")), textFieldAnioInicio,
+                crearLabel(MessageManager.getMessage("calendario_comite.hasta_el")), textFieldDiaFin, crearLabel(MessageManager.getMessage("calendario_comite.de")), textFieldMesFin, crearLabel(MessageManager.getMessage("calendario_comite.de_20")), textFieldAnioFin
         );
         return hbox;
     }
@@ -206,20 +222,94 @@ public class VentanaCalendarioComite {
      */
     private HBox crearCamposHora() {
         HBox hbox = new HBox(5);
+        hbox.setAlignment(Pos.CENTER_LEFT);
         TextField textFieldHoraInicio = new TextField();
         textFieldHoraInicio.setPrefWidth(55);
-        textFieldHoraInicio.setStyle("-fx-font-size: 14px;");
+        textFieldHoraInicio.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
         TextField textFieldHoraFin = new TextField();
         textFieldHoraFin.setPrefWidth(55);
-        textFieldHoraFin.setStyle("-fx-font-size: 14px;");
+        textFieldHoraFin.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
 
         textFields.add(textFieldHoraInicio);
         textFields.add(textFieldHoraFin);
 
         hbox.getChildren().addAll(
-                new Label("De"), textFieldHoraInicio, new Label("a"), textFieldHoraFin, new Label("horas.")
+                crearLabel(MessageManager.getMessage("calendario_comite.de")), textFieldHoraInicio, crearLabel(MessageManager.getMessage("calendario_comite.a")), textFieldHoraFin, crearLabel(MessageManager.getMessage("calendario_comite.horas"))
         );
         return hbox;
+    }
+
+    /**
+     * Crea una etiqueta con un estilo específico.
+     *
+     * @param texto El texto de la etiqueta.
+     * @return Una nueva instancia de Label con el texto especificado.
+     */
+    private Label crearLabel(String texto) {
+        Label label = new Label(texto);
+        label.setStyle(Constantes.ESTILO_ETIQUETA_14PX);
+        return label;
+    }
+
+    /**
+     * Crea y configura un título para la ventana.
+     *
+     * @param texto El texto del título.
+     * @return Una nueva instancia de Label configurada como título.
+     */
+    private Label crearTitulo(String texto) {
+        Label titulo = new Label(texto);
+        titulo.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
+        return titulo;
+    }
+
+    /**
+     * Agrega el campo de Empresa al GridPane.
+     *
+     * @param gridPane El GridPane al que se agregará el campo.
+     * @param row      La fila en la que se agregará el campo.
+     */
+    private void agregarCampoEmpresa(GridPane gridPane, int row) {
+        Label labelEmpresa = new Label(MessageManager.getMessage("calendario_comite.empresa"));
+        labelEmpresa.setStyle(Constantes.FONT_SIZE_14_FONT_WEIGHT_BOLD);
+        Label textFieldEmpresa = new Label(preaviso.getNombreEmpresa());
+        textFieldEmpresa.setStyle(Constantes.FONT_SIZE_14_FONT_WEIGHT_BOLD);
+        gridPane.add(labelEmpresa, 0, row);
+        gridPane.add(textFieldEmpresa, 1, row, 2, 1);
+    }
+
+    /**
+     * Agrega el campo de Fecha de Constitución al GridPane.
+     *
+     * @param gridPane El GridPane al que se agregará el campo.
+     * @param row      La fila en la que se agregará el campo.
+     */
+    private void agregarCampoFechaConstitucion(GridPane gridPane, int row) {
+        Label labelFechaConstitucion = new Label(MessageManager.getMessage("calendario_comite.constitucion_mesa"));
+        labelFechaConstitucion.setStyle(Constantes.FONT_SIZE_14_FONT_WEIGHT_BOLD);
+        Label textFieldFechaConstitucion = new Label(ConversorFechaToLetras.convertirFechaGuiones(preaviso.getFechaConstitucion()));
+        textFieldFechaConstitucion.setStyle(Constantes.FONT_SIZE_14_FONT_WEIGHT_BOLD);
+        TextField textFieldHoraConstitucion = new TextField();
+        textFieldHoraConstitucion.setPrefWidth(50);
+        textFieldHoraConstitucion.setStyle(Constantes.ESTILO_ETIQUETA_12PX);
+        gridPane.add(labelFechaConstitucion, 0, row);
+        HBox hBoxConstitucion = new HBox(5, textFieldFechaConstitucion, crearLabel(MessageManager.getMessage("calendario_comite.a_las")), textFieldHoraConstitucion, crearLabel(MessageManager.getMessage("calendario_comite.horas")));
+        hBoxConstitucion.setAlignment(Pos.CENTER_LEFT);
+        gridPane.add(hBoxConstitucion, 1, row, 2, 1);
+    }
+
+    /**
+     * Agrega el campo de Horario de Votación al GridPane.
+     *
+     * @param gridPane El GridPane al que se agregará el campo.
+     * @param row      La fila en la que se agregará el campo.
+     */
+    private void agregarCampoHorarioVotacion(GridPane gridPane, int row) {
+        Label labelHorario = new Label(MessageManager.getMessage("calendario_comite.horario_votacion"));
+        labelHorario.setStyle(Constantes.FONT_SIZE_14_FONT_WEIGHT_BOLD);
+        gridPane.add(labelHorario, 0, row);
+        HBox hBoxHorarioVotacion = crearCamposHora();
+        gridPane.add(hBoxHorarioVotacion, 2, row);
     }
 
     /**
