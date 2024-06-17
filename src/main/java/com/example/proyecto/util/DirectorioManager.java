@@ -80,9 +80,9 @@ public class DirectorioManager {
      * @return Un array de rutas de formularios.
      */
     public @NotNull String[] generarRutasFormulariosComite() {
-        String[] rutaFormulariosComite = new String[Constantes.DOCUMENTACION_DELEGADOS.length];
-        for (int i = 0; i < Constantes.DOCUMENTACION_DELEGADOS.length; i++) {
-            rutaFormulariosComite[i] = String.format("%s/%s%s", Constantes.RUTA_DELEGADOS_JAR, Constantes.DOCUMENTACION_DELEGADOS[i], Constantes.EXTENSION_ARCHIVO);
+        String[] rutaFormulariosComite = new String[Constantes.DOCUMENTACION_COMITE.length];
+        for (int i = 0; i < Constantes.DOCUMENTACION_COMITE.length; i++) {
+            rutaFormulariosComite[i] = String.format("%s/%s%s", Constantes.RUTA_COMITE_JAR, Constantes.DOCUMENTACION_COMITE[i], Constantes.EXTENSION_ARCHIVO);
         }
         return rutaFormulariosComite;
     }
@@ -140,7 +140,7 @@ public class DirectorioManager {
      * @throws IOException Sí ocurre un error durante la copia de los archivos.
      */
     public void copiarRecursosADirectorio(@NotNull String rutaDestino, @NotNull Preaviso nuevoPreaviso) throws IOException {
-        String[] formularios = generarRutasFormulariosDelegados();
+        String[] formularios = Integer.parseInt(nuevoPreaviso.getTotalTrabajadores()) > Constantes.MAXIMO_ELECTORES_DELEGADOS ? generarRutasFormulariosComite() : generarRutasFormulariosDelegados();
         CumplimentarPreavisoPDF cumplimentarPreavisoPDF = new CumplimentarPreavisoPDF(view);
 
         for (String formulario : formularios) {

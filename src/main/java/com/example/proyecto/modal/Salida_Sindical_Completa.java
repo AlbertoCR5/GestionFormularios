@@ -55,7 +55,7 @@ public class Salida_Sindical_Completa {
     }
 
     public void setFechaComunicacion(String fechaComunicacion) throws CumplimentarPDFException {
-        if (!validarFecha.esFormatoFechaValido(fechaComunicacion)) {
+        if (ValidadorFecha.esFormatoFechaNoValido(fechaComunicacion)) {
             throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.comunicacion.incorrecta").concat(String.valueOf(Constantes.FORMATO_FECHA)).concat("\n"));
         }
         this.fechaComunicacion = fechaComunicacion;
@@ -83,7 +83,7 @@ public class Salida_Sindical_Completa {
     }
 
     public void setFechaSalida(String fechaSalida) throws CumplimentarPDFException {
-        if (!validarFecha.esFormatoFechaValido(fechaSalida)) {
+        if (ValidadorFecha.esFormatoFechaNoValido(fechaSalida)) {
             throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.salida.incorrecta").concat(String.valueOf(Constantes.FORMATO_FECHA)).concat("\n"));
         }
         this.fechaSalida = fechaSalida;

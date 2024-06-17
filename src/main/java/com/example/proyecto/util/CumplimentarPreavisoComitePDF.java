@@ -120,14 +120,14 @@ public class CumplimentarPreavisoComitePDF {
         }
     }
 
-    public void modificarCamposTextoCalendarioComitePDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoCalendarioComitePDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
             modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
-            modificarCampoTexto(acroForm, "fechaConstitucion", ConversorFechaToLetras.convertirFechaCompleta(nuevoPreaviso.getFechaConstitucion()));
+            modificarCampoTexto(acroForm, "fechaConstitucion", ConversorFechaToLetras.convertirFechaGuiones(nuevoPreaviso.getFechaConstitucion()));
         });
     }
 
-    public void modificarCamposTextoModelo4EspecialistasPDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoModelo4EspecialistasPDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         //Modifica campos de texto en Modelo 4 Especialistas
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
             modificarCampoTexto(acroForm, "numeroMesa", "1");
@@ -137,11 +137,13 @@ public class CumplimentarPreavisoComitePDF {
             modificarCampoTexto(acroForm, "nombreCentro", nuevoPreaviso.getNombreCentro());
             modificarCampoTexto(acroForm, "direccion", nuevoPreaviso.getDireccion());
             modificarCampoTexto(acroForm, "municipio", nuevoPreaviso.getMunicipio());
-
+            modificarCampoTexto(acroForm, "dia", nuevoPreaviso.getFechaConstitucion().substring(0, 2));
+            modificarCampoTexto(acroForm, "mes", nuevoPreaviso.getMesConstitucionLetras());
+            modificarCampoTexto(acroForm, "anio", nuevoPreaviso.getFechaPreaviso().substring(nuevoPreaviso.getFechaConstitucion().length()-2));
         });
     }
 
-    public void modificarCamposTextoModelo4TecnicosPDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoModelo4TecnicosPDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
             modificarCampoTexto(acroForm, "numeroMesa", "1");
             modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
@@ -150,37 +152,13 @@ public class CumplimentarPreavisoComitePDF {
             modificarCampoTexto(acroForm, "nombreCentro", nuevoPreaviso.getNombreCentro());
             modificarCampoTexto(acroForm, "direccion", nuevoPreaviso.getDireccion());
             modificarCampoTexto(acroForm, "municipio", nuevoPreaviso.getMunicipio());
+            modificarCampoTexto(acroForm, "dia", nuevoPreaviso.getFechaConstitucion().substring(0, 2));
+            modificarCampoTexto(acroForm, "mes", nuevoPreaviso.getMesConstitucionLetras());
+            modificarCampoTexto(acroForm, "anio", nuevoPreaviso.getFechaPreaviso().substring(nuevoPreaviso.getFechaConstitucion().length()-2));
         });
     }
 
-    public void modificarCamposTextoModelo6_1EspecialistasPDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
-        modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
-            modificarCampoTexto(acroForm, "numeroMesa", "1");
-            modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
-            modificarCampoTexto(acroForm, "CIF", nuevoPreaviso.getCIF());
-            modificarCampoTexto(acroForm, "nombreComercial", nuevoPreaviso.getNombreComercial());
-            modificarCampoTexto(acroForm, "nombreCentro", nuevoPreaviso.getNombreCentro());
-            modificarCampoTexto(acroForm, "direccion", nuevoPreaviso.getDireccion());
-            modificarCampoTexto(acroForm, "municipio", nuevoPreaviso.getMunicipio());
-            modificarCampoTexto(acroForm, "fechaConstitucion", ConversorFechaToLetras.convertirFechaCompleta(nuevoPreaviso.getFechaConstitucion()));
-        });
-    }
-
-    public void modificarCamposTextoModelo6_2EspecialistasPDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
-        modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
-            modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
-            modificarCampoTexto(acroForm, "sindicato", nuevoPreaviso.getPromotores());
-        });
-    }
-
-    public void modificarCamposTextoModelo6_3EspecialistasPDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
-        modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
-            modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
-            modificarCampoTexto(acroForm, "CIF", nuevoPreaviso.getCIF());
-        });
-    }
-
-    public void modificarCamposTextoModelo6_1TecnicosPDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoModelo6_1EspecialistasPDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
             modificarCampoTexto(acroForm, "numeroMesa", "1");
             modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
@@ -193,21 +171,48 @@ public class CumplimentarPreavisoComitePDF {
         });
     }
 
-    public void modificarCamposTextoModelo6_2TecnicosPDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoModelo6_2EspecialistasPDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
             modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
             modificarCampoTexto(acroForm, "sindicato", nuevoPreaviso.getPromotores());
         });
     }
 
-    public void modificarCamposTextoModelo6_3TecnicosPDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoModelo6_3EspecialistasPDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
             modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
             modificarCampoTexto(acroForm, "CIF", nuevoPreaviso.getCIF());
         });
     }
 
-    public void modificarCamposTextoModelo7_1PDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoModelo6_1TecnicosPDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
+        modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
+            modificarCampoTexto(acroForm, "numeroMesa", "1");
+            modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
+            modificarCampoTexto(acroForm, "CIF", nuevoPreaviso.getCIF());
+            modificarCampoTexto(acroForm, "nombreComercial", nuevoPreaviso.getNombreComercial());
+            modificarCampoTexto(acroForm, "nombreCentro", nuevoPreaviso.getNombreCentro());
+            modificarCampoTexto(acroForm, "direccion", nuevoPreaviso.getDireccion());
+            modificarCampoTexto(acroForm, "municipio", nuevoPreaviso.getMunicipio());
+            modificarCampoTexto(acroForm, "fechaConstitucion", ConversorFechaToLetras.convertirFechaCompleta(nuevoPreaviso.getFechaConstitucion()));
+        });
+    }
+
+    public void modificarCamposTextoModelo6_2TecnicosPDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
+        modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
+            modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
+            modificarCampoTexto(acroForm, "sindicato", nuevoPreaviso.getPromotores());
+        });
+    }
+
+    public void modificarCamposTextoModelo6_3TecnicosPDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
+        modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
+            modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
+            modificarCampoTexto(acroForm, "CIF", nuevoPreaviso.getCIF());
+        });
+    }
+
+    public void modificarCamposTextoModelo7_1PDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
             modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
             modificarCampoTexto(acroForm, "CIF", nuevoPreaviso.getCIF());
@@ -218,12 +223,12 @@ public class CumplimentarPreavisoComitePDF {
         });
     }
 
-    public void modificarCamposTextoModelo7_2PDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoModelo7_2PDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
         });
     }
 
-    public void modificarCamposTextoModelo7_3ActaGlobalPDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoModelo7_3ActaGlobalPDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
             modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
             modificarCampoTexto(acroForm, "nombreComercial", nuevoPreaviso.getNombreComercial());
@@ -238,7 +243,7 @@ public class CumplimentarPreavisoComitePDF {
         });
     }
 
-    public void modificarCamposTextoModelo7_3AnexoPDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoModelo7_3AnexoPDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
             modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
             modificarCampoTexto(acroForm, "nombreCentro", nuevoPreaviso.getNombreCentro());
@@ -246,12 +251,12 @@ public class CumplimentarPreavisoComitePDF {
         });
     }
 
-    public void modificarCamposTextoModelo7_3ProcesoPDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoModelo7_3ProcesoPDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
         });
     }
 
-    public void modificarCamposTextoModelo9ComitePDF(String rutaFormularioPDF, String string, Preaviso nuevoPreaviso) {
+    public void modificarCamposTextoModelo9ComitePDF(String rutaFormularioPDF, String rutaDirectorioEmpresa, Preaviso nuevoPreaviso) {
         modificarCamposTextoPDF(rutaFormularioPDF, rutaDirectorioEmpresa, nuevoPreaviso, acroForm -> {
             modificarCampoTexto(acroForm, "nombreEmpresa", nuevoPreaviso.getNombreEmpresa());
             modificarCampoTexto(acroForm, "CIF", nuevoPreaviso.getCIF());

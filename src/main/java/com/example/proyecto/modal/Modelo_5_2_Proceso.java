@@ -137,7 +137,7 @@ public class Modelo_5_2_Proceso {
      * @param dia El día de la constitución de la mesa.
      */
     public void setDia(String dia) {
-        this.dia = extraerFecha.getDia();
+        this.dia = dia;
     }
 
     public String getMes() {
@@ -149,7 +149,7 @@ public class Modelo_5_2_Proceso {
      * @param mes El mes de la constitución de la mesa.
      */
     public void setMes(String mes) {
-        this.mes = extraerFecha.getMes();
+        this.mes = mes;
     }
 
     public String getAnio() {
@@ -161,7 +161,7 @@ public class Modelo_5_2_Proceso {
      * @param anio El año de la constitución de la mesa.
      */
     public void setAnio(String anio) {
-        this.anio = extraerFecha.getAnio();
+        this.anio = anio;
     }
 
     public int getTotalElectores() {

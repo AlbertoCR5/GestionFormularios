@@ -17,8 +17,6 @@ import java.util.Calendar;
  */
 public class Preaviso {
 
-    protected final ValidadorFecha validarFecha = new ValidadorFecha();
-    private final ValidadorCampos validarCIF = new ValidadorCampos();
 
     private String nombreEmpresa;
     private String CIF;
@@ -37,6 +35,7 @@ public class Preaviso {
     private boolean parcial;
     private String promotores;
     private String fechaConstitucion;
+    private String mesConstitucionLetras;
     private String electores;
     private String fechaPreaviso;
     private String diaPreaviso;
@@ -120,7 +119,7 @@ public class Preaviso {
     }
 
     public void setCIF(String CIF) throws CumplimentarPDFException {
-        if (!validarCIF.verificarCIF(CIF)) {
+        if (!ValidadorCampos.verificarCIF(CIF)) {
             throw new CumplimentarPDFException(MessageManager.getMessage("error.cif.incorrecto"));
         }
         this.CIF = CIF;
@@ -277,7 +276,7 @@ public class Preaviso {
     }
 
     public void setFechaConstitucion(String fechaConstitucion) throws CumplimentarPDFException {
-        if (!validarFecha.esFormatoFechaValido(fechaConstitucion) || fechaConstitucion.isEmpty()) {
+        if (ValidadorFecha.esFormatoFechaNoValido(fechaConstitucion)) {
             throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.constitucion.incorrecto").concat(String.valueOf(Constantes.FORMATO_FECHA)));
         }
         String[] partes = fechaConstitucion.split("/");
@@ -286,6 +285,14 @@ public class Preaviso {
         String anio = partes[2];
 
         this.fechaConstitucion = STR."\{dia}/\{mes}/\{anio}";
+        setMesConstitucionLetas(mes);
+    }
+
+    public String getMesConstitucionLetras() {
+        return mesConstitucionLetras;
+    }
+    private void setMesConstitucionLetas(String mes) {
+       this.mesConstitucionLetras = ConversorFechaToLetras.convertirMesALetras(mes);
     }
 
     public String getElectores() {

@@ -59,11 +59,7 @@ public class CalendarioDelegado extends Preaviso {
      * @throws CumplimentarPDFException Si el formato del día es incorrecto.
      */
     public void setDiaEscrutinio(String diaEscrutinio) throws CumplimentarPDFException {
-        if (extraerFecha.esFormatoFechaValido(diaEscrutinio)) {
-            this.diaEscrutinio = extraerFecha.getDia();
-        } else {
-            throw new CumplimentarPDFException("ERROR, Día del escrutinio incorrecto");
-        }
+            this.diaEscrutinio = diaEscrutinio;
     }
 
     /**
@@ -100,11 +96,7 @@ public class CalendarioDelegado extends Preaviso {
      * @throws CumplimentarPDFException Si el formato del año es incorrecto.
      */
     public void setAnioEscrutinio(String anioEscrutinio) throws CumplimentarPDFException {
-        if (extraerFecha.esFormatoFechaValido(anioEscrutinio)) {
-            this.anioEscrutinio = extraerFecha.getAnioFormateado();
-        } else {
-            throw new CumplimentarPDFException("ERROR, Año del escrutinio incorrecto");
-        }
+            this.anioEscrutinio = anioEscrutinio;
     }
 
     @Override

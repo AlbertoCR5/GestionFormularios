@@ -44,6 +44,7 @@ public class Constantes {
     // Rutas relativas
     public static final String RUTA_DELEGADOS = String.format("%s\\src\\main\\resources\\Delegados", System.getProperty("user.dir"));
     public static final String RUTA_DELEGADOS_JAR = "/Delegados";
+    public static final String RUTA_COMITE_JAR = "/Comite";
     public static final String RUTA_TEMPORAL = System.getProperty("java.io.tmpdir") + "/proyecto_temp";
 
     // Salidas sindicales

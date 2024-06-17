@@ -1,9 +1,6 @@
 package com.example.proyecto.modal;
 
-import com.example.proyecto.util.Constantes;
-import com.example.proyecto.util.ConversorFechaToLetras;
-import com.example.proyecto.util.CumplimentarPDFException;
-import com.example.proyecto.util.MessageManager;
+import com.example.proyecto.util.*;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -73,7 +70,7 @@ public class Modelo_5_1 extends Modelo_3 {
     }
 
     public void setFechaEscrutinio(String fechaEscrutinio) throws CumplimentarPDFException {
-        if (!validarFecha.esFormatoFechaValido(fechaEscrutinio)) {
+        if (ValidadorFecha.esFormatoFechaNoValido(fechaEscrutinio)) {
             throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.escrutinio.incorrecto"));
         }
         String[] partes = fechaEscrutinio.split("/");

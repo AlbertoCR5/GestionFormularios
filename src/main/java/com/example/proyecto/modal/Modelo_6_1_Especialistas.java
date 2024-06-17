@@ -3,6 +3,7 @@ package com.example.proyecto.modal;
 import com.example.proyecto.util.ConversorFechaToLetras;
 import com.example.proyecto.util.CumplimentarPDFException;
 import com.example.proyecto.util.MessageManager;
+import com.example.proyecto.util.ValidadorFecha;
 
 /**
  * Clase que representa el modelo 6.1 para especialistas en el proceso de escrutinio.
@@ -140,7 +141,7 @@ public class Modelo_6_1_Especialistas extends Modelo_4_Especialistas {
     }
 
     public void setFechaVotacion(String fechaVotacion) throws CumplimentarPDFException {
-        if (!validarFecha.esFormatoFechaValido(fechaVotacion)) {
+        if (ValidadorFecha.esFormatoFechaNoValido(fechaVotacion)) {
             throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.escrutinio.incorrecto"));
         }
         String[] partes = fechaVotacion.split("/");

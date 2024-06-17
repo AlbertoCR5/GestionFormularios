@@ -197,7 +197,7 @@ public class Registro {
         try {
             Path rutaDirectorioEmpresa = directorioManager.crearDirectorioEmpresa(rutaElecciones, nuevoPreaviso);
             directorioManager.copiarRecursosADirectorio(rutaDirectorioEmpresa.toString(), nuevoPreaviso);
-            String[] rutaFormularios = directorioManager.generarRutasFormulariosDelegados();
+            String[] rutaFormularios = directorioManager.generarRutasFormulariosComite();
 
             for (String rutaFormularioPDF : rutaFormularios) {
                 try {

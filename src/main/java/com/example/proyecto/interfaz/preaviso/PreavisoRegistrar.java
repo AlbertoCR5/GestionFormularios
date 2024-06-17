@@ -1,15 +1,15 @@
 package com.example.proyecto.interfaz.preaviso;
 
 import com.example.proyecto.interfaz.PrincipalView;
-import com.example.proyecto.modal.DatabaseManager;
-import com.example.proyecto.modal.EleccionesDAO;
-import com.example.proyecto.modal.EmpresaDAO;
-import com.example.proyecto.modal.Preaviso;
+import com.example.proyecto.interfaz.VentanaCalendarioComite;
+import com.example.proyecto.modal.*;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.CumplimentarPDFException;
 import com.example.proyecto.util.MessageManager;
 import com.example.proyecto.util.Registro;
 import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
@@ -51,26 +51,45 @@ public class PreavisoRegistrar {
         Optional<ButtonType> result = nuevaVentanaPreaviso.mostrarAlertaConfirmacion(mensajeConfirmacion);
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                // Crea instancia de DatabaseManager y EmpresaDAO
+                // Código existente para insertar datos en la base de datos y registrar preaviso
                 DatabaseManager dbManager = new DatabaseManager(nuevaVentanaPreaviso);
                 EmpresaDAO empresaDAO = new EmpresaDAO(nuevaVentanaPreaviso, dbManager);
                 EleccionesDAO eleccionesDAO = new EleccionesDAO(nuevaVentanaPreaviso, dbManager);
-
-                // Inserta los datos de la empresa en la base de datos
                 empresaDAO.insertEmpresa(nuevoPreaviso);
                 eleccionesDAO.insertFechaConstitucion(nuevoPreaviso);
 
-                // Registra el preaviso
                 Registro registro = new Registro(nuevoPreaviso, nuevaVentanaPreaviso);
                 if (Integer.parseInt(nuevoPreaviso.getTotalTrabajadores()) > Constantes.MAXIMO_ELECTORES_DELEGADOS) {
                     registro.registrarNuevoPreavisoComite(nuevoPreaviso);
                 } else {
                     registro.registrarNuevoPreavisoDelegado(nuevoPreaviso);
                 }
-                stage.close();
+
+                if (Integer.parseInt(nuevoPreaviso.getTotalTrabajadores()) > 50) {
+                    mostrarConfirmacionCalendarioComite(stage, nuevoPreaviso);
+                } else {
+                    stage.close();
+                }
             } catch (SQLException | IOException e) {
                 nuevaVentanaPreaviso.mostrarMensaje(MessageManager.getMessage("preaviso.error_db") + e.getMessage(), false);
             }
+        }
+    }
+
+    private void mostrarConfirmacionCalendarioComite(@NotNull Stage stage, @NotNull Preaviso nuevoPreaviso) throws CumplimentarPDFException {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(MessageManager.getMessage("info.title"));
+        alert.setHeaderText(null);
+        alert.setContentText("El número de trabajadores es superior a 50. ¿Quieres elaborar el calendario de comité ahora?");
+        ButtonType buttonTypeYes = new ButtonType("Sí", ButtonBar.ButtonData.YES);
+        ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == buttonTypeYes) {
+            new VentanaCalendarioComite(nuevoPreaviso).mostrar();
+        } else {
+            stage.close();
         }
     }
 

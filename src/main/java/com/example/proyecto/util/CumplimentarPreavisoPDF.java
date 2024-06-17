@@ -122,7 +122,7 @@ public class CumplimentarPreavisoPDF {
             modificarCampoTexto(acroForm, "municipioCentro", nuevoPreaviso.getMunicipio());
             modificarCampoTexto(acroForm, "municipioElecciones", nuevoPreaviso.getMunicipio());
             modificarCampoTexto(acroForm, "dia", nuevoPreaviso.getFechaConstitucion().substring(0, 2));
-            modificarCampoTexto(acroForm, "meses", ConversorFechaToLetras.convertirMesALetras(nuevoPreaviso.getFechaConstitucion()));
+            modificarCampoTexto(acroForm, "meses", nuevoPreaviso.getMesConstitucionLetras());;
             modificarCampoTexto(acroForm, "año", nuevoPreaviso.getFechaConstitucion().substring(nuevoPreaviso.getFechaConstitucion().length() - 2));
         });
     }

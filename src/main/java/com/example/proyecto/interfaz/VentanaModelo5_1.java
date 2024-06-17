@@ -35,7 +35,6 @@ import java.util.*;
 public class VentanaModelo5_1 {
 
     private final PrincipalView vistaPrincipal;
-    private final ValidadorCampos validadorCampos;
     private final Modelo_5_1 nuevoModelo5_1;
     private final Modelo_5_2_Proceso nuevoModelo5_2Proceso;
     private final Modelo_5_2_Conclusion nuevoModeloConclusion;
@@ -55,7 +54,6 @@ public class VentanaModelo5_1 {
     public VentanaModelo5_1(@NotNull PrincipalView vistaPrincipal, @NotNull Path rutaEmpresa, @NotNull Modelo_5_1 nuevoModelo5_1,
                             @NotNull Modelo_5_2_Proceso nuevoModelo5_2Proceso, @NotNull Modelo_5_2_Conclusion nuevoModeloConclusion) {
         this.vistaPrincipal = vistaPrincipal;
-        this.validadorCampos = new ValidadorCampos();
         this.nuevoModelo5_1 = nuevoModelo5_1;
         this.nuevoModelo5_2Proceso = nuevoModelo5_2Proceso;
         this.nuevoModeloConclusion = nuevoModeloConclusion;
@@ -71,13 +69,15 @@ public class VentanaModelo5_1 {
 
         VBox vbox = crearVBox();
         VBox vboxNumeroPreaviso = crearVBoxNumeroPreaviso();
+        Label labelFechaVotacion = new Label("FECHA DE VOTACIÓN");
+        labelFechaVotacion.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
         DatePicker datePicker = getDatePicker();
-        Label labelCandidatosHeader = crearLabelCandidatosHeader();
         Button btnAgregarCandidato = crearBotonAgregarCandidato();
+        Label labelCandidatosHeader = crearLabelCandidatosHeader();
         tableView = crearTableViewCandidatos();
         Button btnGuardar = crearBotonGuardar(stage, datePicker);
 
-        vbox.getChildren().addAll(vboxNumeroPreaviso, labelCandidatosHeader, datePicker, btnAgregarCandidato, tableView, crearGuardarBox(btnGuardar));
+        vbox.getChildren().addAll(vboxNumeroPreaviso, labelFechaVotacion, datePicker, btnAgregarCandidato, labelCandidatosHeader, tableView, crearGuardarBox(btnGuardar));
 
         Scene scene = new Scene(vbox, 500, 400);
         stage.setScene(scene);
@@ -207,7 +207,7 @@ public class VentanaModelo5_1 {
 
     private void validarDNI(@NotNull GridPane dialogPane, @NotNull javafx.event.ActionEvent event) {
         TextField dniField = (TextField) dialogPane.getChildren().get(3);
-        if (!validadorCampos.verificarDNI(dniField.getText())) {
+        if (!ValidadorCampos.verificarDNI(dniField.getText())) {
             vistaPrincipal.mostrarMensaje(MessageManager.getMessage("modelo5_1.dni_invalido"), false);
             event.consume();
             dniField.requestFocus();
