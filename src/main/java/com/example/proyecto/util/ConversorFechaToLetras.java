@@ -25,6 +25,22 @@ public class ConversorFechaToLetras {
     }
 
     /**
+     * Convierte una fecha en formato dd/MM/yyyy a un formato con "de".
+     *
+     * @param fecha La fecha a convertir.
+     * @return La fecha en formato dd - MES - yyyy.
+     */
+    public static @NotNull String convertirFechaDe(String fecha) {
+        String[] partes = fecha.split("/");
+        String dia = partes[0];
+        String mes = convertirMesALetras(partes[1]);
+        String anio = partes[2];
+
+        dia = dia.length() == 1 ? "0" + dia : dia;
+        return dia + " DE " + mes + " DE " + anio;
+    }
+
+    /**
      * Convierte una fecha en formato dd/MM/yyyy a un formato con el nombre del mes y año en letras.
      *
      * @param fecha La fecha a convertir.

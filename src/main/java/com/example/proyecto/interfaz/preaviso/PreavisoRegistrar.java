@@ -87,7 +87,7 @@ public class PreavisoRegistrar {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == buttonTypeYes) {
-            new VentanaCalendarioComite(nuevoPreaviso).mostrar();
+            new VentanaCalendarioComite(nuevoPreaviso).mostrarVentanaCalendarioComite();
         } else {
             stage.close();
         }

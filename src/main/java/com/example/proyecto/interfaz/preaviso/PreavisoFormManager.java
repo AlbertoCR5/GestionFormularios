@@ -123,6 +123,7 @@ public class PreavisoFormManager {
 
         configurarMesEleccionPorDefecto();
         configurarFechaConstitucionPorDefecto();
+        configurarFechaPreavisoPorDefecto();
     }
 
     /**
@@ -279,5 +280,12 @@ public class PreavisoFormManager {
             fechaConstitucion = fechaConstitucion.plusDays(1);
         }
         datePickerFechaInicio.setValue(fechaConstitucion);
+    }
+
+    /**
+     * Inicializa las fechas por defecto para los DatePicker.
+     */
+    private void configurarFechaPreavisoPorDefecto() {
+        datePickerFechaPreaviso.setValue(LocalDate.now());
     }
 }
