@@ -69,7 +69,6 @@ public class Constantes {
             PREAVISO, CALENDARIO_DELEGADOS, MODELO_3, MODELO_5_1, MODELO_5_2_PROCESO,
             MODELO_5_2_CONCLUSION, MODELO_9, AUTORIZACION
     };
-    public static final String IMPRESION_DELEGADOS = "ImprimirDelegados.ps1";
 
     // Directorios de actas para comité
     public static final String CALENDARIO_COMITE = "calendario_comite";

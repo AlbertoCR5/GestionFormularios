@@ -1,6 +1,5 @@
 package com.example.proyecto.modal;
 
-import com.example.proyecto.interfaz.PrincipalView;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.CumplimentarPDFException;
 import com.example.proyecto.util.Meses;

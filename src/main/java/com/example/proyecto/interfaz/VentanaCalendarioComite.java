@@ -1,8 +1,10 @@
 package com.example.proyecto.interfaz;
 
+import com.example.proyecto.modal.CalendarioComite;
 import com.example.proyecto.modal.Preaviso;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.ConversorFechaToLetras;
+import com.example.proyecto.util.CumplimentarPDFException;
 import com.example.proyecto.util.MessageManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,6 +36,7 @@ public class VentanaCalendarioComite {
 
     private final Preaviso preaviso;
     private final List<TextField> textFields = new ArrayList<>();
+    private final CalendarioComite calendarioComite;
 
     /**
      * Constructor para la clase `VentanaCalendarioComite`.
@@ -41,6 +45,7 @@ public class VentanaCalendarioComite {
      */
     public VentanaCalendarioComite(Preaviso preaviso) {
         this.preaviso = preaviso;
+        this.calendarioComite = new CalendarioComite();
     }
 
     /**
@@ -55,8 +60,12 @@ public class VentanaCalendarioComite {
         agregarCamposFormulario(gridPane);
         agregarBotones(gridPane, stage);
 
-        vboxPrincipal.getChildren().addAll(crearTitulo(MessageManager.getMessage("calendario_comite.titulo1")),
-                crearTitulo(MessageManager.getMessage("calendario_comite.titulo2")), new Region(), gridPane);
+        vboxPrincipal.getChildren().addAll(
+                crearTitulo(MessageManager.getMessage("calendario_comite.titulo1")),
+                crearTitulo(MessageManager.getMessage("calendario_comite.titulo2")),
+                new Region(),
+                gridPane
+        );
 
         Scene scene = new Scene(vboxPrincipal, 1150, 700);
         stage.setScene(scene);
@@ -139,7 +148,11 @@ public class VentanaCalendarioComite {
 
         Button btnGuardar = new Button(MessageManager.getMessage("boton.guardar"));
         btnGuardar.setOnAction(_ -> {
-            // Lógica para guardar los datos del calendario
+            try {
+                guardarDatosCalendario();
+            } catch (CumplimentarPDFException e) {
+                throw new RuntimeException(e);
+            }
             stage.close();
         });
 
@@ -323,6 +336,30 @@ public class VentanaCalendarioComite {
         gridPane.add(labelHorario, 0, row);
         HBox hBoxHorarioVotacion = crearCamposHora();
         gridPane.add(hBoxHorarioVotacion, 2, row);
+    }
+
+    /**
+     * Guarda los datos del formulario en la instancia de CalendarioComite.
+     */
+    private void guardarDatosCalendario() throws CumplimentarPDFException {
+        calendarioComite.setHoraConstitucion(getHoraConstitucion());
+        calendarioComite.setDiaInicioExposicionCenso(textFields.get(0).getText());
+        calendarioComite.setMesInicioExposicionCenso(textFields.get(1).getText());
+        calendarioComite.setAnioFinExposicionCenso(textFields.get(2).getText());
+        calendarioComite.setDiaFinExposicionCenso(textFields.get(3).getText());
+        calendarioComite.setMesFinExposicionCenso(textFields.get(4).getText());
+        calendarioComite.setAnioFinExposicionCenso(textFields.get(5).getText());
+        // Similar assignments for all other fields...
+    }
+
+    /**
+     * Obtiene la hora de constitución a partir de los campos de texto.
+     *
+     * @return La hora de constitución.
+     */
+    private Date getHoraConstitucion() {
+        // Implement your logic to parse the hour from textFields
+        return null;
     }
 
     /**
