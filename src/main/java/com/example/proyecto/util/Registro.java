@@ -292,4 +292,6 @@ public class Registro {
     }
 
 
+    public void registrarModelosEscrutinioDelegadosColegioUnico(Modelo_5_1 nuevoModelo51, Modelo_5_2_Proceso nuevoModelo52Proceso, Modelo_5_2_Conclusion nuevoModeloConclusion, Path rutaEmpresa) {
+    }
 }

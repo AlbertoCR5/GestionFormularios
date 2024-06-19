@@ -76,10 +76,13 @@ public class Constantes {
     public static final String MODELO_4_TECNICOS = "modelo_4_Tecnicos";
     public static final String MODELO_6_1_ESPECIALISTAS = "modelo_6_1_Especialistas";
     public static final String MODELO_6_1_TECNICOS = "modelo_6_1_Tecnicos";
+    public static final String MODELO_6_1_UNICO = "modelo_6_1_Unico";
     public static final String MODELO_6_2_ESPECIALISTAS = "modelo_6_2_Especialistas";
     public static final String MODELO_6_2_TECNICOS = "modelo_6_2_Tecnicos";
+    public static final String MODELO_6_2_UNICO = "modelo_6_2_Unico";
     public static final String MODELO_6_3_ESPECIALISTAS = "modelo_6_3_Especialistas";
     public static final String MODELO_6_3_TECNICOS = "modelo_6_3_Tecnicos";
+    public static final String MODELO_6_3_UNICO = "modelo_6_3_Unico";
     public static final String MODELO_7_1 = "modelo_7_1";
     public static final String MODELO_7_2 = "modelo_7_2";
     public static final String MODELO_7_3_ACTA_GLOBAL = "modelo_7_3_acta_global";
@@ -90,6 +93,12 @@ public class Constantes {
             PREAVISO, CALENDARIO_COMITE, MODELO_3, MODELO_4_ESPECIALISTAS, MODELO_4_TECNICOS,
             MODELO_6_1_ESPECIALISTAS, MODELO_6_1_TECNICOS, MODELO_6_2_ESPECIALISTAS,
             MODELO_6_2_TECNICOS, MODELO_6_3_ESPECIALISTAS, MODELO_6_3_TECNICOS, MODELO_7_1,
+            MODELO_7_2, MODELO_7_3_ACTA_GLOBAL, MODELO_7_3_ANEXO, MODELO_7_3_PROCESO,
+            MODELO_9_COMITE, AUTORIZACION
+    };
+    public static final String[] DOCUMENTACION_COMITE_UNICO = {
+            PREAVISO, CALENDARIO_COMITE, MODELO_3, MODELO_4_ESPECIALISTAS, MODELO_4_TECNICOS,
+            MODELO_6_1_UNICO, MODELO_6_2_UNICO, MODELO_6_3_UNICO, MODELO_7_1,
             MODELO_7_2, MODELO_7_3_ACTA_GLOBAL, MODELO_7_3_ANEXO, MODELO_7_3_PROCESO,
             MODELO_9_COMITE, AUTORIZACION
     };

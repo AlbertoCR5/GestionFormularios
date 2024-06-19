@@ -2,11 +2,14 @@ package com.example.proyecto.interfaz;
 
 import com.example.proyecto.modal.Candidato;
 import com.example.proyecto.modal.Modelo_5_1;
+import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.CumplimentarPDFException;
 import com.example.proyecto.util.MessageManager;
 import com.example.proyecto.util.ValidadorCampos;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -17,54 +20,62 @@ import java.util.Collections;
 import java.util.Optional;
 
 /**
- * La clase `VentanaCandidatos` gestiona la ventana que permite agregar y mostrar candidatos.
+ * La clase `VentanaCandidatos` gestiona la ventana para agregar y mostrar candidatos.
  *
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
  * @version 1.0
  */
-public class VentanaCandidatos {
+public class VentanaCandidato {
 
-    private final Modelo_5_1 modelo5_1;
+    private final PrincipalView vistaPrincipal;
+    private final Modelo_5_1 nuevoModelo5_1;
     private TableView<Candidato> tableView;
 
     /**
-     * Constructor para la clase `VentanaCandidatos`.
+     * Constructor de la clase VentanaCandidatos.
      *
-     * @param modelo5_1 El modelo 5.1 que se va a utilizar para almacenar los datos de los candidatos.
+     * @param nuevoModelo5_1 El modelo 5_1 que contiene la lista de candidatos.
      */
-    public VentanaCandidatos(@NotNull Modelo_5_1 modelo5_1) {
-        this.modelo5_1 = modelo5_1;
+    public VentanaCandidato(PrincipalView vistaPrincipal, Modelo_5_1 nuevoModelo5_1) {
+        this.vistaPrincipal = vistaPrincipal;
+        this.nuevoModelo5_1 = nuevoModelo5_1;
     }
 
     /**
-     * Muestra la ventana para gestionar los candidatos.
+     * Crea y muestra la ventana para gestionar candidatos.
+     *
+     * @param stage El escenario principal de la aplicación.
      */
-    public void mostrarVentanaCandidatos(Stage stage) {
+    public void mostrarVentanaCandidatos(@NotNull Stage stage) {
+        VBox vbox = crearVBoxCandidatos();
+        Scene scene = new Scene(vbox, 500, 400);
+        stage.setScene(scene);
+    }
+
+    /**
+     * Crea el VBox que contiene la tabla y los controles para gestionar candidatos.
+     *
+     * @return El VBox creado.
+     */
+    public VBox crearVBoxCandidatos() {
         VBox vbox = new VBox(10);
         vbox.setPadding(new Insets(10));
         vbox.setAlignment(Pos.CENTER);
 
         Label labelCandidatosHeader = crearLabelCandidatosHeader();
-        Button btnAgregarCandidato = crearBotonAgregarCandidato();
         tableView = crearTableViewCandidatos();
+        Button btnAgregarCandidato = crearBotonAgregarCandidato();
 
-        vbox.getChildren().addAll(labelCandidatosHeader, btnAgregarCandidato, tableView);
-        stage.getScene().setRoot(vbox);
+        vbox.getChildren().addAll(labelCandidatosHeader, tableView, btnAgregarCandidato);
+        return vbox;
     }
 
     @NotNull
     private Label crearLabelCandidatosHeader() {
         Label labelCandidatosHeader = new Label(MessageManager.getMessage("modelo5_1.candidatos"));
-        labelCandidatosHeader.setStyle("-fx-font-weight: bold; -fx-underline: true;");
+        labelCandidatosHeader.setStyle(Constantes.BOLD_UNDERLINED_STYLE);
         labelCandidatosHeader.setAlignment(Pos.CENTER);
         return labelCandidatosHeader;
-    }
-
-    @NotNull
-    private Button crearBotonAgregarCandidato() {
-        Button btnAgregarCandidato = new Button(MessageManager.getMessage("modelo5_1.agregar_candidato"));
-        btnAgregarCandidato.setOnAction(_ -> mostrarDialogoAgregarCandidato());
-        return btnAgregarCandidato;
     }
 
     @NotNull
@@ -92,9 +103,16 @@ public class VentanaCandidatos {
         colSindicato.setMinWidth(100);
         colSindicato.setMaxWidth(100);
         colSindicato.setStyle("-fx-alignment: CENTER;");
-        Collections.addAll(tableView.getColumns(), colNombre, colDNI, colSindicato);
+        Collections.addAll(tableView.getColumns(),colNombre, colDNI, colSindicato);
         tableView.setPrefHeight(200);
         tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+    }
+
+    @NotNull
+    private Button crearBotonAgregarCandidato() {
+        Button btnAgregarCandidato = new Button(MessageManager.getMessage("modelo5_1.agregar_candidato"));
+        btnAgregarCandidato.setOnAction(_ -> mostrarDialogoAgregarCandidato());
+        return btnAgregarCandidato;
     }
 
     private void mostrarDialogoAgregarCandidato() {
@@ -105,18 +123,17 @@ public class VentanaCandidatos {
         dialog.getDialogPane().setContent(dialogPane);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
+        Platform.runLater(() -> dialogPane.getChildren().get(1).requestFocus());
+
         Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
         okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> validarDNI(dialogPane, event));
 
         dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == ButtonType.OK) {
-                try {
-                    return obtenerResultadoDialogo(dialogPane);
-                } catch (CumplimentarPDFException e) {
-                    throw new RuntimeException(e);
-                }
+            try {
+                return obtenerResultadoDialogo(dialogButton, dialogPane);
+            } catch (CumplimentarPDFException e) {
+                throw new RuntimeException(e);
             }
-            return null;
         });
         Optional<Candidato> result = dialog.showAndWait();
         result.ifPresent(this::agregarCandidato);
@@ -141,24 +158,28 @@ public class VentanaCandidatos {
     private void validarDNI(@NotNull GridPane dialogPane, @NotNull javafx.event.ActionEvent event) {
         TextField dniField = (TextField) dialogPane.getChildren().get(3);
         if (!ValidadorCampos.verificarDNI(dniField.getText())) {
+            vistaPrincipal.mostrarMensaje(MessageManager.getMessage("modelo5_1.dni_invalido"), false);
             event.consume();
             dniField.requestFocus();
         }
     }
 
-    private Candidato obtenerResultadoDialogo(@NotNull GridPane dialogPane) throws CumplimentarPDFException {
-        TextField nombreApellidos = (TextField) dialogPane.getChildren().get(1);
-        TextField dni = (TextField) dialogPane.getChildren().get(3);
-        TextField sindicato = (TextField) dialogPane.getChildren().get(5);
-        return new Candidato(nombreApellidos.getText().toUpperCase(), dni.getText().toUpperCase(), sindicato.getText().toUpperCase());
+    private Candidato obtenerResultadoDialogo(ButtonType dialogButton, @NotNull GridPane dialogPane) throws CumplimentarPDFException {
+        if (dialogButton == ButtonType.OK) {
+            TextField nombreApellidos = (TextField) dialogPane.getChildren().get(1);
+            TextField dni = (TextField) dialogPane.getChildren().get(3);
+            TextField sindicato = (TextField) dialogPane.getChildren().get(5);
+            return new Candidato(nombreApellidos.getText().toUpperCase(), dni.getText().toUpperCase(), sindicato.getText().toUpperCase());
+        }
+        return null;
     }
 
     private void agregarCandidato(@NotNull Candidato candidato) {
-        modelo5_1.getCandidatos().add(candidato);
+        nuevoModelo5_1.getCandidatos().add(candidato);
         actualizarTablaCandidatos();
     }
 
     private void actualizarTablaCandidatos() {
-        tableView.getItems().setAll(modelo5_1.getCandidatos());
+        tableView.getItems().setAll(nuevoModelo5_1.getCandidatos());
     }
 }

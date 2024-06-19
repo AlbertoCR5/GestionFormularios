@@ -178,7 +178,12 @@ public class PrincipalController {
             Modelo_5_1 modelo51 = new Modelo_5_1();
             Modelo_5_2_Proceso modeloProceso = new Modelo_5_2_Proceso();
             Modelo_5_2_Conclusion modeloConclusion = new Modelo_5_2_Conclusion();
-            VentanaModelosEscrutinio ventanaModelosEscrutinio = new VentanaModelosEscrutinio(principalView, rutaEmpresa, modelo51, modeloProceso, modeloConclusion);
+            VentanaModelosEscrutinio ventanaModelosEscrutinio = null;
+            try {
+                ventanaModelosEscrutinio = new VentanaModelosEscrutinio(principalView, rutaEmpresa, modelo51, modeloProceso, modeloConclusion);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             ventanaModelosEscrutinio.iniciarSecuencia();
         });
         return pause;
