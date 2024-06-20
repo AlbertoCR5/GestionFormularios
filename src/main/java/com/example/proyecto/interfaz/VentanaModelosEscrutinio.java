@@ -34,14 +34,22 @@ import java.util.Optional;
  * @autor Alberto Castro <AlbertoCastrovas@gmail.com>
  * @version 1.0
  */
-public class VentanaModelosEscrutinioB {
+public class VentanaModelosEscrutinio {
 
     private final PrincipalView vistaPrincipal;
     private final Path rutaEmpresa;
-    private final Modelo_5_1 nuevoModelo5_1;
-    private final Modelo_5_2_Proceso nuevoModelo5_2Proceso;
-    private final Modelo_5_2_Conclusion nuevoModeloConclusion;
-    private final Registro registro;
+    private Modelo_5_1 nuevoModelo5_1;
+    private Modelo_5_2_Proceso nuevoModelo5_2Proceso;
+    private Modelo_5_2_Conclusion nuevoModeloConclusion;
+    private Modelo_6_1_Especialistas nuevoModelo6_1Especialistas;
+    private Modelo_6_2_Especialistas nuevoModelo6_2Especialistas;
+    private Modelo_6_1_Tecnicos nuevoModelo6_1Tecnicos;
+    private Modelo_6_2_Tecnicos nuevoModelo6_2Tecnicos;
+    private Modelo_6_1_Unico nuevoModelo6_1Unico;
+    private Modelo_6_2_Unico nuevoModelo6_2Unico;
+    private Modelo_7_3_Acta_Global nuevoModelo7_3ActaGlobal;
+    private Modelo_7_3_Proceso nuevoModelo7_3Proceso;
+    private Registro registro;
     private TextField textFieldNumeroPreaviso;
     private DatePicker datePicker;
     private VentanaCandidato ventanaCandidato;
@@ -51,19 +59,11 @@ public class VentanaModelosEscrutinioB {
      *
      * @param vistaPrincipal La vista principal de la aplicación.
      * @param rutaEmpresa La ruta donde se guardan los datos de la empresa.
-     * @param nuevoModelo5_1 El modelo 5_1 que se va a cumplimentar.
-     * @param nuevoModelo5_2Proceso El modelo 5_2 de proceso que se va a cumplimentar.
-     * @param nuevoModeloConclusion El modelo 5_2 de conclusión que se va a cumplimentar.
      */
-    public VentanaModelosEscrutinioB(@NotNull PrincipalView vistaPrincipal, @NotNull Path rutaEmpresa,
-                                     @NotNull Modelo_5_1 nuevoModelo5_1, @NotNull Modelo_5_2_Proceso nuevoModelo5_2Proceso,
-                                     @NotNull Modelo_5_2_Conclusion nuevoModeloConclusion) throws IOException {
+    public VentanaModelosEscrutinio(@NotNull PrincipalView vistaPrincipal, @NotNull Path rutaEmpresa) throws IOException {
         this.vistaPrincipal = vistaPrincipal;
         this.rutaEmpresa = rutaEmpresa;
-        this.nuevoModelo5_1 = nuevoModelo5_1;
-        this.nuevoModelo5_2Proceso = nuevoModelo5_2Proceso;
-        this.nuevoModeloConclusion = nuevoModeloConclusion;
-        this.registro = new Registro(nuevoModelo5_1, nuevoModelo5_2Proceso, nuevoModeloConclusion, vistaPrincipal);
+        iniciarSecuencia();
     }
 
     /**
@@ -233,7 +233,7 @@ public class VentanaModelosEscrutinioB {
         if (result.isPresent() && result.get() == ButtonType.OK) { // Si el usuario confirma
             // Registrar los modelos de escrutinio
             if (Integer.parseInt(nuevoModeloConclusion.getTotalTrabajadores()) < 50){
-                //registro.registrarNuevoPreavisoComite();
+                registro.registrarModelosEscrutinioDelegados(nuevoModelo5_1, nuevoModelo5_2Proceso, nuevoModeloConclusion, rutaEmpresa);
             } else {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("Confirmación");
@@ -248,9 +248,9 @@ public class VentanaModelosEscrutinioB {
 
                 Optional<ButtonType> resultColleges = alert.showAndWait();
                 if (resultColleges.get() == buttonTypeSi) {
-                    registro.registrarModelosEscrutinioDelegados(nuevoModelo5_1, nuevoModelo5_2Proceso, nuevoModeloConclusion, rutaEmpresa);
+                    registro.registrarModelosEscrutinioComite(nuevoModelo6_1Especialistas, nuevoModelo6_2Especialistas, nuevoModelo6_1Tecnicos, nuevoModelo6_2Tecnicos, nuevoModelo7_3ActaGlobal, nuevoModelo7_3Proceso, rutaEmpresa);
                 } else if (resultColleges.get() == buttonTypeNo) {
-                    registro.registrarModelosEscrutinioDelegadosColegioUnico(nuevoModelo5_1, nuevoModelo5_2Proceso, nuevoModeloConclusion, rutaEmpresa);
+                    registro.registrarModelosEscrutinioComiteUnico(nuevoModelo6_1Unico, nuevoModelo6_2Unico, nuevoModelo7_3ActaGlobal, nuevoModelo7_3Proceso,rutaEmpresa);
                 }
             }
             // Mostrar un mensaje de éxito

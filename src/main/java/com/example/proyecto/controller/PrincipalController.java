@@ -37,6 +37,7 @@ public class PrincipalController {
     private final Path rutaElecciones;
     private PrincipalView principalView;
     private VentanaLogin ventanaLoginActual;
+    VentanaModelosEscrutinio ventanaModelosEscrutinio;
 
     /**
      * Constructor de la clase PrincipalController.
@@ -175,16 +176,11 @@ public class PrincipalController {
     private PauseTransition getPauseTransition(Path rutaEmpresa) {
         PauseTransition pause = new PauseTransition(Duration.seconds(2));
         pause.setOnFinished(_ -> {
-            Modelo_5_1 modelo51 = new Modelo_5_1();
-            Modelo_5_2_Proceso modeloProceso = new Modelo_5_2_Proceso();
-            Modelo_5_2_Conclusion modeloConclusion = new Modelo_5_2_Conclusion();
-            VentanaModelosEscrutinio ventanaModelosEscrutinio = null;
             try {
-                ventanaModelosEscrutinio = new VentanaModelosEscrutinio(principalView, rutaEmpresa, modelo51, modeloProceso, modeloConclusion);
+                ventanaModelosEscrutinio = new VentanaModelosEscrutinio(principalView, rutaEmpresa);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            ventanaModelosEscrutinio.iniciarSecuencia();
         });
         return pause;
     }
