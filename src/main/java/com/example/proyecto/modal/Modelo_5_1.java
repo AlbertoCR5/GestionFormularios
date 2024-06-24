@@ -71,7 +71,7 @@ public class Modelo_5_1 extends Modelo_3 {
 
     public void setFechaEscrutinio(String fechaEscrutinio) throws CumplimentarPDFException {
         if (ValidadorFecha.esFormatoFechaNoValido(fechaEscrutinio)) {
-            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.escrutinio.incorrecto"));
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.escrutinio.incorrecto").concat(" ").concat(String.valueOf(Constantes.FORMATO_FECHA_2_DIGITOS)));
         }
         String[] partes = fechaEscrutinio.split("/");
         String dia = partes[0].length() == 1 ? STR."0\{partes[0]}" : partes[0];

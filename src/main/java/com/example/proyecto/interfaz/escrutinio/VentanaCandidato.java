@@ -1,5 +1,6 @@
-package com.example.proyecto.interfaz;
+package com.example.proyecto.interfaz.escrutinio;
 
+import com.example.proyecto.interfaz.PrincipalView;
 import com.example.proyecto.modal.Candidato;
 import com.example.proyecto.modal.Modelo_5_1;
 import com.example.proyecto.util.Constantes;

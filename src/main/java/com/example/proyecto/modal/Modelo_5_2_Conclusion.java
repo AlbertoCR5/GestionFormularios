@@ -5,6 +5,8 @@ import com.example.proyecto.util.CumplimentarPDFException;
 import com.example.proyecto.util.MessageManager;
 import com.example.proyecto.util.ValidadorCampos;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.regex.Pattern;
 
 /**
@@ -32,9 +34,9 @@ public class Modelo_5_2_Conclusion extends Preaviso{
     private String nombreConvenio;
     private String numeroConvenio;
     private String trabajadoresFijos;
-    private int trabajadoresEventuales;
-    private int trabajadoresJornadas;
-    private int trabajadoresEventualesComputo;
+    private String trabajadoresEventuales;
+    private String trabajadoresJornadas;
+    private double trabajadoresEventualesComputo;
     private String totalTrabajadores;
     private String presidente;
     private String dniPresidente;
@@ -62,7 +64,7 @@ public class Modelo_5_2_Conclusion extends Preaviso{
     public Modelo_5_2_Conclusion(String nombreEmpresa, String CIF, String nombreComercial, String nombreCentro, String direccion,
                                  String municipio, String codigoPostal, String comarca, String provincia, String numeroISS,
                                  boolean casillaVerificacion2, String nombreConvenio, String numeroConvenio, String trabajadoresFijos,
-                                 int trabajadoresEventuales, int trabajadoresJornadas, int trabajadoresEventualesComputo, String totalTrabajadores) throws CumplimentarPDFException {
+                                 String trabajadoresEventuales, String trabajadoresJornadas, double trabajadoresEventualesComputo, String totalTrabajadores) throws CumplimentarPDFException {
         super(nombreEmpresa, CIF, nombreComercial, nombreCentro, direccion, municipio, codigoPostal, comarca, provincia, numeroISS);
         setCasillaVerificacion2(casillaVerificacion2);
         this.nombreConvenio = nombreConvenio;
@@ -114,8 +116,8 @@ public class Modelo_5_2_Conclusion extends Preaviso{
                                  String municipio, String codigoPostal, String comarca, String provincia, String numeroISS,
                                  String actvEcono, String actvEcono1, String direccionCentro, String direccionCentro1,
                                  String telefono, String actvEcono2, String actvEcono3, boolean casillaVerificacion2,
-                                 String nombreConvenio, String numeroConvenio, String trabajadoresFijos, int trabajadoresEventuales,
-                                 int trabajadoresJornadas, int trabajadoresEventualesComputo, String totalTrabajadores,
+                                 String nombreConvenio, String numeroConvenio, String trabajadoresFijos, String trabajadoresEventuales,
+                                 String trabajadoresJornadas, double trabajadoresEventualesComputo, String totalTrabajadores,
                                  String presidente, String dniPresidente, String secretario, String dniSecretario,
                                  String representantes, String dniRepresentante) throws CumplimentarPDFException {
         super(nombreEmpresa, CIF, nombreComercial, nombreCentro, direccion, municipio, codigoPostal, comarca, provincia, numeroISS);
@@ -298,14 +300,13 @@ public class Modelo_5_2_Conclusion extends Preaviso{
      */
     public void setTrabajadoresFijos(String trabajadoresFijos) throws CumplimentarPDFException {
 
-        if (!trabajadoresFijos.matches("[0-9]+") || Integer.parseInt(trabajadoresFijos) > Constantes.MAXIMO_ELECTORES_DELEGADOS){
+        if (!trabajadoresFijos.matches("[0-9]+") || trabajadoresFijos.isEmpty()){
             throw new CumplimentarPDFException(MessageManager.getMessage("error.trabajadores.fijos.incorrecto"));
         }
         this.trabajadoresFijos = trabajadoresFijos;
-        setTotalTrabajadores(trabajadoresFijos);
     }
 
-    public int getTrabajadoresEventuales() {
+    public String getTrabajadoresEventuales() {
         return trabajadoresEventuales;
     }
 
@@ -314,11 +315,14 @@ public class Modelo_5_2_Conclusion extends Preaviso{
      *
      * @param trabajadoresEventuales El número de trabajadores eventuales a establecer.
      */
-    public void setTrabajadoresEventuales(int trabajadoresEventuales) {
+    public void setTrabajadoresEventuales(String trabajadoresEventuales) throws CumplimentarPDFException {
+        if (!trabajadoresEventuales.matches("[0-9]+") || trabajadoresEventuales.isEmpty()){
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.trabajadores.eventuales.incorrecto"));
+        }
         this.trabajadoresEventuales = trabajadoresEventuales;
     }
 
-    public int getTrabajadoresJornadas() {
+    public String getTrabajadoresJornadas() {
         return trabajadoresJornadas;
     }
 
@@ -327,11 +331,14 @@ public class Modelo_5_2_Conclusion extends Preaviso{
      *
      * @param trabajadoresJornadas El número de trabajadores en jornadas a establecer.
      */
-    public void setTrabajadoresJornadas(int trabajadoresJornadas) {
+    public void setTrabajadoresJornadas(String trabajadoresJornadas) throws CumplimentarPDFException {
+        if (!trabajadoresJornadas.matches("[0-9]+") || trabajadoresJornadas.isEmpty()){
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.trabajadores.jornadas.incorrecto"));
+        }
         this.trabajadoresJornadas = trabajadoresJornadas;
     }
 
-    public int getTrabajadoresEventualesComputo() {
+    public double getTrabajadoresEventualesComputo() {
         return trabajadoresEventualesComputo;
     }
 
@@ -340,9 +347,9 @@ public class Modelo_5_2_Conclusion extends Preaviso{
      *
      * @param trabajadoresEventualesComputo El número de trabajadores eventuales de computo a establecer.
      */
-    public void setTrabajadoresEventualesComputo(int trabajadoresEventualesComputo) {
-
-            this.trabajadoresEventualesComputo = trabajadoresEventualesComputo;
+    public void setTrabajadoresEventualesComputo(double trabajadoresEventualesComputo) {
+        BigDecimal jornadasPor200 = new BigDecimal(trabajadoresJornadas).divide(new BigDecimal(200), 2, RoundingMode.HALF_UP);
+        this.trabajadoresEventualesComputo = jornadasPor200.doubleValue();
     }
 
     @Override
@@ -356,8 +363,27 @@ public class Modelo_5_2_Conclusion extends Preaviso{
      * @param totalTrabajadores El total de trabajadores a establecer.
      */
     @Override
-    public void setTotalTrabajadores(String totalTrabajadores) {
-        this.totalTrabajadores = getTrabajadoresFijos();
+    public void setTotalTrabajadores(String totalTrabajadores) throws CumplimentarPDFException {
+        int trabajadoresFijosInt = Integer.parseInt(trabajadoresFijos);
+        int trabajadoresEventualesInt = Integer.parseInt(trabajadoresEventuales);
+
+        // Redondeo de trabajadores eventuales a cómputo al siguiente entero
+        int trabajadoresEventualesComputoRedondeado = (int) Math.ceil(trabajadoresEventualesComputo);
+
+        // Asegurarse de que no supere la suma de trabajadores fijos y eventuales
+        int totalTrabajadoresAComputo = trabajadoresFijosInt + trabajadoresEventualesComputoRedondeado;
+        int maxTotalTrabajadores = trabajadoresFijosInt + trabajadoresEventualesInt;
+
+        if (totalTrabajadoresAComputo > maxTotalTrabajadores) {
+            totalTrabajadoresAComputo = maxTotalTrabajadores;
+        }
+
+        // Verifica que el total de trabajadores no sea menor al mínimo
+        if (totalTrabajadoresAComputo < Constantes.MINIMO_ELECTORES) {
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.trabajadores.minimo"));
+        }
+
+        this.totalTrabajadores = String.valueOf(totalTrabajadoresAComputo);
     }
 
     public String getPresidente() {

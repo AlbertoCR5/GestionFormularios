@@ -58,7 +58,7 @@ public class Salida_Sindical_Horas {
 
     public void setFechaComunicacion(String fechaComunicacion) throws CumplimentarPDFException {
         if (ValidadorFecha.esFormatoFechaNoValido(fechaComunicacion)) {
-            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.comunicacion.incorrecta").concat(String.valueOf(Constantes.FORMATO_FECHA)).concat("\n"));
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.comunicacion.incorrecta").concat(String.valueOf(Constantes.FORMATO_FECHA_2_DIGITOS)).concat("\n"));
         }
         this.fechaComunicacion = fechaComunicacion;
         actualizarCamposFecha(fechaComunicacion, true);
@@ -108,7 +108,7 @@ public class Salida_Sindical_Horas {
 
     public void setFechaSalida(String fechaSalida) throws CumplimentarPDFException {
         if (ValidadorFecha.esFormatoFechaNoValido(fechaSalida)) {
-            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.salida.incorrecta").concat(String.valueOf(Constantes.FORMATO_FECHA)).concat("\n"));
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.salida.incorrecta").concat(String.valueOf(Constantes.FORMATO_FECHA_2_DIGITOS)).concat("\n"));
         }
         this.fechaSalida = fechaSalida;
         actualizarCamposFecha(fechaSalida, false);

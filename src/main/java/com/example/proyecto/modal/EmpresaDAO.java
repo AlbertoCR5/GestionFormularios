@@ -43,17 +43,19 @@ public class EmpresaDAO {
     public void createTableEmpresa() throws SQLException {
         String sqlEmpresa = """
                 CREATE TABLE IF NOT EXISTS Empresa (
-                 id integer PRIMARY KEY,
-                 nombre text NOT NULL,
-                 cif text NOT NULL,
-                 direccion text NOT NULL,
-                 municipio text NOT NULL,
-                 codigo_postal text NOT NULL,
-                 provincia text NOT NULL,
-                 cnae text,
-                 convenio text,
-                 numero_convenio text,
-                 total_electores integer
+                 id INTEGER PRIMARY KEY,
+                 nombre TEXT NOT NULL,
+                 cif TEXT NOT NULL,
+                 direccion TEXT NOT NULL,
+                 municipio TEXT NOT NULL,
+                 codigo_postal TEXT NOT NULL,
+                 provincia TEXT NOT NULL,
+                 cnae TEXT,
+                 convenio TEXT,
+                 numero_convenio TEXT,
+                 total_electores INTEGER,
+                 especialistas INTEGER,
+                 tecnicos INTEGER
                 );""";
 
         try (Connection connection = databaseManager.connect();
@@ -90,21 +92,23 @@ public class EmpresaDAO {
     /**
      * Actualiza una empresa existente en la base de datos con datos adicionales.
      *
-     * @param totalTrabajadores El total de trabajadores.
+     * @param trabajadores El total de trabajadores.
      * @param otrosDatosEmpresa Otros datos de la empresa.
      * @param nombreEmpresa El nombre de la empresa a actualizar.
      * @throws SQLException Sí ocurre un error al actualizar la empresa en la base de datos.
      */
-    public void updateEmpresaOtros(@NotNull Modelo_5_2_Proceso totalTrabajadores, @NotNull Modelo_5_2_Conclusion otrosDatosEmpresa, @NotNull String nombreEmpresa) throws SQLException {
-        String sqlEmpresa = "UPDATE Empresa SET cnae = ?, convenio = ?, numero_convenio = ?, total_electores = ? WHERE nombre = ?";
+    public void updateEmpresaOtros(@NotNull Modelo_5_2_Proceso trabajadores, @NotNull Modelo_5_2_Conclusion otrosDatosEmpresa, @NotNull String nombreEmpresa) throws SQLException {
+        String sqlEmpresa = "UPDATE Empresa SET cnae = ?, convenio = ?, numero_convenio = ?, total_electores = ?, especialistas = ?, tecnicos = ? WHERE nombre = ?";
 
         try (Connection conn = databaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sqlEmpresa)) {
             pstmt.setString(1, otrosDatosEmpresa.getActvEcono());
             pstmt.setString(2, otrosDatosEmpresa.getNombreConvenio());
             pstmt.setString(3, otrosDatosEmpresa.getNumeroConvenio());
-            pstmt.setInt(4, totalTrabajadores.getTotalElectores());
-            pstmt.setString(5, nombreEmpresa);
+            pstmt.setInt(4, Integer.parseInt(otrosDatosEmpresa.getTotalTrabajadores()));
+            pstmt.setInt(5, Integer.parseInt(otrosDatosEmpresa.getTotalTrabajadores()));
+            pstmt.setInt(6, Integer.parseInt(otrosDatosEmpresa.getTotalTrabajadores()));
+            pstmt.setString(7, nombreEmpresa);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             handleSQLException(e, "error.actualizar.empresa");

@@ -18,4 +18,6 @@ module com.example.proyectodam {
     exports com.example.proyecto.controller;
     exports com.example.proyecto.interfaz.preaviso;
     opens com.example.proyecto.interfaz.preaviso to javafx.fxml;
+    exports com.example.proyecto.interfaz.escrutinio;
+    opens com.example.proyecto.interfaz.escrutinio to javafx.fxml;
 }

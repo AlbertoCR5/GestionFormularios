@@ -276,8 +276,8 @@ public class Preaviso {
     }
 
     public void setFechaConstitucion(String fechaConstitucion) throws CumplimentarPDFException {
-        if (ValidadorFecha.esFormatoFechaNoValido(fechaConstitucion)) {
-            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.constitucion.incorrecto").concat(String.valueOf(Constantes.FORMATO_FECHA)));
+        if (ValidadorFecha.esFormatoFechaNoValido(fechaConstitucion) || fechaConstitucion.isEmpty()) {
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.constitucion.incorrecto").concat(String.valueOf(Constantes.FORMATO_FECHA_2_DIGITOS)));
         }
         String[] partes = fechaConstitucion.split("/");
         String dia = partes[0].length() == 1 ? STR."0\{partes[0]}" : partes[0];
@@ -314,8 +314,8 @@ public class Preaviso {
      */
     public void setFechaPreaviso(String fechaPreaviso) throws CumplimentarPDFException {
         // Verificar si la fecha de preaviso está vacía
-        if (fechaPreaviso.isEmpty()) {
-            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.preaviso.incorrecto").concat(" ").concat(Constantes.FORMATO_FECHA.toString().concat("holaqqq")));
+        if (ValidadorFecha.esFormatoFechaNoValido(fechaPreaviso) ||fechaPreaviso.isEmpty()) {
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.fecha.preaviso.incorrecto"));
         }
 
         try {
@@ -326,8 +326,8 @@ public class Preaviso {
         setAnioPreaviso(anioPreaviso = partes[2]);
         fechaPreaviso = STR."\{diaPreaviso}/\{partes[1].length() == 1 ? "0" + partes[1] : partes[1]}/\{anioPreaviso}";
 
-        LocalDate fechaPreavisoDate = LocalDate.parse(fechaPreaviso, Constantes.FORMATO_FECHA);
-        LocalDate fechaConstitucionDate = LocalDate.parse(getFechaConstitucion(), Constantes.FORMATO_FECHA);
+        LocalDate fechaPreavisoDate = LocalDate.parse(fechaPreaviso, Constantes.FORMATO_FECHA_2_DIGITOS);
+        LocalDate fechaConstitucionDate = LocalDate.parse(getFechaConstitucion(), Constantes.FORMATO_FECHA_2_DIGITOS);
 
         if (fechaConstitucion != null) {
             long diasEntreFechas = java.time.temporal.ChronoUnit.DAYS.between(fechaPreavisoDate, fechaConstitucionDate);

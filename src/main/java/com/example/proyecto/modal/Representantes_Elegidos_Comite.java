@@ -139,7 +139,7 @@ public class Representantes_Elegidos_Comite {
     public void setFechaNacimiento(String fechaNacimiento) throws CumplimentarPDFException {
         ValidadorFecha validarFecha = new ValidadorFecha();
         if (ValidadorFecha.esFormatoFechaNoValido(fechaNacimiento)) {
-            throw new CumplimentarPDFException(String.format("ERROR, formato de fecha incorrecto -->%s\n", Constantes.FORMATO_FECHA));
+            throw new CumplimentarPDFException(String.format("ERROR, formato de fecha incorrecto -->%s\n", Constantes.FORMATO_FECHA_2_DIGITOS));
         }
         this.fechaNacimiento = fechaNacimiento;
     }

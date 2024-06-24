@@ -3,8 +3,8 @@ package com.example.proyecto.modal;
 import com.example.proyecto.util.Constantes;
 import com.example.proyecto.util.CumplimentarPDFException;
 import com.example.proyecto.util.MessageManager;
-import com.example.proyecto.util.ValidadorFecha;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,9 +16,6 @@ import java.util.regex.Pattern;
  * @version 1.0
  */
 public class Modelo_5_2_Proceso {
-
-    // Validador necesario para la clase
-    ValidadorFecha extraerFecha = new ValidadorFecha();
 
     // Atributos de la clase
     private String preaviso;
@@ -118,13 +115,28 @@ public class Modelo_5_2_Proceso {
      * @throws CumplimentarPDFException Si el formato del preaviso no es válido.
      */
     public void setPreaviso(String preaviso) throws CumplimentarPDFException {
+        // Obtener el año actual y el año anterior
+        int currentYear = LocalDate.now().getYear();
+        int previousYear = currentYear - 1;
 
-        Pattern patron = Pattern.compile("^([0-9]{1,4})/([0-9]{4})$");
+        // Crear la expresión regular para el preaviso
+        Pattern patron = Pattern.compile(Constantes.FORMATO_NUMERO_PREAVISO);
         Matcher matcher = patron.matcher(preaviso);
 
-        if (!matcher.matches()){
+        // Verificar si el formato coincide
+        if (!matcher.matches()) {
             throw new CumplimentarPDFException(MessageManager.getMessage("error.formato.preaviso.invalido"));
         }
+
+        // Obtener el año del preaviso
+        int year = Integer.parseInt(matcher.group(2));
+
+        // Verificar si el año es el actual o el anterior
+        if (year != currentYear && year != previousYear) {
+            throw new CumplimentarPDFException(MessageManager.getMessage("error.formato.preaviso.anio_invalido"));
+        }
+
+        // Si todo es válido, asignar el preaviso
         this.preaviso = preaviso;
     }
 
@@ -175,7 +187,7 @@ public class Modelo_5_2_Proceso {
      */
     public void setTotalElectores(int totalElectores) throws CumplimentarPDFException {
 
-        if (totalElectores < Constantes.MINIMO_ELECTORES || totalElectores > Constantes.MAXIMO_ELECTORES_DELEGADOS){
+        if (totalElectores < Constantes.MINIMO_ELECTORES){
             throw new CumplimentarPDFException(MessageManager.getMessage("error.numero.electores.incorrecto"));
         }
         this.totalElectores = totalElectores;

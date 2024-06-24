@@ -23,7 +23,11 @@ public class ValidadorFecha {
             return true;
         }
 
-        SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
+        if (!Constantes.DATE_PATTERN.matcher(fechaStr).matches()) {
+            return true;
+        }
+
+        SimpleDateFormat formatoFecha = new SimpleDateFormat(Constantes.FORMATO_FECHA_1_DIGITO);
         formatoFecha.setLenient(false);
 
         try {

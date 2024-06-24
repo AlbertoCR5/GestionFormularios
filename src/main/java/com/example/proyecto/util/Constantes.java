@@ -1,9 +1,11 @@
 package com.example.proyecto.util;
 
 import com.example.proyecto.modal.DatabaseManager;
+
 import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * Clase que contiene constantes utilizadas en el proyecto.
@@ -14,7 +16,11 @@ public class Constantes {
     public static final String PROMOTORES = "UNIÓN GENERAL DE TRABAJADORES (UGT)";
 
     // Formatos de fecha y hora
-    public static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    public static final DateTimeFormatter FORMATO_FECHA_2_DIGITOS = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    public static final String FORMATO_FECHA_1_DIGITO = "d/M/yyyy";
+    public static final Pattern DATE_PATTERN = Pattern.compile(
+            "^([1-9]|[12][0-9]|3[01])/([1-9]|1[0-2])/\\d{4}$"
+    );
     public static final String FORMATO_HORA = "HH:mm";
 
     // Constantes de fechas
@@ -109,7 +115,7 @@ public class Constantes {
 
     // Extensiones y formatos de archivo
     public static final String EXTENSION_ARCHIVO = ".pdf";
-    public static final String FORMATO_PREAVISO = "ppp/aaaa";
+    public static final String FORMATO_NUMERO_PREAVISO = "^([0-9]{1,4})/([0-9]{4})$";
     public static final String FORMATO_ISS = "\\d{11}";
     public static final String FORMATO_CONVENIO = "^\\d{14}$";
 

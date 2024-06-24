@@ -2,7 +2,7 @@ package com.example.proyecto.controller;
 
 import com.example.proyecto.interfaz.PrincipalView;
 import com.example.proyecto.interfaz.VentanaLogin;
-import com.example.proyecto.interfaz.VentanaModelosEscrutinio;
+import com.example.proyecto.interfaz.escrutinio.VentanaModelosEscrutinio;
 import com.example.proyecto.interfaz.VentanaUsuario;
 import com.example.proyecto.interfaz.preaviso.VentanaPreaviso;
 import com.example.proyecto.modal.*;
@@ -177,7 +177,10 @@ public class PrincipalController {
         PauseTransition pause = new PauseTransition(Duration.seconds(2));
         pause.setOnFinished(_ -> {
             try {
-                ventanaModelosEscrutinio = new VentanaModelosEscrutinio(principalView, rutaEmpresa);
+                Modelo_5_1 nuevoModelo5_1 = new Modelo_5_1();
+                Modelo_5_2_Proceso nuevoModelo5_2Proceso = new Modelo_5_2_Proceso();
+                Modelo_5_2_Conclusion nuevoModeloConclusion = new Modelo_5_2_Conclusion();
+                ventanaModelosEscrutinio = new VentanaModelosEscrutinio(principalView, nuevoModelo5_1, nuevoModelo5_2Proceso, nuevoModeloConclusion, rutaEmpresa);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

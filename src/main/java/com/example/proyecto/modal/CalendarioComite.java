@@ -256,7 +256,7 @@ public class CalendarioComite extends Preaviso{
         ValidadorCampos validarHora = new ValidadorCampos();
 
         if (!validarHora.validarHora(String.valueOf(horaConstitucion))){
-            throw new CumplimentarPDFException("ERROR, Formato de hora incorrecto -->" + Constantes.FORMATO_FECHA + "\n");
+            throw new CumplimentarPDFException("ERROR, Formato de hora incorrecto -->" + Constantes.FORMATO_FECHA_2_DIGITOS + "\n");
         }
         this.horaConstitucion = horaConstitucion;
     }
