@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    FXML: preaviso-view.fxml
+    Propósito: Formulario para crear y editar los datos de preaviso y centro de trabajo.
+    Controlador asociado: com.albertocr.gestionformularios.controller.preaviso.PreavisoController
+
+    Notas:
+    - Muchos campos contienen ejemplos en el `promptText`; para i18n extraer a ResourceBundle.
+    - Validaciones (p.ej. formato del preaviso) deben realizarse en el controlador y mostrar errores
+        mediante diálogos o etiquetas de error visibles en la UI.
+    - Fx ids principales: tfNombreEmpresa, tfCif, tfNombreCentro, tfDireccion, cbProvincia, dpFechaPreaviso, btnGuardar.
+-->
+
+<!-- Contenedor principal VBox para organizar verticalmente los elementos de la interfaz. -->
+<!-- Incluye un espacio entre los nodos (spacing) y un padding general. -->
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_LEFT" prefWidth="600.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.albertocr.gestionformularios.controller.preaviso.PreavisoController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <children>
+        <!-- Título de la sección de la empresa, formateado en negrita y subrayado. -->
+        <Label style="-fx-font-weight: bold; -fx-underline: true;" text="DATOS DE LA EMPRESA">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <!-- GridPane para organizar los campos de texto de la empresa en un diseño de cuadrícula. -->
+        <GridPane hgap="10.0" vgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="432.0" />
+            </columnConstraints>
+            <children>
+                <!-- Etiqueta y campo para el nombre de la empresa. -->
+                <Label style="-fx-font-weight: bold;" text="Nombre Empresa:" />
+                <TextField fx:id="tfNombreEmpresa" GridPane.columnIndex="1" />
+                <!-- Etiqueta y campo para el CIF. -->
+                <Label style="-fx-font-weight: bold;" text="CIF:" GridPane.rowIndex="1" />
+                <TextField fx:id="tfCif" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <!-- Etiqueta y campo para el nombre comercial. -->
+                <Label style="-fx-font-weight: bold;" text="Nombre Comercial:" GridPane.rowIndex="2" />
+                <TextField fx:id="tfNombreComercial" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            </children>
+        </GridPane>
+        <!-- Título de la sección del centro de trabajo. -->
+        <Label style="-fx-font-weight: bold; -fx-underline: true;" text="DATOS DEL CENTRO DE TRABAJO">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <!-- GridPane para la dirección del centro. -->
+        <GridPane hgap="10.0" vgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="432.0" />
+            </columnConstraints>
+            <children>
+                <!-- Etiqueta y campo para el nombre del centro. -->
+                <Label style="-fx-font-weight: bold;" text="Nombre Centro:" />
+                <TextField fx:id="tfNombreCentro" GridPane.columnIndex="1" />
+                <!-- Etiqueta y campo para la dirección. -->
+                <Label style="-fx-font-weight: bold;" text="Dirección:" GridPane.rowIndex="1" />
+                <TextField fx:id="tfDireccion" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            </children>
+        </GridPane>
+        <!-- Otro GridPane para detalles del centro como municipio, provincia, etc. -->
+        <GridPane hgap="10.0" vgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+            </columnConstraints>
+            <children>
+                <!-- Fila 0: Municipio y Código Postal -->
+                <Label style="-fx-font-weight: bold;" text="Municipio:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                <TextField fx:id="tfMunicipio" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                <Label style="-fx-font-weight: bold;" text="Código Postal:" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+                <TextField fx:id="tfCodigoPostal" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+
+                <!-- Fila 1: Comarca y Provincia -->
+                <Label style="-fx-font-weight: bold;" text="Comarca:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                <TextField fx:id="tfComarca" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                <Label style="-fx-font-weight: bold;" text="Provincia:" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+                <!-- Se ha sustituido el TextField por un ComboBox para la provincia. -->
+                <ComboBox fx:id="cbProvincia" prefWidth="150.0" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+
+                <!-- Fila 2: Número de Trabajadores y Número de Inscripción en la SS -->
+                <Label style="-fx-font-weight: bold;" text="Número Trabajadores:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                <TextField fx:id="tfNumeroTrabajadores" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                <Label style="-fx-font-weight: bold;" text="Número Inscripción SS:" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+                <TextField fx:id="tfNumeroISS" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+            </children>
+        </GridPane>
+        <!-- Título de la sección de la elección. -->
+        <Label style="-fx-font-weight: bold; -fx-underline: true;" text="DATOS DE LA ELECCIÓN">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <!-- GridPane para los datos de la elección. -->
+        <GridPane hgap="10.0" vgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="200.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+            </columnConstraints>
+            <children>
+                <!-- Fila 0: Mes de las elecciones (ahora un ComboBox) -->
+                <Label style="-fx-font-weight: bold;" text="Mes Elecciones:" />
+                <ComboBox fx:id="cbMesElecciones" prefWidth="250.0" GridPane.columnIndex="1" />
+                <!-- Fila 1: Año de las elecciones (se rellenará automáticamente) -->
+                <Label style="-fx-font-weight: bold;" text="Año Elecciones:" GridPane.rowIndex="1" />
+                <TextField fx:id="tfAnioElecciones" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <!-- Fila 2: Tipo de Elección (Total/Parcial) -->
+                <Label style="-fx-font-weight: bold;" text="Tipo Elección:" GridPane.rowIndex="2" />
+                <!-- HBox para agrupar los RadioButtons. El ToggleGroup ahora se gestiona en el controlador. -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                    <children>
+                        <RadioButton fx:id="rbTotal" text="Total" />
+                        <RadioButton fx:id="rbParcial" text="Parcial" />
+                    </children>
+                </HBox>
+
+                <!-- Fila 3: Promotores de la Elección. Se ha añadido un valor por defecto. -->
+                <Label style="-fx-font-weight: bold;" text="Promotores de la Elección:" GridPane.rowIndex="3" />
+                <TextField fx:id="tfPromotores" editable="false" text="UNIÓN GENERAL DE TRABAJADORES (UGT)" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                <!-- Fila 4: Fecha de Inicio del Proceso Electoral (con valor por defecto) -->
+                <Label style="-fx-font-weight: bold;" text="Fecha de Iniciación del Proceso Electoral:" GridPane.rowIndex="4" />
+                <DatePicker fx:id="dpFechaConstitucion" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                <!-- Fila 5: Fecha de Preaviso (se rellenará automáticamente al inicializar) -->
+                <Label style="-fx-font-weight: bold;" text="Fecha Preaviso:" GridPane.rowIndex="5" />
+                <DatePicker fx:id="dpFechaPreaviso" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            </children>
+        </GridPane>
+        <!-- HBox para contener los botones de acción centrados. -->
+        <HBox alignment="CENTER" spacing="20.0">
+            <children>
+                <!-- Botón para generar el PDF y guardar los datos. -->
+                <Button onAction="#handleGuardar" prefWidth="180.0" text="Generar PDF y Guardar" />
+                <!-- Botón para limpiar todos los campos del formulario. -->
+                <Button onAction="#handleLimpiar" prefWidth="120.0" text="Limpiar Campos" />
+            </children>
+            <VBox.margin>
+                <Insets top="20.0" />
+            </VBox.margin>
+        </HBox>
+    </children>
+</VBox>

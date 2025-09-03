@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    FXML: candidato-view.fxml
++  Propósito: Interfaz para añadir/modificar candidatos individuales y listarlos en una tabla.
++
++  Controlador asociado: com.albertocr.gestionformularios.controller.candidato.CandidatoController
++
++  Notas:
++  - Fx ids: tablaCandidatos, tfNombre, tfApellidos, tfDni, botones de añadir/modificar/eliminar.
++  - Validaciones de campos (p.ej. formato de DNI) deben realizarse en el controlador y mostrar errores al usuario.
++  - Consistencia: los nombres de columna deben coincidir con las propiedades del modelo `Candidato`.
++-->
++
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" prefHeight="500.0" prefWidth="600.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.albertocr.gestionformularios.controller.candidato.CandidatoController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <children>
+        <Label text="Gestión de Candidatos">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Label>
+        <TableView fx:id="tablaCandidatos" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="columnaId" prefWidth="50.0" text="ID" />
+                <TableColumn fx:id="columnaNombre" prefWidth="150.0" text="Nombre" />
+                <TableColumn fx:id="columnaApellidos" prefWidth="200.0" text="Apellidos" />
+                <TableColumn fx:id="columnaDni" prefWidth="150.0" text="DNI" />
+            </columns>
+        </TableView>
+        <GridPane hgap="10.0" vgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <TextField fx:id="tfNombre" promptText="Nombre" />
+                <TextField fx:id="tfApellidos" promptText="Apellidos" GridPane.columnIndex="1" />
+                <TextField fx:id="tfDni" promptText="DNI" GridPane.columnIndex="2" />
+            </children>
+        </GridPane>
+        <HBox alignment="CENTER" spacing="10.0">
+            <children>
+                <Button onAction="#handleAnadir" prefWidth="100.0" text="Añadir" />
+                <Button onAction="#handleModificar" prefWidth="100.0" text="Modificar" />
+                <Button onAction="#handleEliminar" prefWidth="100.0" text="Eliminar" style="-fx-background-color: #f5a7a7;" />
+            </children>
+        </HBox>
+    </children>
+</VBox>

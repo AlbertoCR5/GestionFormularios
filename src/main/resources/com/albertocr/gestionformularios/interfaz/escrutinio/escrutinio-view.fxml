@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    FXML: escrutinio-view.fxml
++  Propósito: Formulario genérico de escrutinio que permite crear/editar escrutinios.
+    Controlador asociado: com.albertocr.gestionformularios.controller.escrutinio.EscrutinioController
++
+    Notas:
++  - Usado para la creación rápida de escrutinios y pruebas.
++  - Fx ids importantes: eleccionComboBox, formGridPane, textFieldNumeroPreaviso,
++
++    datePickerFechaEscrutinio, textFieldTotalElectores, btnGuardar, btnLimpiar.
++  - Internacionalización: reemplazar textos visibles por claves en ResourceBundle.
++
++-->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" prefWidth="550.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.albertocr.gestionformularios.controller.escrutinio.EscrutinioController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <children>
+        <Label text="Formulario de Escrutinio">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Label>
+
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Seleccionar Elección:" />
+            <ComboBox fx:id="eleccionComboBox" onAction="#handleEleccionSeleccionada" prefWidth="350.0" promptText="Seleccione una elección existente" />
+        </HBox>
+
+        <GridPane fx:id="formGridPane" hgap="10.0" vgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <Label text="Nº Preaviso:" />
+                <TextField fx:id="textFieldNumeroPreaviso" GridPane.columnIndex="1" />
+                <Label text="Fecha Escrutinio:" GridPane.columnIndex="2" />
+                <DatePicker fx:id="datePickerFechaEscrutinio" prefWidth="250.0" GridPane.columnIndex="3" />
+
+                <Label text="Actividad Económica:" GridPane.rowIndex="1" />
+                <TextField fx:id="textFieldActividadEconomica" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <Label text="Convenio:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                <TextField fx:id="textFieldConvenio" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                <Label text="Trabajadores Fijos:" GridPane.rowIndex="2" />
+                <TextField fx:id="textFieldTrabajadoresFijos" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <Label text="Trabajadores Eventuales:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                <TextField fx:id="textFieldTrabajadoresEventuales" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+
+                <Label text="Jornadas Eventuales (año):" GridPane.rowIndex="3" />
+                <TextField fx:id="textFieldTrabajadoresJornadas" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <Label text="Cómputo Eventuales:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                <TextField fx:id="textFieldComputoTrabajadoresEventuales" editable="false" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+
+                <Label text="Total Trabajadores Cómputo:" GridPane.rowIndex="4" />
+                <TextField fx:id="textFieldTotalTrabajadoresComputo" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                <Label text="Total Electores:" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                <TextField fx:id="textFieldTotalElectores" editable="false" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+
+                <Label text="Electores Varones:" GridPane.rowIndex="5" />
+                <TextField fx:id="textFieldElectoresVarones" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                <Label text="Electores Mujeres:" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                <TextField fx:id="textFieldElectoresMujeres" editable="false" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+            </children>
+        </GridPane>
+        <HBox alignment="CENTER" spacing="20.0">
+            <children>
+                <Button fx:id="btnGuardar" mnemonicParsing="false" prefWidth="180.0" text="Guardar Cambios" />
+                <Button fx:id="btnLimpiar" mnemonicParsing="false" prefWidth="120.0" text="Limpiar" />
+            </children>
+            <VBox.margin>
+                <Insets top="20.0" />
+            </VBox.margin>
+        </HBox>
+    </children>
+</VBox>

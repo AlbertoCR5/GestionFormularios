@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+   FXML: view.fxml
++  Propósito: Interfaz principal (shell) de la aplicación que contiene la barra de menús y
+   el área de contenido central. Cargada por la clase principal de la aplicación.
++
+   Controlador asociado: com.albertocr.gestionformularios.controller.PrincipalController
++
+   Notas:
++  - Elementos del menú disparan la apertura de ventanas: preaviso, modelos de escrutinio,
++
++    usuarios y herramientas. Mantener las acciones en el controlador.
++  - Fx ids relevantes: menuBar, image.
++  - Internacionalización: las entradas del menú deben obtenerse de ResourceBundle.
++-->
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.albertocr.gestionformularios.controller.PrincipalController">
+   <top>
+      <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
+         <menus>
+            <Menu mnemonicParsing="false" text="Archivo">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#abrirVentanaPreaviso" text="Nuevo Preaviso" />
+                  <MenuItem mnemonicParsing="false" onAction="#abrirVentanaModelosEscrutinio" text="Nuevo Escrutinio" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#generarVCard" text="Generar VCard de Contacto" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#salir" text="Salir">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+               </items>
+            </Menu>
+            <Menu fx:id="menuHerramientas" mnemonicParsing="false" text="Herramientas">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#abrirVentanaCalendarioComite" text="Calendario Comité" />
+                  <MenuItem mnemonicParsing="false" onAction="#abrirVentanaUsuario" text="Gestión de Usuarios" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#abrirVentanaPdfInspector" text="Inspector de Formularios PDF" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Idioma">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#cambiarIdiomaAEspanol" text="Español" />
+                  <MenuItem mnemonicParsing="false" onAction="#cambiarIdiomaAIngles" text="Inglés" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Ayuda">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="Acerca de" />
+               </items>
+            </Menu>
+         </menus>
+      </MenuBar>
+   </top>
+   <center>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <ImageView fx:id="image" fitHeight="150.0" fitWidth="200.0" layoutX="200.0" layoutY="37.0" pickOnBounds="true" preserveRatio="true" />
+         </children>
+      </AnchorPane>
+   </center>
+</BorderPane>
