@@ -113,7 +113,7 @@ public final class DirectorioManager {
      * @throws IOException Si ocurre un error al crear el directorio.
      */
     public static Path crearDirectorioEmpresa(Path rutaRaiz, String nombreEmpresa) throws IOException {
-        String nombreSanitizado = sanitizarNombre(nombreEmpresa);
+    String nombreSanitizado = sanitizarNombreEmpresa(nombreEmpresa);
         Path rutaEmpresa = rutaRaiz.resolve(nombreSanitizado);
         crearDirectorioSiNoExiste(rutaEmpresa.toString());
         return rutaEmpresa;
@@ -180,5 +180,21 @@ public final class DirectorioManager {
      */
     public static String sanitizarNombre(String nombre) {
         return nombre.replaceAll("[^a-zA-Z0-9 .-]", "");
+    }
+
+    /**
+     * Sanitiza específicamente el nombre de la empresa para uso en rutas de carpetas.
+     * Solo mantiene letras (A-Z, a-z), números (0-9) y espacios. Elimina el resto de caracteres.
+     *
+     * @param nombre Nombre original de la empresa.
+     * @return Nombre sanitizado apto para nombre de carpeta.
+     */
+    private static String sanitizarNombreEmpresa(String nombre) {
+        if (nombre == null) return "";
+        // Mantener únicamente letras, números y espacios. Quitar puntos, guiones, subrayados, etc.
+        String limpio = nombre.replaceAll("[^a-zA-Z0-9 ]", "");
+        // Colapsar múltiples espacios y recortar
+        limpio = limpio.trim().replaceAll(" +", " ");
+        return limpio;
     }
 }
