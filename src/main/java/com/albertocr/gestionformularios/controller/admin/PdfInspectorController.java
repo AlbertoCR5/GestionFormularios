@@ -13,13 +13,6 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
-import org.apache.pdfbox.pdmodel.interactive.form.PDField;
-import org.apache.pdfbox.cos.COSBase;
-import org.apache.pdfbox.cos.COSDictionary;
-import org.apache.pdfbox.cos.COSName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,12 +20,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -279,38 +271,45 @@ public class PdfInspectorController {
      */
     @FXML
     public void onExportToJsonButtonClick() {
+        PdfInfo selectedPdf = pdfComboBox.getValue();
+        if (selectedPdf == null) {
+            AlertManager.mostrarAlertaAdvertencia("Sin selección", "Seleccione un formulario PDF primero.");
+            return;
+        }
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Seleccionar archivo de mapeo JSON");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos JSON", "*.json"));
+        File jsonFile = chooser.showOpenDialog(pdfComboBox.getScene().getWindow());
+        if (jsonFile == null) {
+            return; // cancelado por el usuario
+        }
+
         Task<Void> exportTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
                 record FieldInfo(String name, String type) {}
                 record PdfFields(String pdf, List<FieldInfo> fields) {}
 
-                List<PdfFields> all = new java.util.ArrayList<>();
-
-                for (PdfInfo pdfInfo : pdfFiles) {
-                    String resourcePath = pdfInfo.resourcePath() + pdfInfo.name();
-                    updateMessage("Leyendo: " + pdfInfo.name());
-
-                    try (InputStream is = PdfInspectorController.class.getResourceAsStream(resourcePath);
-                         PDDocument pdf = Loader.loadPDF(Objects.requireNonNull(is, "Plantilla no encontrada").readAllBytes())) {
-
-                        PDAcroForm acroForm = pdf.getDocumentCatalog().getAcroForm();
-                        List<FieldInfo> info = new java.util.ArrayList<>();
-                        if (acroForm != null) {
-                            for (PDField field : acroForm.getFieldTree()) {
-                                info.add(new FieldInfo(field.getFullyQualifiedName(), extractFieldType(field)));
-                            }
-                        }
-                        all.add(new PdfFields(pdfInfo.name(), info));
-
-                    }
+                // Cargar mapeo desde JSON (campo -> tipo)
+                Map<String, String> mapping = loadFieldMapFromJson(jsonFile.getAbsolutePath());
+                if (mapping.isEmpty()) {
+                    throw new IOException("El archivo JSON no contiene un mapeo válido.");
                 }
 
+                // Construir lista de FieldInfo a partir del mapeo
+                List<FieldInfo> info = new java.util.ArrayList<>();
+                for (Map.Entry<String, String> e : mapping.entrySet()) {
+                    info.add(new FieldInfo(e.getKey(), e.getValue()));
+                }
+
+                List<PdfFields> all = java.util.List.of(new PdfFields(selectedPdf.name(), info));
                 String json = buildJson(all);
 
                 Path targetDir = Paths.get(System.getProperty("user.home"), "Documents", "Elecciones", "Listado Campos");
                 Files.createDirectories(targetDir);
-                Path out = targetDir.resolve("listado_completo_campos.json");
+                String baseName = DirectorioManager.sanitizarNombre(selectedPdf.name().replace(".pdf", ""));
+                Path out = targetDir.resolve("campos_" + baseName + "_desde_mapeo.json");
                 Files.writeString(out, json);
                 logger.info("JSON exportado a: {}", out.toAbsolutePath());
                 return null;
@@ -332,17 +331,72 @@ public class PdfInspectorController {
     }
 
     // Extrae el tipo (FT) desde el diccionario del campo. Devuelve "UNKNOWN" si no está presente.
-    private String extractFieldType(PDField field) {
-        COSBase base = field.getCOSObject();
-        if (base instanceof COSDictionary dict) {
-            COSBase ft = dict.getDictionaryObject(COSName.FT);
-            if (ft instanceof COSName cosName) {
-                return cosName.getName();
-            } else if (ft != null) {
-                return ft.toString();
+    // Nota: el tipo de campo ahora proviene del JSON de mapeo, ya no escaneamos el PDF.
+
+    /**
+     * Carga un mapeo de campos desde un archivo JSON.
+     * Formatos soportados:
+     *  - Objeto simple: { "campo1": "tipo1", "campo2": "tipo2" }
+     *  - Array de objetos: [ {"name":"campo1","type":"tipo1"}, ... ]
+     * Devuelve un LinkedHashMap preservando el orden de aparición.
+     */
+    private Map<String, String> loadFieldMapFromJson(String jsonFilePath) throws IOException {
+        String content = Files.readString(Path.of(jsonFilePath));
+        Map<String, String> result = new java.util.LinkedHashMap<>();
+
+        String trimmed = content.trim();
+        // Caso 1: Array de objetos con name/type
+        if (trimmed.startsWith("[")) {
+            java.util.regex.Pattern p = java.util.regex.Pattern.compile("\\{\\s*\\\"name\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"\\s*,\\s*\\\"type\\\"\\s*:\\s*\\\"([^\\\"]*)\\\"\\s*}\\s*");
+            java.util.regex.Matcher m = p.matcher(trimmed);
+            while (m.find()) {
+                result.put(m.group(1), m.group(2));
+            }
+            return result;
+        }
+
+        // Caso 2: Objeto simple campo->tipo (no anidado)
+        if (trimmed.startsWith("{")) {
+            // Quitar llaves externas
+            String body = trimmed.substring(1, trimmed.lastIndexOf('}'));
+            // Dividir por comas de primer nivel. Aproximación simple.
+            int depth = 0;
+            StringBuilder token = new StringBuilder();
+            java.util.List<String> pairs = new java.util.ArrayList<>();
+            for (int i = 0; i < body.length(); i++) {
+                char c = body.charAt(i);
+                if (c == '"') {
+                    token.append(c);
+                    i++;
+                    while (i < body.length()) {
+                        char cc = body.charAt(i);
+                        token.append(cc);
+                        if (cc == '"' && body.charAt(i - 1) != '\\') break;
+                        i++;
+                    }
+                    continue;
+                }
+                if (c == '{' || c == '[') depth++;
+                if (c == '}' || c == ']') depth--;
+                if (c == ',' && depth == 0) {
+                    pairs.add(token.toString());
+                    token.setLength(0);
+                } else {
+                    token.append(c);
+                }
+            }
+            if (token.length() > 0) pairs.add(token.toString());
+
+            java.util.regex.Pattern p = java.util.regex.Pattern.compile("\\s*\\\"([^\\\"]+)\\\"\\s*:\\s*\\\"([^\\\"]*)\\\"\\s*");
+            for (String pair : pairs) {
+                java.util.regex.Matcher m = p.matcher(pair);
+                if (m.matches()) {
+                    result.put(m.group(1), m.group(2));
+                }
             }
         }
-        return "UNKNOWN";
+
+        return result;
     }
 
     // Serializa a JSON simple sin dependencias externas (con pretty-print básico)
