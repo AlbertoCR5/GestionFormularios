@@ -8,6 +8,7 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDCheckBox;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDRadioButton;
+import org.apache.pdfbox.pdmodel.interactive.form.PDVariableText;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -198,6 +199,13 @@ public final class PdfFillUtility {
             COSName alias = resources.add(font);
             String name = alias != null ? alias.getName() : "F0";
             acroForm.setDefaultAppearance("/" + name + " 10 Tf 0 g");
+
+            // Además, actualizar DA por-campo para campos de texto existentes
+            for (PDField field : acroForm.getFields()) {
+                if (field instanceof PDVariableText vt) {
+                    try { vt.setDefaultAppearance("/" + name + " 10 Tf 0 g"); } catch (Exception ignore) { }
+                }
+            }
         } catch (Exception ignore) { }
     }
 

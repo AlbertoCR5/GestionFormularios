@@ -10,6 +10,7 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDRadioButton;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.PDResources;
+import org.apache.pdfbox.pdmodel.interactive.form.PDVariableText;
 
 import java.io.File;
 import java.io.IOException;
@@ -341,6 +342,12 @@ public final class PdfMapperUtility {
             String alias = fontName != null ? fontName.getName() : "F0";
             // DA: seleccionar fuente y tamaño 10, color negro
             acroForm.setDefaultAppearance("/" + alias + " 10 Tf 0 g");
+            // Además, actualizar DA por-campo para campos de texto existentes
+            for (PDField f : acroForm.getFields()) {
+                if (f instanceof PDVariableText vt) {
+                    try { vt.setDefaultAppearance("/" + alias + " 10 Tf 0 g"); } catch (Exception ignore) { }
+                }
+            }
         } catch (Exception ignore) {
         }
     }
