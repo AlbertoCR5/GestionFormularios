@@ -13,13 +13,6 @@ module com.albertocr.gestionformularios {
     requires java.logging;
 
     // Dependencias del proyecto
-    // Nota: `jbcrypt` (org.mindrot:jbcrypt:0.4) no proporciona un nombre de módulo
-    // explícito, por lo que Maven lo sitúa como "automatic module" (filename-based).
-    // Resultado: durante la compilación aparece el aviso sobre filename-based automodules.
-    // Decisión: mantener `requires jbcrypt;` para permitir acceso directo desde el módulo
-    // mientras se documenta este hecho. En futuras iteraciones podemos:
-    //  - reemplazar por una dependencia modular, o
-    //  - usar Moditect para generar una versión modular de jbcrypt en el build.
     requires jbcrypt;
     requires org.apache.pdfbox;
     requires org.xerial.sqlitejdbc;

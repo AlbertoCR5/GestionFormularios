@@ -4,6 +4,8 @@ import com.albertocr.gestionformularios.util.AlertManager;
 import com.albertocr.gestionformularios.util.DirectorioManager;
 import com.albertocr.gestionformularios.util.PdfFieldReader;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,6 +13,13 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
+import org.apache.pdfbox.pdmodel.interactive.form.PDField;
+import org.apache.pdfbox.cos.COSBase;
+import org.apache.pdfbox.cos.COSDictionary;
+import org.apache.pdfbox.cos.COSName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +27,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -45,11 +56,12 @@ public class PdfInspectorController {
     @FXML private ComboBox<PdfInfo> pdfComboBox;
     @FXML private TableView<String> fieldsTableView;
     @FXML private TableColumn<String, String> fieldNameColumn;
-    @FXML private Button exportButton, exportAllButton, exportAllInOneButton;
+    @FXML private Button exportButton, exportAllButton, exportAllInOneButton, exportAllJsonButton;
     @FXML private ProgressIndicator loadingIndicator;
 
     private final ObservableList<PdfInfo> pdfFiles = FXCollections.observableArrayList();
     private final ObservableList<String> fieldNames = FXCollections.observableArrayList();
+    private final BooleanProperty busy = new SimpleBooleanProperty(false);
 
     @FXML
     public void initialize() {
@@ -60,7 +72,14 @@ public class PdfInspectorController {
         fieldNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue()));
         fieldsTableView.setItems(fieldNames);
 
-        exportButton.disableProperty().bind(Bindings.isEmpty(fieldNames));
+    // Deshabilitar mientras esté ocupado o no haya campos cargados
+    exportButton.disableProperty().bind(Bindings.or(Bindings.isEmpty(fieldNames), busy));
+    exportAllButton.disableProperty().bind(busy);
+    exportAllInOneButton.disableProperty().bind(busy);
+        pdfComboBox.disableProperty().bind(busy);
+        if (exportAllJsonButton != null) {
+            exportAllJsonButton.disableProperty().bind(busy);
+        }
     }
 
     private void cargarListaDePdfs() {
@@ -249,9 +268,145 @@ public class PdfInspectorController {
     }
 
     private void setButtonsDisabled(boolean disabled) {
-        exportButton.setDisable(disabled);
-        exportAllButton.setDisable(disabled);
-        exportAllInOneButton.setDisable(disabled);
-        pdfComboBox.setDisable(disabled);
+        // Control centralizado de estado ocupado; las vistas están enlazadas a 'busy'
+        busy.set(disabled);
+    }
+
+    /**
+     * Exporta a JSON los campos de todos los formularios disponibles en la vista,
+     * consolidándolos en un único archivo JSON.
+     * El archivo se guarda en "Documentos/Elecciones/Listado Campos" como listado_completo_campos.json.
+     */
+    @FXML
+    public void onExportToJsonButtonClick() {
+        Task<Void> exportTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                record FieldInfo(String name, String type) {}
+                record PdfFields(String pdf, List<FieldInfo> fields) {}
+
+                List<PdfFields> all = new java.util.ArrayList<>();
+
+                for (PdfInfo pdfInfo : pdfFiles) {
+                    String resourcePath = pdfInfo.resourcePath() + pdfInfo.name();
+                    updateMessage("Leyendo: " + pdfInfo.name());
+
+                    try (InputStream is = PdfInspectorController.class.getResourceAsStream(resourcePath);
+                         PDDocument pdf = Loader.loadPDF(Objects.requireNonNull(is, "Plantilla no encontrada").readAllBytes())) {
+
+                        PDAcroForm acroForm = pdf.getDocumentCatalog().getAcroForm();
+                        List<FieldInfo> info = new java.util.ArrayList<>();
+                        if (acroForm != null) {
+                            for (PDField field : acroForm.getFieldTree()) {
+                                info.add(new FieldInfo(field.getFullyQualifiedName(), extractFieldType(field)));
+                            }
+                        }
+                        all.add(new PdfFields(pdfInfo.name(), info));
+
+                    }
+                }
+
+                String json = buildJson(all);
+
+                Path targetDir = Paths.get(System.getProperty("user.home"), "Documents", "Elecciones", "Listado Campos");
+                Files.createDirectories(targetDir);
+                Path out = targetDir.resolve("listado_completo_campos.json");
+                Files.writeString(out, json);
+                logger.info("JSON exportado a: {}", out.toAbsolutePath());
+                return null;
+            }
+        };
+
+        exportTask.setOnRunning(e -> setButtonsDisabled(true));
+        exportTask.setOnSucceeded(e -> {
+            setButtonsDisabled(false);
+            AlertManager.mostrarAlertaInformacion("Exportación a JSON", "El archivo JSON se ha generado correctamente en Documentos/Elecciones/Listado Campos.");
+        });
+        exportTask.setOnFailed(e -> {
+            setButtonsDisabled(false);
+            logger.error("Error exportando a JSON", exportTask.getException());
+            AlertManager.mostrarAlertaError("Error", "No se pudo exportar a JSON: " + exportTask.getException().getMessage());
+        });
+
+        new Thread(exportTask).start();
+    }
+
+    // Extrae el tipo (FT) desde el diccionario del campo. Devuelve "UNKNOWN" si no está presente.
+    private String extractFieldType(PDField field) {
+        COSBase base = field.getCOSObject();
+        if (base instanceof COSDictionary dict) {
+            COSBase ft = dict.getDictionaryObject(COSName.FT);
+            if (ft instanceof COSName cosName) {
+                return cosName.getName();
+            } else if (ft != null) {
+                return ft.toString();
+            }
+        }
+        return "UNKNOWN";
+    }
+
+    // Serializa a JSON simple sin dependencias externas (con pretty-print básico)
+    private String buildJson(List<?> all) {
+        // all es List<PdfFields> donde PdfFields es record local { String pdf; List<FieldInfo> fields; }
+        String indent = "  ";
+        StringBuilder sb = new StringBuilder();
+        sb.append("[\n");
+        @SuppressWarnings("unchecked")
+        List<Object> list = (List<Object>) all;
+        for (int i = 0; i < list.size(); i++) {
+            Object obj = list.get(i);
+            // Reflection sobre record local
+            try {
+                String pdfName = (String) obj.getClass().getRecordComponents()[0].getAccessor().invoke(obj);
+                @SuppressWarnings("unchecked")
+                List<Object> fields = (List<Object>) obj.getClass().getRecordComponents()[1].getAccessor().invoke(obj);
+                sb.append(indent).append("{\n");
+                sb.append(indent).append(indent).append("\"pdf\": \"").append(jsonEscape(pdfName)).append("\",\n");
+                sb.append(indent).append(indent).append("\"fields\": [\n");
+                for (int j = 0; j < fields.size(); j++) {
+                    Object f = fields.get(j);
+                    String name = (String) f.getClass().getRecordComponents()[0].getAccessor().invoke(f);
+                    String type = (String) f.getClass().getRecordComponents()[1].getAccessor().invoke(f);
+                    sb.append(indent).append(indent).append(indent).append("{")
+                      .append("\"name\": \"").append(jsonEscape(name)).append("\", ")
+                      .append("\"type\": \"").append(jsonEscape(type)).append("\"}");
+                    if (j < fields.size() - 1) sb.append(",");
+                    sb.append("\n");
+                }
+                sb.append(indent).append(indent).append("]\n");
+                sb.append(indent).append("}");
+                if (i < list.size() - 1) sb.append(",");
+                sb.append("\n");
+            } catch (Throwable t) {
+                logger.error("Error serializando a JSON", t);
+            }
+        }
+        sb.append("]\n");
+        return sb.toString();
+    }
+
+    private String jsonEscape(String s) {
+        if (s == null) return "";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '"' -> sb.append("\\\"");
+                case '\\' -> sb.append("\\\\");
+                case '\b' -> sb.append("\\b");
+                case '\f' -> sb.append("\\f");
+                case '\n' -> sb.append("\\n");
+                case '\r' -> sb.append("\\r");
+                case '\t' -> sb.append("\\t");
+                default -> {
+                    if (c < 0x20) {
+                        sb.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+                }
+            }
+        }
+        return sb.toString();
     }
 }

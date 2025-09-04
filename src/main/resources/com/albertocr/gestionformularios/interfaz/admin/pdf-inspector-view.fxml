@@ -23,7 +23,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" prefHeight="600.0" prefWidth="500.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.albertocr.gestionformularios.controller.admin.PdfInspectorController">
+<VBox alignment="TOP_CENTER" prefHeight="300.0" prefWidth="650.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.albertocr.gestionformularios.controller.admin.PdfInspectorController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
@@ -49,6 +49,7 @@
         </TableView>
         <HBox alignment="CENTER_RIGHT" spacing="10.0">
             <children>
+                <Button fx:id="exportAllJsonButton" mnemonicParsing="false" onAction="#onExportToJsonButtonClick" text="Exportar Todo a un Único JSON" />
                 <Button fx:id="exportAllInOneButton" mnemonicParsing="false" onAction="#handleExportAllInOne" text="Exportar Todo a un Único TXT" />
                 <Button fx:id="exportAllButton" mnemonicParsing="false" onAction="#handleExportarTodo" text="Exportar Todo a TXT" />
                 <Button fx:id="exportButton" mnemonicParsing="false" onAction="#handleExportar" text="Exportar a TXT" />
