@@ -6,6 +6,8 @@ import com.albertocr.gestionformularios.service.EscrutinioService;
 import com.albertocr.gestionformularios.service.dto.ActaDelegadosData;
 import com.albertocr.gestionformularios.util.AlertManager;
 import com.albertocr.gestionformularios.util.DirectorioManager;
+import com.albertocr.gestionformularios.util.PdfMapperUtility;
+import com.albertocr.gestionformularios.util.PdfMapperUtility.Mapping;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -15,10 +17,16 @@ import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 /**
@@ -40,6 +48,7 @@ public class EscrutinioDelegadosController {
     @FXML private Button btnGestionarCandidatos, btnGuardarPDF;
 
     private final ActaDelegadosData initialActaData;
+    @SuppressWarnings("unused")
     private final EscrutinioService escrutinioService;
     private List<Candidato> candidatos;
 
@@ -185,29 +194,52 @@ public class EscrutinioDelegadosController {
 
     @FXML
     private void handleGuardarPDF() {
-        // Tarea 1: Añadir validación de preaviso
+        // Validaciones
         if (!validarPreaviso() || !validarSumaElectores()) {
             if (!validarSumaElectores()) {
-                 AlertManager.mostrarAlertaError("Error de Validación", "La suma de varones y mujeres no coincide con el total de electores calculado.");
+                AlertManager.mostrarAlertaError(getBundle().getString("error.validacion.titulo"),
+                        getBundle().getString("error.validacion.electores.suma").replace("{0}", getBundle().getString("delegados.colegio.unico")));
             }
             return;
         }
 
-        File directorioDestino = DirectorioManager.obtenerDirectorioSeleccionado();
-        if (directorioDestino == null) {
-            logger.warn("El usuario canceló la selección del directorio.");
-            return;
-        }
         try {
-            ActaDelegadosData datosActualizados = recopilarDatosDeLaVentana();
-            escrutinioService.generarActaEscrutinioDelegados(datosActualizados, directorioDestino);
-            AlertManager.mostrarAlertaInformacion("Éxito", "El acta de escrutinio para delegados se ha guardado correctamente.");
+            // 1) Cargar o generar mapeo consolidado
+            List<Mapping> mappings = PdfMapperUtility.loadOrGenerateMappings();
+            if (mappings == null || mappings.isEmpty()) {
+                AlertManager.mostrarAlertaError(getBundle().getString("error.titulo"), getBundle().getString("error.mapeo.json.invalido"));
+                return;
+            }
+
+            // 2) Seleccionar modelo por defecto para Delegados
+            Mapping target = PdfMapperUtility.selectDelegadosMapping(mappings);
+            if (target == null || target.pdfName() == null || target.pdfName().isBlank()) {
+                AlertManager.mostrarAlertaError(getBundle().getString("error.titulo"), getBundle().getString("error.mapeo.json.invalido"));
+                return;
+            }
+
+            // 3) Crear carpeta de empresa y asegurar plantilla
+            Path raiz = DirectorioManager.crearDirectorioRaiz();
+            String nombreEmpresa = valorOPlaceholder(initialActaData.nombreEmpresa(), "Empresa");
+            Path carpetaEmpresa = DirectorioManager.crearDirectorioEmpresa(raiz, nombreEmpresa);
+            Path destinoPdf = carpetaEmpresa.resolve(target.pdfName());
+            if (Files.notExists(destinoPdf)) {
+                copiarRecursoPDFA(destinoPdf, "/Delegados/" + target.pdfName());
+            }
+
+            // 4) Rellenar y guardar
+            PdfMapperUtility.fillPdfUsingMapping(destinoPdf, target, this::valorParaCampo);
+            AlertManager.mostrarAlertaInformacion(
+                    getBundle().getString("info.title"),
+                    getBundle().getString("info.pdf.guardado").replace("{0}", destinoPdf.toAbsolutePath().toString())
+            );
         } catch (Exception e) {
             logger.error("Error al guardar el PDF del acta de delegados", e);
-            AlertManager.mostrarAlertaError("Error al Guardar", "No se pudo generar el archivo PDF: " + e.getMessage());
+            AlertManager.mostrarAlertaError(getBundle().getString("error.titulo"), getBundle().getString("error.pdf.guardado"));
         }
     }
 
+    @SuppressWarnings("unused")
     private ActaDelegadosData recopilarDatosDeLaVentana() {
         return new ActaDelegadosData(
                 tfPreaviso.getText(), lblNombreEmpresa.getText(), lblNombreComercial.getText(), lblCif.getText(),
@@ -239,5 +271,56 @@ public class EscrutinioDelegadosController {
 
     private String valorOPlaceholder(String valor, String placeholder) {
         return (valor == null || valor.isBlank()) ? placeholder : valor;
+    }
+
+    private ResourceBundle getBundle() { return ResourceBundle.getBundle("messages_es"); }
+
+    private void copiarRecursoPDFA(Path destino, String recursoClasspath) throws IOException {
+        Objects.requireNonNull(destino);
+        Objects.requireNonNull(recursoClasspath);
+        Files.createDirectories(destino.getParent());
+        try (InputStream in = getClass().getResourceAsStream(recursoClasspath)) {
+            if (in == null) throw new IOException("No se encuentra la plantilla en recursos: " + recursoClasspath);
+            byte[] bytes = in.readAllBytes();
+            Files.write(destino, bytes);
+        }
+    }
+
+    /**
+     * Proveedor de valores heurístico para campos típicos del modelo de Delegados (5_1, 5_2...).
+     */
+    private String valorParaCampo(String fieldName) {
+        if (fieldName == null) return null;
+        String fn = fieldName.trim();
+        String fnLower = fn.toLowerCase(Locale.ROOT);
+
+        // A: Generales
+        if (fn.equals("numeroPreaviso") || fnLower.contains("preaviso")) return tfPreaviso.getText();
+
+        // B: Empresa
+        if (fn.equals("nombreEmpresa") || fnLower.contains("nombreempresa")) return lblNombreEmpresa.getText();
+        if (fn.equals("nombreComercial") || fnLower.contains("nombrecomercial")) return lblNombreComercial.getText();
+        if (fn.equals("CIF") || fnLower.equals("cif")) return lblCif.getText();
+        if (fn.equals("actividadEconomica") || fnLower.contains("actividad")) return tfActividadEconomica.getText();
+        if (fn.equals("nombreConvenio") || fnLower.contains("convenio_nombre")) return tfNombreConvenio.getText();
+        if (fn.equals("numeroConvenio") || fnLower.contains("convenio_numero")) return tfNumeroConvenio.getText();
+
+        // C: Centro
+        if (fn.equals("nombreCentro") || fnLower.contains("nombrecentro")) return lblNombreCentro.getText();
+        if (fn.equals("direccion") || fnLower.contains("direccion")) return lblDireccionCentro.getText();
+        if (fn.equals("municipio") || fnLower.contains("municipio")) return lblMunicipioCentro.getText();
+        if (fn.equals("provincia") || fnLower.contains("provincia")) return lblProvincia.getText();
+        if (fn.equals("fechaConstitucionLetras") || fnLower.contains("fechaconstitucion")) return lblFechaConstitucion.getText();
+
+        // D: Totales trabajadores y electores
+        if (fn.equals("trabajadoresFijos") || fnLower.contains("fijos")) return tfTrabajadoresFijos.getText();
+        if (fn.equals("trabajadoresEventuales") || fnLower.contains("eventuales") && !fnLower.contains("comput")) return tfTrabajadoresEventuales.getText();
+        if (fn.equals("trabajadoresJornadas") || fnLower.contains("jornadas")) return tfTrabajadoresJornadas.getText();
+        if (fn.equals("totalElectores") || fnLower.contains("total") && fnLower.contains("elector")) return tfTotalElectores.getText();
+        if (fn.equals("electoresVarones") || fnLower.contains("varon")) return tfElectoresVarones.getText();
+        if (fn.equals("electoresMujeres") || fnLower.contains("mujer")) return tfElectorasMujeres.getText();
+        if (fn.equals("numeroRepresentantes") || fnLower.contains("representante")) return tfNumeroRepresentantes.getText();
+
+        return null;
     }
 }

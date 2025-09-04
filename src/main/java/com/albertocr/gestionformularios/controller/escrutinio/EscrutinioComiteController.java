@@ -24,17 +24,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.cos.COSName;
-import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
-import org.apache.pdfbox.pdmodel.interactive.form.PDField;
+import com.albertocr.gestionformularios.util.PdfMapperUtility;
+import com.albertocr.gestionformularios.util.PdfMapperUtility.Mapping;
 
 /**
  * Controlador para la ventana de escrutinio de comités (escrutinio-comite-view.fxml).
@@ -357,17 +353,9 @@ public class EscrutinioComiteController {
         if (!validarSeccionesDvsE()) return; // coherencia entre secciones D y E
 
         try {
-            // 2) Intentar cargar el JSON consolidado en la ruta indicada; si no existe, generarlo
+            // 2) Cargar o generar el JSON consolidado centralizado con PdfMapperUtility
             Path raiz = DirectorioManager.crearDirectorioRaiz();
-            Path jsonPath = Paths.get(raiz.toString(), "Elecciones", "Listado Campos", "Listado Campos y Tipo JSON.json");
-            Files.createDirectories(jsonPath.getParent());
-
-            List<Mapping> mappings;
-            if (Files.exists(jsonPath)) {
-                mappings = loadMappingsFromJson(jsonPath);
-            } else {
-                mappings = generarYGuardarMapeoJson(jsonPath);
-            }
+            List<Mapping> mappings = PdfMapperUtility.loadOrGenerateMappings();
             if (mappings == null || mappings.isEmpty()) {
                 AlertManager.mostrarAlertaError(getBundle().getString("error.titulo"),
                         getBundle().getString("error.mapeo.json.invalido"));
@@ -375,7 +363,7 @@ public class EscrutinioComiteController {
             }
 
             // 3) Seleccionar el PDF objetivo según el contexto (tipo de colegio) o fallback
-            Mapping target = seleccionarMappingObjetivo(mappings);
+            Mapping target = PdfMapperUtility.selectComiteMapping(mappings, initialActaData.tipoColegio());
             if (target == null || target.pdfName() == null || target.pdfName().isBlank()) {
                 AlertManager.mostrarAlertaError(getBundle().getString("error.titulo"),
                         getBundle().getString("error.mapeo.json.invalido"));
@@ -394,7 +382,7 @@ public class EscrutinioComiteController {
             }
 
             // 6) Rellenar campos con valores del formulario/acta usando el mapeo
-            rellenarPdfConDatos(destinoPdf, target);
+            PdfMapperUtility.fillPdfUsingMapping(destinoPdf, target, this::valorParaCampo);
 
             AlertManager.mostrarAlertaInformacion(
                     getBundle().getString("info.title"),
@@ -497,181 +485,6 @@ public class EscrutinioComiteController {
     }
 
     /**
-     * Carga un mapeo desde el JSON generado por el Inspector de PDFs.
-     * Formato soportado: [ { "pdf": "archivo.pdf", "fields": [ {"name":"campo","type":"tipo"}, ... ] } ]
-     */
-    private List<Mapping> loadMappingsFromJson(Path jsonPath) throws IOException {
-        String content = Files.readString(jsonPath);
-        String trimmed = content.trim();
-        List<Mapping> result = new ArrayList<>();
-        if (!trimmed.startsWith("[")) {
-            return result;
-        }
-        // Partir por objetos de primer nivel con "pdf":
-        java.util.regex.Pattern objPat = java.util.regex.Pattern.compile("\\{[^}]*\\\"pdf\\\"[^}]*}\\s*(,|])");
-        java.util.regex.Matcher objMat = objPat.matcher(trimmed + "]");
-        while (objMat.find()) {
-            String obj = objMat.group();
-            java.util.regex.Matcher mPdf = java.util.regex.Pattern
-                    .compile("\\\"pdf\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"")
-                    .matcher(obj);
-            String pdfName = null;
-            if (mPdf.find()) pdfName = mPdf.group(1);
-            List<FieldInfo> fields = new ArrayList<>();
-            java.util.regex.Matcher mFields = java.util.regex.Pattern
-                    .compile("\\{\\s*\\\"name\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"\\s*,\\s*\\\"type\\\"\\s*:\\s*\\\"([^\\\"]*)\\\"\\s*}\\s*")
-                    .matcher(obj);
-            while (mFields.find()) {
-                fields.add(new FieldInfo(mFields.group(1), mFields.group(2)));
-            }
-            if (pdfName != null && !fields.isEmpty()) {
-                result.add(new Mapping(pdfName, fields));
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Genera el JSON consolidado con los campos y tipos de los PDFs de Comité y lo guarda en destinoJson.
-     * Devuelve la estructura de mapeo generada.
-     */
-    private List<Mapping> generarYGuardarMapeoJson(Path destinoJson) throws IOException {
-        // Lista de PDFs de Comité, similar a PdfInspectorController
-        String[] comitePdfs = new String[] {
-                "calendario_comite.pdf",
-                "modelo_4_Especialistas.pdf",
-                "modelo_4_Tecnicos.pdf",
-                "modelo_4_Unico.pdf",
-                "modelo_6_1_Especialistas.pdf",
-                "modelo_6_1_Tecnicos.pdf",
-                "modelo_6_1_Unico.pdf",
-                "modelo_6_2_Especialistas.pdf",
-                "modelo_6_2_Tecnicos.pdf",
-                "modelo_6_2_Unico.pdf",
-                "modelo_6_3_Especialistas.pdf",
-                "modelo_6_3_Tecnicos.pdf",
-                "modelo_6_3_Unico.pdf",
-                "modelo_7_1.pdf",
-                "modelo_7_2.pdf",
-                "modelo_7_3_acta_global.pdf",
-                "modelo_7_3_anexo.pdf",
-                "modelo_7_3_proceso.pdf"
-        };
-
-        List<Mapping> mappings = new ArrayList<>();
-        for (String pdfName : comitePdfs) {
-            String resourcePath = "/Comite/" + pdfName;
-            try (InputStream in = getClass().getResourceAsStream(resourcePath)) {
-                if (in == null) continue;
-                try (PDDocument doc = Loader.loadPDF(in.readAllBytes())) {
-                    PDAcroForm acro = doc.getDocumentCatalog().getAcroForm();
-                    if (acro == null) continue;
-                    List<FieldInfo> fields = new ArrayList<>();
-                    for (PDField f : acro.getFields()) {
-                        String name = f.getFullyQualifiedName();
-                        String type = f.getCOSObject().getNameAsString(COSName.FT);
-                        if (type == null) type = "";
-                        fields.add(new FieldInfo(name, type));
-                    }
-                    if (!fields.isEmpty()) {
-                        mappings.add(new Mapping(pdfName, fields));
-                    }
-                }
-            }
-        }
-
-        // Serializar a JSON simple
-        String json = buildJson(mappings);
-        Files.writeString(destinoJson, json);
-        logger.info("Mapeo JSON generado y guardado en: {}", destinoJson.toAbsolutePath());
-        return mappings;
-    }
-
-    /** Selección del PDF objetivo según el tipo de colegio o fallback. */
-    private Mapping seleccionarMappingObjetivo(List<Mapping> mappings) {
-        if (mappings == null || mappings.isEmpty()) return null;
-        String tipo = initialActaData.tipoColegio();
-        String preferido = null;
-        if ("Colegio Único".equalsIgnoreCase(tipo)) {
-            preferido = "modelo_6_1_Unico.pdf";
-        } else {
-            // Por defecto especialistas
-            preferido = "modelo_6_1_Especialistas.pdf";
-        }
-        for (Mapping m : mappings) {
-            if (m.pdfName().equalsIgnoreCase(preferido)) return m;
-        }
-        // Fallbacks
-        for (String alt : new String[]{"modelo_7_3_acta_global.pdf", "modelo_7_1.pdf"}) {
-            for (Mapping m : mappings) {
-                if (m.pdfName().equalsIgnoreCase(alt)) return m;
-            }
-        }
-        return mappings.get(0);
-    }
-
-    /** Serializa lista de mapeos a JSON. */
-    private String buildJson(List<Mapping> mappings) {
-        String indent = "  ";
-        StringBuilder sb = new StringBuilder();
-        sb.append("[\n");
-        for (int i = 0; i < mappings.size(); i++) {
-            Mapping m = mappings.get(i);
-            sb.append(indent).append("{\n");
-            sb.append(indent).append(indent).append("\"pdf\": \"").append(escape(m.pdfName())).append("\",\n");
-            sb.append(indent).append(indent).append("\"fields\": [\n");
-            List<FieldInfo> fields = m.fields();
-            for (int j = 0; j < fields.size(); j++) {
-                FieldInfo f = fields.get(j);
-                sb.append(indent).append(indent).append(indent).append("{")
-                  .append("\"name\": \"").append(escape(f.name())).append("\", ")
-                  .append("\"type\": \"").append(escape(f.type())).append("\"}");
-                if (j < fields.size() - 1) sb.append(",");
-                sb.append("\n");
-            }
-            sb.append(indent).append(indent).append("]\n");
-            sb.append(indent).append("}");
-            if (i < mappings.size() - 1) sb.append(",");
-            sb.append("\n");
-        }
-        sb.append("]\n");
-        return sb.toString();
-    }
-
-    private String escape(String s) {
-        if (s == null) return "";
-        return s.replace("\\", "\\\\").replace("\"", "\\\"");
-    }
-
-    /**
-     * Rellena el PDF de destino utilizando el mapeo de campos y los valores actuales del formulario.
-     */
-    private void rellenarPdfConDatos(Path destinoPdf, Mapping mapping) throws IOException {
-        try (PDDocument document = Loader.loadPDF(Files.readAllBytes(destinoPdf))) {
-            PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
-            if (acroForm == null) {
-                logger.warn("El PDF no contiene AcroForm: {}", destinoPdf);
-            } else {
-                for (FieldInfo fi : mapping.fields()) {
-                    PDField field = acroForm.getField(fi.name());
-                    if (field == null) continue;
-                    String valor = valorParaCampo(fi.name());
-                    if (valor != null) {
-                        try {
-                            field.setValue(valor);
-                        } catch (Exception e) {
-                            logger.warn("No se pudo establecer el valor del campo '{}': {}", fi.name(), e.getMessage());
-                        }
-                    }
-                }
-                // Aplanar formulario para evitar ediciones accidentales posteriores
-                try { acroForm.flatten(); } catch (Exception ignore) { }
-            }
-            document.save(destinoPdf.toFile());
-        }
-    }
-
-    /**
      * Obtiene el valor adecuado para un nombre de campo PDF conocido.
      * Implementa mapeos frecuente: empresa, centro, CIF, convenio, preaviso y totales.
      * Para campos por colegio, usa heurística por nombre (varones/mujeres/total + especialistas/técnicos/único).
@@ -729,7 +542,5 @@ public class EscrutinioComiteController {
         return null;
     }
 
-    // Records simples para transportar mapeo
-    private record FieldInfo(String name, String type) {}
-    private record Mapping(String pdfName, List<FieldInfo> fields) {}
+    // Tipos de mapeo provistos por PdfMapperUtility
 }
