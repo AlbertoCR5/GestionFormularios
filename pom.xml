@@ -58,11 +58,11 @@
             <version>3.45.2.0</version>
         </dependency>
 
-        <!-- BCrypt for password hashing (as per project rules) -->
+        <!-- Spring Security Crypto provides BCrypt with stable Automatic-Module-Name -->
         <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.4</version>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+            <version>6.3.3</version>
         </dependency>
 
         <!-- Logging framework (SLF4J with Simple logger) -->

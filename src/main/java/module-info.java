@@ -13,7 +13,7 @@ module com.albertocr.gestionformularios {
     requires java.logging;
 
     // Dependencias del proyecto
-    requires jbcrypt;
+    requires spring.security.crypto;
     requires org.apache.pdfbox;
     requires org.xerial.sqlitejdbc;
     requires org.slf4j;

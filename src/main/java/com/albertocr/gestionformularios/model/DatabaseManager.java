@@ -1,6 +1,6 @@
 package com.albertocr.gestionformularios.model;
 
-import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,8 @@ public final class DatabaseManager {
                 logger.info("No se encontraron usuarios. Creando usuario administrador por defecto.");
                 String sqlInsert = "INSERT INTO usuarios(nombre_usuario, contrasena, rol, debe_cambiar_contrasena) VALUES(?, ?, ?, ?)";
                 try (PreparedStatement pstmt = conn.prepareStatement(sqlInsert)) {
-                    String hashContrasena = BCrypt.hashpw("admin", BCrypt.gensalt());
+                    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+                    String hashContrasena = encoder.encode("admin");
                     pstmt.setString(1, "admin");
                     pstmt.setString(2, hashContrasena);
                     pstmt.setString(3, Usuario.Rol.ADMIN.name());

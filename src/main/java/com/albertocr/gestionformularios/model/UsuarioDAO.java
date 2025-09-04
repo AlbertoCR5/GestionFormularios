@@ -1,6 +1,6 @@
 package com.albertocr.gestionformularios.model;
 
-import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,8 @@ public class UsuarioDAO {
         Optional<Usuario> usuarioOpt = buscarPorNombreUsuario(nombreUsuario);
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-            if (BCrypt.checkpw(contrasenaPlana, usuario.getContrasena())) {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            if (encoder.matches(contrasenaPlana, usuario.getContrasena())) {
                 return Optional.of(usuario);
             }
         }
@@ -70,7 +71,8 @@ public class UsuarioDAO {
         String sql = "INSERT INTO usuarios(nombre_usuario, contrasena, rol, debe_cambiar_contrasena) VALUES(?, ?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            String hashContrasena = BCrypt.hashpw(usuario.getContrasena(), BCrypt.gensalt());
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            String hashContrasena = encoder.encode(usuario.getContrasena());
             pstmt.setString(1, usuario.getNombreUsuario());
             pstmt.setString(2, hashContrasena);
             pstmt.setString(3, usuario.getRol().name());
@@ -95,7 +97,8 @@ public class UsuarioDAO {
         String sql = "UPDATE usuarios SET contrasena = ?, debe_cambiar_contrasena = 0 WHERE nombre_usuario = ?";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            String hashContrasena = BCrypt.hashpw(nuevaContrasena, BCrypt.gensalt());
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            String hashContrasena = encoder.encode(nuevaContrasena);
             pstmt.setString(1, hashContrasena);
             pstmt.setString(2, nombreUsuario);
             int affectedRows = pstmt.executeUpdate();
