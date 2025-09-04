@@ -179,8 +179,9 @@ public class PdfInspectorController {
         Task<Void> exportTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                Path targetDir = Paths.get(System.getProperty("user.home"), "Documents", "Elecciones", "Listado Campos");
-                Files.createDirectories(targetDir);
+                Path baseDocs = Paths.get(System.getProperty("user.home"), "Documents");
+                Path targetDir = baseDocs.resolve("Elecciones").resolve("Listado Campos").resolve("Listado TXT");
+                com.albertocr.gestionformularios.util.DirectorioManager.ensureHiddenDirectory(targetDir);
 
                 for (PdfInfo pdf : pdfFiles) {
                     updateMessage("Procesando: " + pdf.name());
@@ -197,7 +198,7 @@ public class PdfInspectorController {
         exportTask.setOnRunning(e -> setButtonsDisabled(true));
         exportTask.setOnSucceeded(e -> {
             setButtonsDisabled(false);
-            AlertManager.mostrarAlertaInformacion("Exportación Completa", "Todos los listados de campos han sido exportados a la carpeta 'Documentos/Elecciones/Listado Campos'.");
+            AlertManager.mostrarAlertaInformacion("Exportación Completa", "Todos los listados de campos han sido exportados a 'Documentos/Elecciones/Listado Campos/Listado TXT'.");
         });
         exportTask.setOnFailed(e -> {
             setButtonsDisabled(false);
@@ -213,8 +214,9 @@ public class PdfInspectorController {
         Task<Void> exportTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                Path targetDir = Paths.get(System.getProperty("user.home"), "Documents", "Elecciones", "Listado Campos");
-                Files.createDirectories(targetDir);
+                Path baseDocs = Paths.get(System.getProperty("user.home"), "Documents");
+                Path targetDir = baseDocs.resolve("Elecciones").resolve("Listado Campos").resolve("Listado TXT");
+                com.albertocr.gestionformularios.util.DirectorioManager.ensureHiddenDirectory(targetDir);
                 File outputFile = targetDir.resolve("listado_completo_campos.txt").toFile();
 
                 try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
@@ -247,7 +249,7 @@ public class PdfInspectorController {
         exportTask.setOnRunning(e -> setButtonsDisabled(true));
         exportTask.setOnSucceeded(e -> {
             setButtonsDisabled(false);
-            AlertManager.mostrarAlertaInformacion("Exportación Completa", "El archivo 'listado_completo_campos.txt' se ha guardado correctamente en la carpeta 'Documentos/Elecciones/Listado Campos'.");
+            AlertManager.mostrarAlertaInformacion("Exportación Completa", "El archivo 'listado_completo_campos.txt' se ha guardado correctamente en 'Documentos/Elecciones/Listado Campos/Listado TXT'.");
         });
         exportTask.setOnFailed(e -> {
             setButtonsDisabled(false);
@@ -325,7 +327,7 @@ public class PdfInspectorController {
                 // Guardar en la ruta solicitada: Documents/Elecciones/Listado Campos/Listado JSON
                 Path baseDocs = Paths.get(System.getProperty("user.home"), "Documents");
                 Path outDir = baseDocs.resolve("Elecciones").resolve("Listado Campos").resolve("Listado JSON");
-                Files.createDirectories(outDir);
+                com.albertocr.gestionformularios.util.DirectorioManager.ensureHiddenDirectory(outDir);
                 Path out = outDir.resolve("Listado Campos y Tipo JSON.json");
                 Files.writeString(out, json);
 
@@ -337,7 +339,7 @@ public class PdfInspectorController {
         exportTask.setOnRunning(e -> setButtonsDisabled(true));
         exportTask.setOnSucceeded(e -> {
             setButtonsDisabled(false);
-            AlertManager.mostrarAlertaInformacion("Exportación a JSON", "Se ha generado el JSON consolidado en Documentos/Elecciones/Listado Campos/Listado JSON.");
+            AlertManager.mostrarAlertaInformacion("Exportación a JSON", "Se ha generado el JSON consolidado en 'Documentos/Elecciones/Listado Campos/Listado JSON'.");
         });
         exportTask.setOnFailed(e -> {
             setButtonsDisabled(false);
@@ -358,6 +360,7 @@ public class PdfInspectorController {
      *  - Array de objetos: [ {"name":"campo1","type":"tipo1"}, ... ]
      * Devuelve un LinkedHashMap preservando el orden de aparición.
      */
+    @SuppressWarnings("unused")
     private Map<String, String> loadFieldMapFromJson(String jsonFilePath) throws IOException {
         String content = Files.readString(Path.of(jsonFilePath));
         Map<String, String> result = new java.util.LinkedHashMap<>();

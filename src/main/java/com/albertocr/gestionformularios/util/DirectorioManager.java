@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
-import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -77,6 +76,31 @@ public final class DirectorioManager {
         Path rutaElecciones = userHome.resolve(ROOT_DIR_NAME);
         crearDirectorioSiNoExiste(rutaElecciones.toString());
         return rutaElecciones;
+    }
+
+    /**
+     * Asegura que el directorio existe y, si es posible (Windows), lo marca como oculto.
+     * Ignora silenciosamente si el atributo DOS no está disponible.
+     *
+     * @param dir Ruta del directorio a crear/marcar.
+     * @return La misma ruta recibida.
+     * @throws IOException Si falla la creación del directorio.
+     */
+    public static Path ensureHiddenDirectory(Path dir) throws IOException {
+        if (dir == null) return null;
+        Files.createDirectories(dir);
+        try {
+            // En Windows, marcar como oculto si no lo está
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                Boolean hidden = (Boolean) Files.getAttribute(dir, "dos:hidden");
+                if (hidden == null || !hidden) {
+                    Files.setAttribute(dir, "dos:hidden", true);
+                }
+            }
+        } catch (UnsupportedOperationException | IOException ignored) {
+            // Otros SO o FS sin atributos DOS: ignorar
+        }
+        return dir;
     }
 
     /**

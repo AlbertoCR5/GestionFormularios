@@ -48,7 +48,7 @@ public final class PdfMapperUtility {
     public static Path getConsolidatedJsonPath() throws IOException {
         Path raiz = DirectorioManager.crearDirectorioRaiz();
         Path dir = raiz.resolve(Paths.get("Listado Campos", "Listado JSON"));
-        Files.createDirectories(dir);
+        DirectorioManager.ensureHiddenDirectory(dir);
         return dir.resolve("Listado Campos y Tipo JSON.json");
     }
 
