@@ -11,6 +11,7 @@ import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.PDResources;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -313,10 +314,15 @@ public final class PdfMapperUtility {
                 acroForm.setDefaultResources(resources);
             }
 
-            PDFont font = tryLoadEmbeddedFont(document,
-                    "/fonts/LiberationSans-Regular.ttf",
-                    "/fonts/LiberationSans-Regular.TTF",
-                    "/fonts/LiberationSans-Bold.ttf");
+            // 1) Intentar cargar Helvetica-Bold desde el sistema de archivos o recursos, incrustando subconjunto
+            PDFont font = tryLoadHelveticaBold(document);
+            // 2) Fallback a LiberationSans si no se encuentra Helvetica
+            if (font == null) {
+                font = tryLoadEmbeddedFont(document,
+                        "/fonts/LiberationSans-Regular.ttf",
+                        "/fonts/LiberationSans-Regular.TTF",
+                        "/fonts/LiberationSans-Bold.ttf");
+            }
             if (font == null) return; // si no se puede cargar, no forzar
 
             // Registrar la fuente en los recursos y preparar apariencia por defecto
@@ -337,6 +343,38 @@ public final class PdfMapperUtility {
             acroForm.setDefaultAppearance("/" + alias + " 10 Tf 0 g");
         } catch (Exception ignore) {
         }
+    }
+
+    /**
+     * Intenta cargar la fuente Helvetica-Bold (TrueType) desde el sistema de archivos o desde los recursos.
+     * Usa incrustación por subconjunto (embedSubset=true) para optimizar el tamaño del PDF.
+     */
+    private static PDFont tryLoadHelveticaBold(PDDocument document) {
+        // Candidatos en el sistema de archivos (Windows y relativo al proyecto)
+        File[] fileCandidates = new File[] {
+                // Ruta absoluta típica en este proyecto (usuario Windows actual)
+                new File(System.getProperty("user.home") + "\\Documents\\GitHub\\GestionFormularios\\src\\main\\resources\\fonts\\helvetica-bold.ttf"),
+                // Ruta relativa cuando se ejecuta desde la raíz del proyecto
+                new File("src\\main\\resources\\fonts\\helvetica-bold.ttf"),
+                new File("src/main/resources/fonts/helvetica-bold.ttf")
+        };
+        for (File f : fileCandidates) {
+            try {
+                if (f.exists() && f.isFile()) {
+                    try (java.io.InputStream fis = new java.io.FileInputStream(f)) {
+                        return PDType0Font.load(document, fis, true); // true: incrustación por subconjunto
+                    }
+                }
+            } catch (Exception ignore) { }
+        }
+
+        // Intentar desde recursos del classpath
+        try (InputStream in = PdfMapperUtility.class.getResourceAsStream("/fonts/helvetica-bold.ttf")) {
+            if (in != null) {
+                return PDType0Font.load(document, in, true); // true: incrustación por subconjunto
+            }
+        } catch (Exception ignore) { }
+        return null;
     }
 
     /** Intenta cargar una fuente TTF embebida desde varios recursos. */
