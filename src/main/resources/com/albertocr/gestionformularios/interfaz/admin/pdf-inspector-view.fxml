@@ -2,16 +2,16 @@
 
 <!--
     FXML: pdf-inspector-view.fxml
-+  Propósito: Herramienta administrativa para inspeccionar campos dentro de plantillas PDF.
-+
-+  Controlador asociado: com.albertocr.gestionformularios.controller.admin.PdfInspectorController
-+
-+  Notas:
-+  - Usa PDFBox en el backend para leer campos de formularios PDF.
-+  - Fx ids: pdfComboBox, loadingIndicator, fieldsTableView, exportAllButton, exportButton.
-+  - Mantener operaciones de I/O fuera del hilo de la UI; usar Task/Service para lecturas de PDFs.
-+-->
-+
+    Propósito: Herramienta administrativa para inspeccionar campos dentro de plantillas PDF.
+
+    Controlador asociado: com.albertocr.gestionformularios.controller.admin.PdfInspectorController
+
+    Notas:
+    - Usa PDFBox en el backend para leer campos de formularios PDF.
+    - Fx ids: pdfComboBox, loadingIndicator, fieldsTableView, exportAllButton, exportButton.
+    - Mantener operaciones de I/O fuera del hilo de la UI; usar Task/Service para lecturas de PDFs.
+-->
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>

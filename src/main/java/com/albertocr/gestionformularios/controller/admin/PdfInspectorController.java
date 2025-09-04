@@ -91,8 +91,7 @@ public class PdfInspectorController {
                 new PdfInfo("modelo_7_2.pdf", "/Comite/"),
                 new PdfInfo("modelo_7_3_acta_global.pdf", "/Comite/"),
                 new PdfInfo("modelo_7_3_anexo.pdf", "/Comite/"),
-                new PdfInfo("modelo_7_3_proceso.pdf", "/Comite/"),
-                new PdfInfo("modelo_8.pdf", "/Comite/")
+                new PdfInfo("modelo_7_3_proceso.pdf", "/Comite/")
         ).sorted(Comparator.comparing(PdfInfo::name)).toList();
 
         pdfFiles.setAll(allPdfs);
