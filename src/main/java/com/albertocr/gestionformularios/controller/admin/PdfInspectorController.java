@@ -28,6 +28,15 @@ import java.util.Map;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
+import org.apache.pdfbox.pdmodel.interactive.form.PDField;
+import org.apache.pdfbox.pdmodel.interactive.form.PDCheckBox;
+import org.apache.pdfbox.pdmodel.interactive.form.PDRadioButton;
+import org.apache.pdfbox.pdmodel.interactive.form.PDPushButton;
+
 /**
  * Controlador para la ventana del inspector de PDF (pdf-inspector-view.fxml).
  *
@@ -271,47 +280,56 @@ public class PdfInspectorController {
      */
     @FXML
     public void onExportToJsonButtonClick() {
-        PdfInfo selectedPdf = pdfComboBox.getValue();
-        if (selectedPdf == null) {
-            AlertManager.mostrarAlertaAdvertencia("Sin selección", "Seleccione un formulario PDF primero.");
-            return;
-        }
-
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Seleccionar archivo de mapeo JSON");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos JSON", "*.json"));
-        File jsonFile = chooser.showOpenDialog(pdfComboBox.getScene().getWindow());
-        if (jsonFile == null) {
-            return; // cancelado por el usuario
-        }
-
         Task<Void> exportTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                record FieldInfo(String name, String type) {}
+                record FieldInfo(String name, String type, String exportValue) {}
                 record PdfFields(String pdf, List<FieldInfo> fields) {}
 
-                // Cargar mapeo desde JSON (campo -> tipo)
-                Map<String, String> mapping = loadFieldMapFromJson(jsonFile.getAbsolutePath());
-                if (mapping.isEmpty()) {
-                    throw new IOException("El archivo JSON no contiene un mapeo válido.");
+                // Construir el listado para TODOS los PDFs disponibles, leyendo nombre y tipo desde el propio PDF
+                List<PdfFields> all = new java.util.ArrayList<>();
+                for (PdfInfo pdf : pdfFiles) {
+                    String resourcePath = pdf.resourcePath() + pdf.name();
+                    try (java.io.InputStream in = getClass().getResourceAsStream(resourcePath)) {
+                        if (in == null) continue;
+                        try (PDDocument doc = Loader.loadPDF(in.readAllBytes())) {
+                            PDAcroForm acro = doc.getDocumentCatalog().getAcroForm();
+                            if (acro == null) continue;
+                            List<FieldInfo> fields = new java.util.ArrayList<>();
+                            for (PDField f : acro.getFields()) {
+                                String name = f.getFullyQualifiedName();
+                                String type = f.getCOSObject().getNameAsString(COSName.FT);
+                                if (type == null) type = "";
+                                String exportVal = "";
+                                // Si es botón (checkbox, radio, push), intentar extraer valor de exportación
+                                if (f instanceof PDCheckBox cb) {
+                                    try { exportVal = cb.getOnValue(); } catch (Exception ignore) { }
+                                } else if (f instanceof PDRadioButton rb) {
+                                    try {
+                                        java.util.List<String> vals = rb.getExportValues();
+                                        if (vals != null && !vals.isEmpty()) exportVal = String.join(",", vals);
+                                    } catch (Exception ignore) { }
+                                } else if (f instanceof PDPushButton) {
+                                    exportVal = ""; // sin valor de exportación útil
+                                }
+                                fields.add(new FieldInfo(name, type, exportVal));
+                            }
+                            all.add(new PdfFields(pdf.name(), fields));
+                        }
+                    }
                 }
 
-                // Construir lista de FieldInfo a partir del mapeo
-                List<FieldInfo> info = new java.util.ArrayList<>();
-                for (Map.Entry<String, String> e : mapping.entrySet()) {
-                    info.add(new FieldInfo(e.getKey(), e.getValue()));
-                }
-
-                List<PdfFields> all = java.util.List.of(new PdfFields(selectedPdf.name(), info));
+                // Serializar a JSON consolidado
                 String json = buildJson(all);
 
-                Path targetDir = Paths.get(System.getProperty("user.home"), "Documents", "Elecciones", "Listado Campos");
-                Files.createDirectories(targetDir);
-                String baseName = DirectorioManager.sanitizarNombre(selectedPdf.name().replace(".pdf", ""));
-                Path out = targetDir.resolve("campos_" + baseName + "_desde_mapeo.json");
+                // Guardar en la ruta solicitada: Documents/Elecciones/Listado Campos/Listado JSON
+                Path baseDocs = Paths.get(System.getProperty("user.home"), "Documents");
+                Path outDir = baseDocs.resolve("Elecciones").resolve("Listado Campos").resolve("Listado JSON");
+                Files.createDirectories(outDir);
+                Path out = outDir.resolve("Listado Campos y Tipo JSON.json");
                 Files.writeString(out, json);
-                logger.info("JSON exportado a: {}", out.toAbsolutePath());
+
+                logger.info("JSON consolidado exportado en: {}", out.toAbsolutePath());
                 return null;
             }
         };
@@ -319,7 +337,7 @@ public class PdfInspectorController {
         exportTask.setOnRunning(e -> setButtonsDisabled(true));
         exportTask.setOnSucceeded(e -> {
             setButtonsDisabled(false);
-            AlertManager.mostrarAlertaInformacion("Exportación a JSON", "El archivo JSON se ha generado correctamente en Documentos/Elecciones/Listado Campos.");
+            AlertManager.mostrarAlertaInformacion("Exportación a JSON", "Se ha generado el JSON consolidado en Documentos/Elecciones/Listado Campos/Listado JSON.");
         });
         exportTask.setOnFailed(e -> {
             setButtonsDisabled(false);
@@ -419,11 +437,24 @@ public class PdfInspectorController {
                 sb.append(indent).append(indent).append("\"fields\": [\n");
                 for (int j = 0; j < fields.size(); j++) {
                     Object f = fields.get(j);
-                    String name = (String) f.getClass().getRecordComponents()[0].getAccessor().invoke(f);
-                    String type = (String) f.getClass().getRecordComponents()[1].getAccessor().invoke(f);
+                    // Acceso por nombre de componente para soportar exportValue opcional
+                    var comps = f.getClass().getRecordComponents();
+                    String name = null, type = null, exportValue = null;
+                    for (var c : comps) {
+                        Object val = c.getAccessor().invoke(f);
+                        switch (c.getName()) {
+                            case "name" -> name = (String) val;
+                            case "type" -> type = (String) val;
+                            case "exportValue" -> exportValue = (String) val;
+                        }
+                    }
                     sb.append(indent).append(indent).append(indent).append("{")
-                      .append("\"name\": \"").append(jsonEscape(name)).append("\", ")
-                      .append("\"type\": \"").append(jsonEscape(type)).append("\"}");
+                      .append("\"name\": \"").append(jsonEscape(name != null ? name : "")).append("\", ")
+                      .append("\"type\": \"").append(jsonEscape(type != null ? type : "")).append("\"");
+                    if (exportValue != null && !exportValue.isBlank()) {
+                        sb.append(", \"exportValue\": \"").append(jsonEscape(exportValue)).append("\"");
+                    }
+                    sb.append("}");
                     if (j < fields.size() - 1) sb.append(",");
                     sb.append("\n");
                 }
