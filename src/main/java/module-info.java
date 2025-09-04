@@ -31,4 +31,5 @@ module com.albertocr.gestionformularios {
     opens com.albertocr.gestionformularios.model to javafx.base;
     opens com.albertocr.gestionformularios.interfaz to javafx.fxml;
     opens com.albertocr.gestionformularios.interfaz.escrutinio to javafx.fxml;
+    exports com.albertocr.gestionformularios.util;
 }
