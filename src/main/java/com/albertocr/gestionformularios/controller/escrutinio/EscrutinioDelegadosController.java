@@ -6,8 +6,9 @@ import com.albertocr.gestionformularios.service.EscrutinioService;
 import com.albertocr.gestionformularios.service.dto.ActaDelegadosData;
 import com.albertocr.gestionformularios.util.AlertManager;
 import com.albertocr.gestionformularios.util.DirectorioManager;
-import com.albertocr.gestionformularios.util.PdfMapperUtility;
-import com.albertocr.gestionformularios.util.PdfMapperUtility.Mapping;
+import com.albertocr.gestionformularios.util.PdfFillUtility;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -200,27 +201,37 @@ public class EscrutinioDelegadosController {
         }
 
         try {
-            // 1) Cargar o generar mapeo consolidado
-            List<Mapping> mappings = PdfMapperUtility.loadOrGenerateMappings();
-            if (mappings == null || mappings.isEmpty()) {
-                AlertManager.mostrarAlertaError(getBundle().getString("error.titulo"), getBundle().getString("error.mapeo.json.invalido"));
-                return;
-            }
-
-            // 2) Seleccionar modelo por defecto para Delegados
-            Mapping target = PdfMapperUtility.selectDelegadosMapping(mappings);
-            if (target == null || target.pdfName() == null || target.pdfName().isBlank()) {
-                AlertManager.mostrarAlertaError(getBundle().getString("error.titulo"), getBundle().getString("error.mapeo.json.invalido"));
-                return;
-            }
-
-            // 3) Crear carpeta de empresa y asegurar plantilla
+            // 1) Crear carpeta de empresa
             Path raiz = DirectorioManager.crearDirectorioRaiz();
             String nombreEmpresa = valorOPlaceholder(initialActaData.nombreEmpresa(), "Empresa");
             Path carpetaEmpresa = DirectorioManager.crearDirectorioEmpresa(raiz, nombreEmpresa);
-            Path destinoPdf = carpetaEmpresa.resolve(target.pdfName());
-            // 4) Copiar plantilla y rellenar de forma atómica con fuente incrustada por defecto
-            PdfMapperUtility.copyAndFillFromTemplate("/Delegados/" + target.pdfName(), destinoPdf, target, this::valorParaCampo);
+
+            // 2) Plantilla por defecto para Delegados
+            String templateName = "modelo_5_1.pdf";
+            Path destinoPdf = carpetaEmpresa.resolve(templateName);
+
+            // 3) Cargar plantilla, construir datos y rellenar usando mapeo JSON por plantilla
+            try (java.io.InputStream in = EscrutinioDelegadosController.class.getResourceAsStream("/Delegados/" + templateName)) {
+                if (in == null) throw new RuntimeException("Plantilla no encontrada: " + templateName);
+                Path temp = java.nio.file.Files.createTempFile(destinoPdf.getParent(), templateName + ".", ".tmp");
+                try (PDDocument document = Loader.loadPDF(in.readAllBytes())) {
+                    java.util.Map<String, Object> data = new java.util.HashMap<>();
+                    var acro = document.getDocumentCatalog().getAcroForm();
+                    if (acro != null) {
+                        for (var f : acro.getFields()) {
+                            String v = valorParaCampo(f.getFullyQualifiedName());
+                            if (v != null) data.put(f.getFullyQualifiedName(), v);
+                        }
+                    }
+                    PdfFillUtility.fillPdf(document, templateName, data);
+                    acro = document.getDocumentCatalog().getAcroForm();
+                    if (acro != null) { try { acro.refreshAppearances(); } catch (Exception ignore) { } }
+                    document.save(temp.toFile());
+                }
+                try { java.nio.file.Files.deleteIfExists(destinoPdf); } catch (Exception ignore) { }
+                java.nio.file.Files.move(temp, destinoPdf);
+            }
+
             AlertManager.mostrarAlertaInformacion(
                     getBundle().getString("info.title"),
                     getBundle().getString("info.pdf.guardado").replace("{0}", destinoPdf.toAbsolutePath().toString())

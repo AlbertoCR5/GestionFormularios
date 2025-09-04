@@ -26,8 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import com.albertocr.gestionformularios.util.PdfMapperUtility;
-import com.albertocr.gestionformularios.util.PdfMapperUtility.Mapping;
+import com.albertocr.gestionformularios.util.PdfFillUtility;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
 
 /**
  * Controlador para la ventana de escrutinio de comités (escrutinio-comite-view.fxml).
@@ -350,16 +351,8 @@ public class EscrutinioComiteController {
         if (!validarSeccionesDvsE()) return; // coherencia entre secciones D y E
 
         try {
-            // 2) Cargar o generar el JSON consolidado centralizado con PdfMapperUtility
+            // 2) Preparar carpeta de empresa dentro de Documentos/Elecciones
             Path raiz = DirectorioManager.crearDirectorioRaiz();
-            List<Mapping> mappings = PdfMapperUtility.loadOrGenerateMappings();
-            if (mappings == null || mappings.isEmpty()) {
-                AlertManager.mostrarAlertaError(getBundle().getString("error.titulo"),
-                        getBundle().getString("error.mapeo.json.invalido"));
-                return;
-            }
-
-        // 3) Preparar carpeta de empresa dentro de Documentos/Elecciones
             String nombreEmpresa = valorOPlaceholder(initialActaData.nombreEmpresa(), "Empresa");
             Path carpetaEmpresa = DirectorioManager.crearDirectorioEmpresa(raiz, nombreEmpresa);
 
@@ -371,18 +364,36 @@ public class EscrutinioComiteController {
         );
 
         for (String docBase : docs) {
-        // Mapear a nombre de plantilla PDF esperado en recursos
-        String templateName = docBase + ".pdf";
-        // Buscar el mapeo adecuado de entre los cargados
-        Mapping perDoc = mappings.stream()
-            .filter(m -> m.pdfName().equalsIgnoreCase(templateName))
-            .findFirst()
-            .orElse(null);
-        if (perDoc == null) continue; // si no hay mapeo, pasar al siguiente
+            // Nombre de plantilla y ruta destino
+            String templateName = docBase + ".pdf";
+            Path destino = carpetaEmpresa.resolve(templateName);
 
-        Path destino = carpetaEmpresa.resolve(perDoc.pdfName());
-        // Cargar plantilla de recursos, rellenar campos, refrescar apariencias y guardar de forma segura
-        PdfMapperUtility.generateFromTemplateWithRefresh("/Comite/" + perDoc.pdfName(), destino, perDoc, this::valorParaCampo);
+            // Cargar la plantilla desde recursos y rellenar usando mapeo JSON por plantilla
+            try (java.io.InputStream in = EscrutinioComiteController.class.getResourceAsStream("/Comite/" + templateName)) {
+                if (in == null) continue;
+                // Guardado atómico: trabajar en archivo temporal
+                Path parent = destino.getParent();
+                Path temp = java.nio.file.Files.createTempFile(parent, templateName + ".", ".tmp");
+                try (PDDocument document = Loader.loadPDF(in.readAllBytes())) {
+                    // Construir datos a partir de los nombres de campos disponibles en la plantilla
+                    java.util.Map<String, Object> data = new java.util.HashMap<>();
+                    var acro = document.getDocumentCatalog().getAcroForm();
+                    if (acro != null) {
+                        for (var f : acro.getFields()) {
+                            String v = valorParaCampo(f.getFullyQualifiedName());
+                            if (v != null) data.put(f.getFullyQualifiedName(), v);
+                        }
+                    }
+                    // Usar utilidad de llenado basada en JSON por plantilla
+                    PdfFillUtility.fillPdf(document, templateName, data);
+                    // Refrescar apariencias para mantener campos sin aplanar
+                    acro = document.getDocumentCatalog().getAcroForm();
+                    if (acro != null) { try { acro.refreshAppearances(); } catch (Exception ignore) { } }
+                    document.save(temp.toFile());
+                }
+                try { java.nio.file.Files.deleteIfExists(destino); } catch (Exception ignore) { }
+                java.nio.file.Files.move(temp, destino);
+            }
         }
 
         AlertManager.mostrarAlertaInformacion(
