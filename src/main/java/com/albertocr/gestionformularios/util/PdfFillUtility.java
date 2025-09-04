@@ -1,7 +1,9 @@
 package com.albertocr.gestionformularios.util;
 import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDResources;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
@@ -9,6 +11,7 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDCheckBox;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDRadioButton;
 import org.apache.pdfbox.pdmodel.interactive.form.PDVariableText;
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationWidget;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,6 +69,13 @@ public final class PdfFillUtility {
             if (value == null) continue;
             String type = fm.type() == null ? "" : fm.type();
             try {
+                // Asegurar que los campos de texto utilicen la fuente embebida
+                if (field instanceof PDVariableText vt) {
+                    String da = acroForm.getDefaultAppearance();
+                    if (da != null && !da.isBlank()) {
+                        try { vt.setDefaultAppearance(da); } catch (Exception ignore) { }
+                    }
+                }
                 if ("Btn".equalsIgnoreCase(type)) {
                     applyButtonValue(field, fm, value);
                 } else {
@@ -205,7 +215,40 @@ public final class PdfFillUtility {
                 if (field instanceof PDVariableText vt) {
                     try { vt.setDefaultAppearance("/" + name + " 10 Tf 0 g"); } catch (Exception ignore) { }
                 }
+                try {
+                    List<PDAnnotationWidget> widgets = field.getWidgets();
+                    if (widgets != null) {
+                        for (PDAnnotationWidget w : widgets) {
+                            if (w != null && w.getAppearanceCharacteristics() == null) {
+                                // No appearance settings to patch here, but ensure the form resources include the font
+                                // so regenerated appearances use the embedded font via AcroForm resources.
+                                w.getCOSObject(); // touch to ensure serialization
+                            }
+                        }
+                    }
+                } catch (Exception ignore) { }
             }
+
+            // Truco: mapear alias 'Helvetica-Bold' al font embebido en recursos del formulario y de cada página
+            ensureFontAlias(resources, "Helvetica-Bold", font);
+            for (PDPage page : document.getPages()) {
+                PDResources pr = page.getResources();
+                if (pr == null) { pr = new PDResources(); page.setResources(pr); }
+                ensureFontAlias(pr, "Helvetica-Bold", font);
+            }
+        } catch (Exception ignore) { }
+    }
+
+    private static void ensureFontAlias(PDResources resources, String alias, PDFont font) {
+        try {
+            if (resources == null || font == null || alias == null || alias.isBlank()) return;
+            COSDictionary resDict = resources.getCOSObject();
+            COSDictionary fontDict = (COSDictionary) resDict.getDictionaryObject(COSName.FONT);
+            if (fontDict == null) {
+                fontDict = new COSDictionary();
+                resDict.setItem(COSName.FONT, fontDict);
+            }
+            fontDict.setItem(COSName.getPDFName(alias), font.getCOSObject());
         } catch (Exception ignore) { }
     }
 

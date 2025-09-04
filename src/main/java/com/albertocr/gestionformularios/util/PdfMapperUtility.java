@@ -285,7 +285,7 @@ public final class PdfMapperUtility {
                         // Continuar con el siguiente campo
                     }
                 }
-                try { acroForm.flatten(); } catch (Exception ignore) { }
+                try { acroForm.refreshAppearances(); } catch (Exception ignore) { }
                 document.save(tempCopy.toFile());
             }
             success = true;
