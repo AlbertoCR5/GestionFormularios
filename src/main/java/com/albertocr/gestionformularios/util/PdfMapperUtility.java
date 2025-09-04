@@ -7,6 +7,9 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDCheckBox;
 import org.apache.pdfbox.pdmodel.interactive.form.PDRadioButton;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.PDResources;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -246,32 +249,106 @@ public final class PdfMapperUtility {
         Objects.requireNonNull(pdfPath, "pdfPath");
         Objects.requireNonNull(mapping, "mapping");
         Objects.requireNonNull(valueProvider, "valueProvider");
-        try (PDDocument document = Loader.loadPDF(Files.readAllBytes(pdfPath))) {
+
+        // Operación atómica: trabajar sobre una copia temporal y reemplazar al final
+        Path parent = pdfPath.getParent();
+        if (parent == null) parent = Paths.get(".");
+        Path tempCopy = Files.createTempFile(parent, pdfPath.getFileName().toString() + ".", ".tmp");
+        Files.copy(pdfPath, tempCopy, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+        boolean success = false;
+        try (PDDocument document = Loader.loadPDF(Files.readAllBytes(tempCopy))) {
             PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
             if (acroForm == null) {
-                document.save(pdfPath.toFile());
-                return;
-            }
-            for (FieldInfo fi : mapping.fields()) {
-                PDField field = acroForm.getField(fi.name());
-                if (field == null) continue;
-                String desired = safe(valueProvider.apply(fi.name()));
-                if (desired == null) continue;
+                document.save(tempCopy.toFile());
+            } else {
+                // Asegurar fuente incrustada por defecto
+                ensureDefaultAcroFormFont(document, acroForm);
+                acroForm.setNeedAppearances(true);
 
-                String type = fi.type() == null ? "" : fi.type();
-                try {
-                    if ("Btn".equalsIgnoreCase(type)) {
-                        applyButtonValue(field, fi, desired);
-                    } else {
-                        field.setValue(desired);
+                for (FieldInfo fi : mapping.fields()) {
+                    PDField field = acroForm.getField(fi.name());
+                    if (field == null) continue;
+                    String desired = safe(valueProvider.apply(fi.name()));
+                    if (desired == null) continue;
+
+                    String type = fi.type() == null ? "" : fi.type();
+                    try {
+                        if ("Btn".equalsIgnoreCase(type)) {
+                            applyButtonValue(field, fi, desired);
+                        } else {
+                            field.setValue(desired);
+                        }
+                    } catch (Exception e) {
+                        // Continuar con el siguiente campo
                     }
-                } catch (Exception e) {
-                    // No romper el proceso por un campo rebelde; continuar
                 }
+                try { acroForm.flatten(); } catch (Exception ignore) { }
+                document.save(tempCopy.toFile());
             }
-            try { acroForm.flatten(); } catch (Exception ignore) { }
-            document.save(pdfPath.toFile());
+            success = true;
+        } finally {
+            if (success) {
+                // Reemplazo atómico cuando sea posible
+                try {
+                    Files.move(tempCopy, pdfPath,
+                            java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                            java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+                } catch (IOException ex) {
+                    // Si ATOMIC_MOVE no está soportado, intentar un move normal
+                    Files.move(tempCopy, pdfPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                }
+            } else {
+                try { Files.deleteIfExists(tempCopy); } catch (IOException ignore) { }
+            }
         }
+    }
+
+    /** Inserta y configura una fuente incrustada por defecto para el AcroForm. */
+    private static void ensureDefaultAcroFormFont(PDDocument document, PDAcroForm acroForm) {
+        try {
+            PDResources resources = acroForm.getDefaultResources();
+            if (resources == null) {
+                resources = new PDResources();
+                acroForm.setDefaultResources(resources);
+            }
+
+            PDFont font = tryLoadEmbeddedFont(document,
+                    "/fonts/LiberationSans-Regular.ttf",
+                    "/fonts/LiberationSans-Regular.TTF",
+                    "/fonts/LiberationSans-Bold.ttf");
+            if (font == null) return; // si no se puede cargar, no forzar
+
+            // Registrar la fuente en los recursos y preparar apariencia por defecto
+            COSName fontName;
+            try {
+                // PDFBox 3: PDResources#add(PDFont) devuelve nombre
+                fontName = resources.add(font);
+            } catch (Throwable t) {
+                // Fallback: usar un alias estándar
+                fontName = COSName.getPDFName("F0");
+                try {
+                    // Intento de asociación manual, puede no ser necesario según la versión
+                    resources.getCOSObject();
+                } catch (Throwable ignore) { }
+            }
+            String alias = fontName != null ? fontName.getName() : "F0";
+            // DA: seleccionar fuente y tamaño 10, color negro
+            acroForm.setDefaultAppearance("/" + alias + " 10 Tf 0 g");
+        } catch (Exception ignore) {
+        }
+    }
+
+    /** Intenta cargar una fuente TTF embebida desde varios recursos. */
+    private static PDFont tryLoadEmbeddedFont(PDDocument document, String... resourcePaths) {
+        for (String path : resourcePaths) {
+            try (InputStream in = PdfMapperUtility.class.getResourceAsStream(path)) {
+                if (in == null) continue;
+                return PDType0Font.load(document, in, true);
+            } catch (Exception ignore) {
+            }
+        }
+        return null;
     }
 
     private static void applyButtonValue(PDField field, FieldInfo fi, String desired) throws IOException {
@@ -297,4 +374,73 @@ public final class PdfMapperUtility {
     }
 
     private static String safe(String s) { return (s == null) ? null : s; }
+
+    /**
+     * Variante utilitaria: copiar una plantilla desde classpath a destino y rellenarla de forma atómica.
+     */
+    public static void copyAndFillFromTemplate(String templateResource, Path outputPath, Mapping mapping, Function<String, String> valueProvider) throws IOException {
+        Objects.requireNonNull(templateResource, "templateResource");
+        Objects.requireNonNull(outputPath, "outputPath");
+        Objects.requireNonNull(mapping, "mapping");
+        Objects.requireNonNull(valueProvider, "valueProvider");
+        Files.createDirectories(outputPath.getParent());
+
+        // Copia inicial a archivo destino (si no existe) para luego operar atómicamente con el método principal
+        if (Files.notExists(outputPath)) {
+            try (InputStream in = PdfMapperUtility.class.getResourceAsStream(templateResource)) {
+                if (in == null) throw new IOException("No se encuentra la plantilla: " + templateResource);
+                Files.write(outputPath, in.readAllBytes());
+            }
+        }
+        // Rellenar sobre una copia temporal y reemplazar
+        fillPdfUsingMapping(outputPath, mapping, valueProvider);
+    }
+
+    /**
+     * Genera un PDF a partir de una plantilla en classpath, rellenando campos y refrescando apariencias
+     * (sin aplanar), guardando en un archivo temporal y reemplazando el destino al finalizar.
+     */
+    public static void generateFromTemplateWithRefresh(String templateResource, Path outputPath, Mapping mapping, Function<String, String> valueProvider) throws IOException {
+        Objects.requireNonNull(templateResource, "templateResource");
+        Objects.requireNonNull(outputPath, "outputPath");
+        Objects.requireNonNull(mapping, "mapping");
+        Objects.requireNonNull(valueProvider, "valueProvider");
+        Files.createDirectories(outputPath.getParent());
+
+        Path parent = outputPath.getParent();
+        Path tempFile = Files.createTempFile(parent, outputPath.getFileName().toString() + ".", ".tmp");
+
+        try (InputStream in = PdfMapperUtility.class.getResourceAsStream(templateResource)) {
+            if (in == null) throw new IOException("No se encuentra la plantilla: " + templateResource);
+            try (PDDocument document = Loader.loadPDF(in.readAllBytes())) {
+                PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
+                if (acroForm != null) {
+                    ensureDefaultAcroFormFont(document, acroForm);
+                    acroForm.setNeedAppearances(true);
+                }
+                if (acroForm != null) {
+                    for (FieldInfo fi : mapping.fields()) {
+                        PDField field = acroForm.getField(fi.name());
+                        if (field == null) continue;
+                        String desired = safe(valueProvider.apply(fi.name()));
+                        if (desired == null) continue;
+                        String type = fi.type() == null ? "" : fi.type();
+                        try {
+                            if ("Btn".equalsIgnoreCase(type)) {
+                                applyButtonValue(field, fi, desired);
+                            } else {
+                                field.setValue(desired);
+                            }
+                        } catch (Exception ignore) { }
+                    }
+                    try { acroForm.refreshAppearances(); } catch (Exception ignore) { }
+                }
+                document.save(tempFile.toFile());
+            }
+        }
+
+        // Reemplazo: eliminar original (si existe) y renombrar temporal
+        try { Files.deleteIfExists(outputPath); } catch (IOException ignore) { }
+        Files.move(tempFile, outputPath);
+    }
 }

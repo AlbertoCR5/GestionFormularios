@@ -6,6 +6,7 @@ import com.albertocr.gestionformularios.model.Candidato;
 import com.albertocr.gestionformularios.service.EscrutinioService;
 import com.albertocr.gestionformularios.service.dto.ActaComiteData;
 import com.albertocr.gestionformularios.util.AlertManager;
+import com.albertocr.gestionformularios.util.Constantes;
 import com.albertocr.gestionformularios.util.DirectorioManager;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -20,14 +21,10 @@ import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 import com.albertocr.gestionformularios.util.PdfMapperUtility;
 import com.albertocr.gestionformularios.util.PdfMapperUtility.Mapping;
@@ -362,32 +359,36 @@ public class EscrutinioComiteController {
                 return;
             }
 
-            // 3) Seleccionar el PDF objetivo según el contexto (tipo de colegio) o fallback
-            Mapping target = PdfMapperUtility.selectComiteMapping(mappings, initialActaData.tipoColegio());
-            if (target == null || target.pdfName() == null || target.pdfName().isBlank()) {
-                AlertManager.mostrarAlertaError(getBundle().getString("error.titulo"),
-                        getBundle().getString("error.mapeo.json.invalido"));
-                return;
-            }
-
-            // 4) Preparar carpeta de empresa dentro de Documentos/Elecciones
+        // 3) Preparar carpeta de empresa dentro de Documentos/Elecciones
             String nombreEmpresa = valorOPlaceholder(initialActaData.nombreEmpresa(), "Empresa");
             Path carpetaEmpresa = DirectorioManager.crearDirectorioEmpresa(raiz, nombreEmpresa);
 
-            // 5) Asegurar que el PDF objetivo existe; si no, copiar desde recursos /Comite/
-            Path destinoPdf = carpetaEmpresa.resolve(target.pdfName());
-            if (Files.notExists(destinoPdf)) {
-                copiarRecursoPDFA(destinoPdf, "/Comite/" + target.pdfName());
-                logger.info("Plantilla copiada a {}", destinoPdf);
-            }
+        // 4) Iterar sobre la documentación necesaria según tipo de colegio
+        java.util.List<String> docs = Constantes.getDocumentacionComite(
+            "Colegio Único".equalsIgnoreCase(initialActaData.tipoColegio())
+                ? com.albertocr.gestionformularios.model.TipoColegioElectoral.UNICO
+                : com.albertocr.gestionformularios.model.TipoColegioElectoral.DOS_COLEGIOS
+        );
 
-            // 6) Rellenar campos con valores del formulario/acta usando el mapeo
-            PdfMapperUtility.fillPdfUsingMapping(destinoPdf, target, this::valorParaCampo);
+        for (String docBase : docs) {
+        // Mapear a nombre de plantilla PDF esperado en recursos
+        String templateName = docBase + ".pdf";
+        // Buscar el mapeo adecuado de entre los cargados
+        Mapping perDoc = mappings.stream()
+            .filter(m -> m.pdfName().equalsIgnoreCase(templateName))
+            .findFirst()
+            .orElse(null);
+        if (perDoc == null) continue; // si no hay mapeo, pasar al siguiente
 
-            AlertManager.mostrarAlertaInformacion(
-                    getBundle().getString("info.title"),
-                    getBundle().getString("info.pdf.guardado").replace("{0}", destinoPdf.toAbsolutePath().toString())
-            );
+        Path destino = carpetaEmpresa.resolve(perDoc.pdfName());
+        // Cargar plantilla de recursos, rellenar campos, refrescar apariencias y guardar de forma segura
+        PdfMapperUtility.generateFromTemplateWithRefresh("/Comite/" + perDoc.pdfName(), destino, perDoc, this::valorParaCampo);
+        }
+
+        AlertManager.mostrarAlertaInformacion(
+            getBundle().getString("info.title"),
+            getBundle().getString("info.pdf.guardado").replace("{0}", carpetaEmpresa.toAbsolutePath().toString())
+        );
         } catch (Exception ex) {
             logger.error("Error al generar/guardar el PDF de comité", ex);
             AlertManager.mostrarAlertaError(getBundle().getString("error.titulo"),
@@ -467,22 +468,7 @@ public class EscrutinioComiteController {
     // Utilidades de guardado
     // =====================
 
-    /**
-     * Copia una plantilla PDF desde el classpath a la ruta de destino indicada.
-     * Si no se encuentra el recurso, lanza IOException.
-     */
-    private void copiarRecursoPDFA(Path destino, String recursoClasspath) throws IOException {
-        Objects.requireNonNull(destino);
-        Objects.requireNonNull(recursoClasspath);
-        Files.createDirectories(destino.getParent());
-        try (InputStream in = getClass().getResourceAsStream(recursoClasspath)) {
-            if (in == null) {
-                throw new IOException("No se encuentra la plantilla en recursos: " + recursoClasspath);
-            }
-            byte[] bytes = in.readAllBytes();
-            Files.write(destino, bytes);
-        }
-    }
+    // copiarRecursoPDFA ya no es necesario; PdfMapperUtility.copyAndFillFromTemplate realiza la copia y el guardado atómico
 
     /**
      * Obtiene el valor adecuado para un nombre de campo PDF conocido.

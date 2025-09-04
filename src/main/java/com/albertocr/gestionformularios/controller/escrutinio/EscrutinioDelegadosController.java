@@ -17,15 +17,11 @@ import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -223,12 +219,8 @@ public class EscrutinioDelegadosController {
             String nombreEmpresa = valorOPlaceholder(initialActaData.nombreEmpresa(), "Empresa");
             Path carpetaEmpresa = DirectorioManager.crearDirectorioEmpresa(raiz, nombreEmpresa);
             Path destinoPdf = carpetaEmpresa.resolve(target.pdfName());
-            if (Files.notExists(destinoPdf)) {
-                copiarRecursoPDFA(destinoPdf, "/Delegados/" + target.pdfName());
-            }
-
-            // 4) Rellenar y guardar
-            PdfMapperUtility.fillPdfUsingMapping(destinoPdf, target, this::valorParaCampo);
+            // 4) Copiar plantilla y rellenar de forma atómica con fuente incrustada por defecto
+            PdfMapperUtility.copyAndFillFromTemplate("/Delegados/" + target.pdfName(), destinoPdf, target, this::valorParaCampo);
             AlertManager.mostrarAlertaInformacion(
                     getBundle().getString("info.title"),
                     getBundle().getString("info.pdf.guardado").replace("{0}", destinoPdf.toAbsolutePath().toString())
@@ -275,16 +267,7 @@ public class EscrutinioDelegadosController {
 
     private ResourceBundle getBundle() { return ResourceBundle.getBundle("messages_es"); }
 
-    private void copiarRecursoPDFA(Path destino, String recursoClasspath) throws IOException {
-        Objects.requireNonNull(destino);
-        Objects.requireNonNull(recursoClasspath);
-        Files.createDirectories(destino.getParent());
-        try (InputStream in = getClass().getResourceAsStream(recursoClasspath)) {
-            if (in == null) throw new IOException("No se encuentra la plantilla en recursos: " + recursoClasspath);
-            byte[] bytes = in.readAllBytes();
-            Files.write(destino, bytes);
-        }
-    }
+    // Copia/guardado atómico manejado por PdfMapperUtility.copyAndFillFromTemplate
 
     /**
      * Proveedor de valores heurístico para campos típicos del modelo de Delegados (5_1, 5_2...).
